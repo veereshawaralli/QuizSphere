@@ -127,45 +127,46 @@ export default function Login() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Only show name field during signup */}
+              {/* Only show signup fields */}
               {isSignUp && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    placeholder="e.g. Rahul Sharma"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {/* Faculty toggle */}
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="faculty"
-                    checked={isFaculty}
-                    onCheckedChange={(checked) => setIsFaculty(checked === true)}
-                  />
-                  <Label htmlFor="faculty" className="text-sm flex items-center gap-1 cursor-pointer">
-                    <ShieldCheck className="h-4 w-4" />
-                    I am a faculty member
-                  </Label>
-                </div>
-
-                {isFaculty && (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="facultyCode">Faculty Secret Code</Label>
+                    <Label htmlFor="fullName">Full Name</Label>
                     <Input
-                      id="facultyCode"
-                      type="password"
-                      placeholder="Enter faculty code"
-                      value={facultyCode}
-                      onChange={(e) => setFacultyCode(e.target.value)}
-                      required={isFaculty}
+                      id="fullName"
+                      placeholder="e.g. Rahul Sharma"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
                     />
                   </div>
-                )}
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="faculty"
+                      checked={isFaculty}
+                      onCheckedChange={(checked) => setIsFaculty(checked === true)}
+                    />
+                    <Label htmlFor="faculty" className="text-sm flex items-center gap-1 cursor-pointer">
+                      <ShieldCheck className="h-4 w-4" />
+                      I am a faculty member
+                    </Label>
+                  </div>
+
+                  {isFaculty && (
+                    <div className="space-y-2">
+                      <Label htmlFor="facultyCode">Faculty Secret Code</Label>
+                      <Input
+                        id="facultyCode"
+                        type="password"
+                        placeholder="Enter faculty code"
+                        value={facultyCode}
+                        onChange={(e) => setFacultyCode(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="space-y-2">
