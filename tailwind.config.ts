@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['Merriweather', 'Georgia', 'serif'],
-        body: ['Source Sans 3', 'Segoe UI', 'sans-serif'],
+        heading: ['DM Serif Display', 'Georgia', 'serif'],
+        body: ['Space Grotesk', 'Segoe UI', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
