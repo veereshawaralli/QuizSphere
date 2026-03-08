@@ -1,10 +1,20 @@
 // Site header with university branding
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { LogOut } from 'lucide-react';
 import universityLogo from '@/assets/university-logo.png';
 
 export default function Header() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <header className="border-b border-white/10 bg-primary">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
@@ -21,11 +31,18 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-4">
-          <Link to="/login">
-            <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg">
-              Sign In
+          {user ? (
+            <Button size="sm" variant="outline" onClick={handleSignOut} className="border-white/30 bg-white/10 text-primary-foreground hover:bg-white/20 gap-2 rounded-lg">
+              <LogOut className="h-4 w-4" />
+              Sign Out
             </Button>
-          </Link>
+          ) : (
+            <Link to="/login">
+              <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg">
+                Sign In
+              </Button>
+            </Link>
+          )}
         </nav>
       </div>
     </header>
