@@ -1,5 +1,6 @@
 // Login page for CSD Quiz Portal
 // Handles both sign in and sign up with email/password
+// Faculty can sign up with a secret code
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -12,14 +13,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, ShieldCheck } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function Login() {
   const { user, loading: authLoading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isFaculty, setIsFaculty] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [facultyCode, setFacultyCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -40,7 +44,7 @@ export default function Login() {
     try {
       if (isSignUp) {
         // Sign up new user
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -50,6 +54,27 @@ export default function Login() {
         });
 
         if (error) throw error;
+
+        // If faculty code provided, assign faculty role after signup
+        if (isFaculty && facultyCode && signUpData.session) {
+          const { data: fnData, error: fnError } = await supabase.functions.invoke('assign-faculty-role', {
+            body: { secret_code: facultyCode },
+          });
+
+          if (fnError || fnData?.error) {
+            toast({
+              title: 'Warning',
+              description: fnData?.error || 'Could not verify faculty code. You were registered as a student.',
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Faculty account created!',
+              description: 'Check your email to verify your account.',
+            });
+            return;
+          }
+        }
 
         toast({
           title: 'Account created!',
@@ -102,18 +127,46 @@ export default function Login() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Only show name field during signup */}
+              {/* Only show signup fields */}
               {isSignUp && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    placeholder="e.g. Rahul Sharma"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      placeholder="e.g. Rahul Sharma"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="faculty"
+                      checked={isFaculty}
+                      onCheckedChange={(checked) => setIsFaculty(checked === true)}
+                    />
+                    <Label htmlFor="faculty" className="text-sm flex items-center gap-1 cursor-pointer">
+                      <ShieldCheck className="h-4 w-4" />
+                      I am a faculty member
+                    </Label>
+                  </div>
+
+                  {isFaculty && (
+                    <div className="space-y-2">
+                      <Label htmlFor="facultyCode">Faculty Secret Code</Label>
+                      <Input
+                        id="facultyCode"
+                        type="password"
+                        placeholder="Enter faculty code"
+                        value={facultyCode}
+                        onChange={(e) => setFacultyCode(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="space-y-2">
