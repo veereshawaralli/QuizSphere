@@ -76,6 +76,7 @@ export default function Dashboard() {
                 </p>
               </CardContent>
             </Card>
+            </Link>
 
             <Card className="cursor-pointer transition-shadow hover:shadow-md">
               <CardHeader>
