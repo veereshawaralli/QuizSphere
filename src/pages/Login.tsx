@@ -1,5 +1,6 @@
 // Login page for CSD Quiz Portal
 // Handles both sign in and sign up with email/password
+// Faculty can sign up with a secret code
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
