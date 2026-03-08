@@ -60,6 +60,7 @@ export default function Dashboard() {
 
           {/* Quick actions grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Link to="/quizzes">
             <Card className="cursor-pointer transition-shadow hover:shadow-md">
               <CardHeader>
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
