@@ -8,11 +8,12 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Shield } from 'lucide-react';
+import { Shield, Trash2 } from 'lucide-react';
 
 interface UserWithRole {
   user_id: string;
@@ -86,6 +87,22 @@ export default function AdminPanel() {
     toast({ title: 'Role updated', description: `User role changed to ${newRole}.` });
   }
 
+  async function handleRemoveUser(userId: string, fullName: string) {
+    // Delete role and profile entries for this user
+    const [roleRes, profileRes] = await Promise.all([
+      supabase.from('user_roles').delete().eq('user_id', userId),
+      supabase.from('profiles').delete().eq('user_id', userId),
+    ]);
+
+    if (roleRes.error || profileRes.error) {
+      toast({ title: 'Error', description: roleRes.error?.message || profileRes.error?.message || 'Could not remove user.', variant: 'destructive' });
+      return;
+    }
+
+    setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+    toast({ title: 'User removed', description: `${fullName} has been removed.` });
+  }
+
   if (authLoading || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -121,6 +138,7 @@ export default function AdminPanel() {
                       <TableHead>Name</TableHead>
                       <TableHead>Current Role</TableHead>
                       <TableHead>Change Role</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -145,6 +163,32 @@ export default function AdminPanel() {
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>
+                        </TableCell>
+                        <TableCell>
+                          {u.user_id !== user?.id && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm">
+                                  <Trash2 className="mr-1 h-4 w-4" />
+                                  Remove
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Remove {u.full_name}?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will remove the user's role and profile. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleRemoveUser(u.user_id, u.full_name)}>
+                                    Remove
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
