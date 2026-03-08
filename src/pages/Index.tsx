@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import universityLogo from '@/assets/university-logo.png';
 
 const features = [
   {
@@ -52,6 +53,7 @@ export default function Index() {
         </div>
 
         <div className="container relative mx-auto max-w-3xl">
+          <img src={universityLogo} alt="Sharnbasva University Logo" className="mx-auto mb-6 h-28 w-28 object-contain drop-shadow-lg" />
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm text-white/80 backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5" />
             Sharnbasva University — CSD Department
