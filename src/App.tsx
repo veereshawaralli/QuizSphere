@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Quizzes from "./pages/Quizzes";
 import CreateQuiz from "./pages/CreateQuiz";
 import EditQuiz from "./pages/EditQuiz";
+import AttemptQuiz from "./pages/AttemptQuiz";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
