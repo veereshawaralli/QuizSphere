@@ -1,8 +1,8 @@
-// Dashboard - placeholder for now, will show role-specific content
+// Dashboard - shows role-specific content
 // Redirects unauthenticated users to login
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,6 +60,7 @@ export default function Dashboard() {
 
           {/* Quick actions grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Link to="/quizzes">
             <Card className="cursor-pointer transition-shadow hover:shadow-md">
               <CardHeader>
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
@@ -75,6 +76,7 @@ export default function Dashboard() {
                 </p>
               </CardContent>
             </Card>
+            </Link>
 
             <Card className="cursor-pointer transition-shadow hover:shadow-md">
               <CardHeader>
