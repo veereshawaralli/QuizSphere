@@ -42,7 +42,7 @@ export default function Login() {
     try {
       if (isSignUp) {
         // Sign up new user
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -52,6 +52,27 @@ export default function Login() {
         });
 
         if (error) throw error;
+
+        // If faculty code provided, assign faculty role after signup
+        if (isFaculty && facultyCode && signUpData.session) {
+          const { data: fnData, error: fnError } = await supabase.functions.invoke('assign-faculty-role', {
+            body: { secret_code: facultyCode },
+          });
+
+          if (fnError || fnData?.error) {
+            toast({
+              title: 'Warning',
+              description: fnData?.error || 'Could not verify faculty code. You were registered as a student.',
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Faculty account created!',
+              description: 'Check your email to verify your account.',
+            });
+            return;
+          }
+        }
 
         toast({
           title: 'Account created!',
