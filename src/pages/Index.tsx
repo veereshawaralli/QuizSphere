@@ -42,6 +42,15 @@ const features = [
 ];
 
 export default function Index() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard');
+    }
+  }, [user, loading, navigate]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
