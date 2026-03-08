@@ -109,6 +109,24 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Link>
+
+            {role === 'admin' && (
+              <Link to="/admin">
+                <Card className="cursor-pointer transition-shadow hover:shadow-md border-primary/30">
+                  <CardHeader>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">Admin Panel</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Manage user roles – promote students to faculty.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
           </div>
         </div>
       </main>
