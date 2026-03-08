@@ -44,7 +44,7 @@ export default function Login() {
     try {
       if (isSignUp) {
         // Sign up new user
-        const { data: signUpData, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -55,25 +55,9 @@ export default function Login() {
 
         if (error) throw error;
 
-        // If faculty code provided, assign faculty role after signup
-        if (isFaculty && facultyCode && signUpData.session) {
-          const { data: fnData, error: fnError } = await supabase.functions.invoke('assign-faculty-role', {
-            body: { secret_code: facultyCode },
-          });
-
-          if (fnError || fnData?.error) {
-            toast({
-              title: 'Warning',
-              description: fnData?.error || 'Could not verify faculty code. You were registered as a student.',
-              variant: 'destructive',
-            });
-          } else {
-            toast({
-              title: 'Faculty account created!',
-              description: 'Check your email to verify your account.',
-            });
-            return;
-          }
+        // Store faculty intent so we can assign role after email verification
+        if (isFaculty && facultyCode) {
+          localStorage.setItem('pending_faculty_code', facultyCode);
         }
 
         toast({
@@ -88,6 +72,28 @@ export default function Login() {
         });
 
         if (error) throw error;
+
+        // Check if there's a pending faculty code to apply
+        const pendingCode = localStorage.getItem('pending_faculty_code');
+        if (pendingCode) {
+          localStorage.removeItem('pending_faculty_code');
+          const { data: fnData, error: fnError } = await supabase.functions.invoke('assign-faculty-role', {
+            body: { secret_code: pendingCode },
+          });
+
+          if (fnError || fnData?.error) {
+            toast({
+              title: 'Warning',
+              description: fnData?.error || 'Could not verify faculty code. You are registered as a student.',
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Faculty role assigned!',
+              description: 'Welcome, faculty member!',
+            });
+          }
+        }
 
         // Redirect to dashboard after login
         navigate('/dashboard');
