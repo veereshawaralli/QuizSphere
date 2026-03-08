@@ -175,6 +175,25 @@ export default function AttemptQuiz() {
         .update({ score: calcScore, total_marks: calcTotal })
         .eq('id', sub.id);
 
+      // Send result email to student
+      const percentage = calcTotal > 0 ? (calcScore / calcTotal) * 100 : 0;
+      try {
+        await supabase.functions.invoke('send-result-email', {
+          body: {
+            submissionId: sub.id,
+            studentEmail: user.email,
+            studentName: user.user_metadata?.full_name || user.email?.split('@')[0],
+            quizTitle: quiz.title,
+            score: calcScore,
+            totalMarks: calcTotal,
+            percentage,
+          },
+        });
+      } catch (emailErr) {
+        console.error('Failed to send result email:', emailErr);
+        // Don't block submission on email failure
+      }
+
       setScore(calcScore);
       setTotalMarks(calcTotal);
       setSubmitted(true);
