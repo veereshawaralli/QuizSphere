@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { BookOpen, Trophy, FileText, LogOut } from 'lucide-react';
+import { BookOpen, Trophy, FileText, LogOut, Shield } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, role, loading, signOut } = useAuth();
@@ -109,6 +109,24 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Link>
+
+            {role === 'admin' && (
+              <Link to="/admin">
+                <Card className="cursor-pointer transition-shadow hover:shadow-md border-primary/30">
+                  <CardHeader>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">Admin Panel</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Manage user roles – promote students to faculty.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
           </div>
         </div>
       </main>

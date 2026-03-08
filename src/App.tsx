@@ -15,6 +15,7 @@ import EditQuiz from "./pages/EditQuiz";
 import AttemptQuiz from "./pages/AttemptQuiz";
 import Results from "./pages/Results";
 import Materials from "./pages/Materials";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/quizzes/:quizId/attempt" element={<AttemptQuiz />} />
             <Route path="/results" element={<Results />} />
             <Route path="/materials" element={<Materials />} />
+            <Route path="/admin" element={<AdminPanel />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
