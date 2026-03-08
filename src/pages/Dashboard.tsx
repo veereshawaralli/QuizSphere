@@ -1,8 +1,8 @@
-// Dashboard - placeholder for now, will show role-specific content
+// Dashboard - shows role-specific content
 // Redirects unauthenticated users to login
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
