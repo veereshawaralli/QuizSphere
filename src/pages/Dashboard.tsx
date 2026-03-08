@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { BookOpen, Trophy, FileText, LogOut } from 'lucide-react';
+import { BookOpen, Trophy, FileText, LogOut, Shield } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, role, loading, signOut } = useAuth();
