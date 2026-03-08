@@ -15,6 +15,7 @@ import EditQuiz from "./pages/EditQuiz";
 import AttemptQuiz from "./pages/AttemptQuiz";
 import Results from "./pages/Results";
 import Materials from "./pages/Materials";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
