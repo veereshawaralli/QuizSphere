@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,23 +17,23 @@ serve(async (req) => {
       throw new Error("Missing required fields: studentEmail, quizTitle");
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not configured");
     }
 
     const passed = percentage >= 50;
     const status = passed ? "PASSED ✅" : "FAILED ❌";
 
-    // Send email using Lovable's transactional email API
-    const emailResponse = await fetch("https://api.lovable.dev/v1/email/send", {
+    const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: studentEmail,
+        from: "CSD Quiz Portal <onboarding@resend.dev>",
+        to: [studentEmail],
         subject: `Quiz Result: ${quizTitle} - ${status}`,
         html: `
           <!DOCTYPE html>
@@ -92,15 +91,17 @@ serve(async (req) => {
           </body>
           </html>
         `,
-        purpose: "transactional",
       }),
     });
 
     if (!emailResponse.ok) {
       const errorData = await emailResponse.text();
-      console.error("Email API error:", errorData);
-      throw new Error(`Failed to send email: ${emailResponse.status}`);
+      console.error("Resend API error:", errorData);
+      throw new Error(`Failed to send email: ${emailResponse.status} - ${errorData}`);
     }
+
+    const result = await emailResponse.json();
+    console.log("Email sent successfully:", result);
 
     return new Response(
       JSON.stringify({ success: true, message: "Result email sent successfully" }),
