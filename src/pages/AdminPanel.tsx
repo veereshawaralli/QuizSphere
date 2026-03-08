@@ -87,6 +87,22 @@ export default function AdminPanel() {
     toast({ title: 'Role updated', description: `User role changed to ${newRole}.` });
   }
 
+  async function handleRemoveUser(userId: string, fullName: string) {
+    // Delete role and profile entries for this user
+    const [roleRes, profileRes] = await Promise.all([
+      supabase.from('user_roles').delete().eq('user_id', userId),
+      supabase.from('profiles').delete().eq('user_id', userId),
+    ]);
+
+    if (roleRes.error || profileRes.error) {
+      toast({ title: 'Error', description: roleRes.error?.message || profileRes.error?.message || 'Could not remove user.', variant: 'destructive' });
+      return;
+    }
+
+    setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+    toast({ title: 'User removed', description: `${fullName} has been removed.` });
+  }
+
   if (authLoading || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
