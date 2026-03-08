@@ -1,6 +1,5 @@
 // Login page for CSD Quiz Portal
 // Handles both sign in and sign up with email/password
-// Faculty can sign up with a secret code
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -13,37 +12,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { GraduationCap, ShieldCheck } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { GraduationCap } from 'lucide-react';
 
 export default function Login() {
   const { user, loading: authLoading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isFaculty, setIsFaculty] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [facultyCode, setFacultyCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Redirect already logged-in users to dashboard
   useEffect(() => {
     if (!authLoading && user) {
       navigate('/dashboard');
     }
   }, [user, authLoading, navigate]);
 
-  // Handle form submission for login or signup
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (isSignUp) {
-        // Sign up new user
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -52,50 +45,18 @@ export default function Login() {
             emailRedirectTo: window.location.origin,
           },
         });
-
         if (error) throw error;
-
-        // Store faculty intent so we can assign role after email verification
-        if (isFaculty && facultyCode) {
-          localStorage.setItem('pending_faculty_code', facultyCode);
-        }
 
         toast({
           title: 'Account created!',
           description: 'Check your email to verify your account.',
         });
       } else {
-        // Sign in existing user
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-
         if (error) throw error;
-
-        // Check if there's a pending faculty code to apply
-        const pendingCode = localStorage.getItem('pending_faculty_code');
-        if (pendingCode) {
-          localStorage.removeItem('pending_faculty_code');
-          const { data: fnData, error: fnError } = await supabase.functions.invoke('assign-faculty-role', {
-            body: { secret_code: pendingCode },
-          });
-
-          if (fnError || fnData?.error) {
-            toast({
-              title: 'Warning',
-              description: fnData?.error || 'Could not verify faculty code. You are registered as a student.',
-              variant: 'destructive',
-            });
-          } else {
-            toast({
-              title: 'Faculty role assigned!',
-              description: 'Welcome, faculty member!',
-            });
-          }
-        }
-
-        // Redirect to dashboard after login
         navigate('/dashboard');
       }
     } catch (error: any) {
@@ -133,46 +94,17 @@ export default function Login() {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Only show signup fields */}
               {isSignUp && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      placeholder="e.g. Rahul Sharma"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="faculty"
-                      checked={isFaculty}
-                      onCheckedChange={(checked) => setIsFaculty(checked === true)}
-                    />
-                    <Label htmlFor="faculty" className="text-sm flex items-center gap-1 cursor-pointer">
-                      <ShieldCheck className="h-4 w-4" />
-                      I am a faculty member
-                    </Label>
-                  </div>
-
-                  {isFaculty && (
-                    <div className="space-y-2">
-                      <Label htmlFor="facultyCode">Faculty Secret Code</Label>
-                      <Input
-                        id="facultyCode"
-                        type="password"
-                        placeholder="Enter faculty code"
-                        value={facultyCode}
-                        onChange={(e) => setFacultyCode(e.target.value)}
-                        required
-                      />
-                    </div>
-                  )}
-                </>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    placeholder="e.g. Rahul Sharma"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
               )}
 
               <div className="space-y-2">
@@ -205,7 +137,6 @@ export default function Login() {
               </Button>
             </form>
 
-            {/* Toggle between login and signup */}
             <div className="mt-4 text-center text-sm text-muted-foreground">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
               <button
