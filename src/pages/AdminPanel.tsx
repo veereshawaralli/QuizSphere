@@ -72,7 +72,7 @@ export default function AdminPanel() {
   async function handleRoleChange(roleId: string, userId: string, newRole: string) {
     const { error } = await supabase
       .from('user_roles')
-      .update({ role: newRole })
+      .update({ role: newRole as 'admin' | 'faculty' | 'student' })
       .eq('id', roleId);
 
     if (error) {
