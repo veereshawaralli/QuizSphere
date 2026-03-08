@@ -17,9 +17,11 @@ import { GraduationCap } from 'lucide-react';
 export default function Login() {
   const { user, loading: authLoading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isFaculty, setIsFaculty] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [facultyCode, setFacultyCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
