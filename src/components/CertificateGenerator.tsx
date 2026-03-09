@@ -71,7 +71,7 @@ export function CertificateGenerator({
   }
 
   const handleDownload = async () => {
-    if (!certificateRef.current) return;
+    if (!certificateRef.current || percentage < 70) return;
     setIsGenerating(true);
 
     try {
