@@ -27,6 +27,7 @@ interface UserWithRole {
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useAuth();
   const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
