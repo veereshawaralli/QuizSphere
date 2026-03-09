@@ -118,15 +118,15 @@ export function CertificateGenerator({
             Certificate of Completion
           </h1>
 
-          <p style={{ fontSize: '20px', color: '#475569', margin: '16px 0' }}>
+          <p style={{ fontSize: '18px', color: '#475569', margin: '8px 0' }}>
             This is to certify that
           </p>
 
-          <h2 style={{ fontSize: '36px', color: '#1e3a8a', margin: '6px 0', fontStyle: 'italic', fontWeight: 'bold' }}>
+          <h2 style={{ fontSize: '32px', color: '#1e3a8a', margin: '4px 0', fontStyle: 'italic', fontWeight: 'bold' }}>
             {studentName}
           </h2>
 
-          <p style={{ fontSize: '20px', color: '#475569', margin: '16px 0', textAlign: 'center', maxWidth: '800px' }}>
+          <p style={{ fontSize: '18px', color: '#475569', margin: '8px 0', textAlign: 'center', maxWidth: '800px' }}>
             has successfully completed the assessment for
             <br />
             <strong style={{ color: '#0f172a', fontSize: '24px', display: 'inline-block', marginTop: '10px' }}>{quizTitle}</strong>
