@@ -323,6 +323,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_email_by_usn: { Args: { _usn: string }; Returns: string }
       get_users_with_emails: {
         Args: never
         Returns: {

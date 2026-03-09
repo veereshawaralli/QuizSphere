@@ -64,8 +64,23 @@ export default function Login() {
           description: 'Check your email to verify your account.',
         });
       } else {
+        // Check if input is a USN (not an email)
+        let loginEmail = email;
+        const isEmail = email.includes('@');
+
+        if (!isEmail) {
+          // Look up email by USN
+          const { data: resolvedEmail, error: usnErr } = await supabase
+            .rpc('get_email_by_usn', { _usn: email });
+
+          if (usnErr || !resolvedEmail) {
+            throw new Error('No account found with this USN. Please check your USN or use your email to sign in.');
+          }
+          loginEmail = resolvedEmail;
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: loginEmail,
           password,
         });
         if (error) throw error;
@@ -122,11 +137,11 @@ export default function Login() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email or USN</Label>
+                <Label htmlFor="email">{isSignUp ? 'Email' : 'Email or USN'}</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="student@sharnbasva.edu"
+                  type={isSignUp ? 'email' : 'text'}
+                  placeholder={isSignUp ? 'student@sharnbasva.edu' : 'Email or USN (e.g. 1SH21CS001)'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
