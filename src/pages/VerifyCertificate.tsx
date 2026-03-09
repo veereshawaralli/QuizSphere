@@ -68,8 +68,8 @@ export default function VerifyCertificate() {
           ) : certificate ? (
             <Card className="border-primary">
               <CardHeader className="text-center">
-                <CheckCircle className="mx-auto h-16 w-16 text-green-600" />
-                <CardTitle className="mt-4 text-2xl text-green-700">Certificate Verified</CardTitle>
+              <CheckCircle className="mx-auto h-16 w-16 text-primary" />
+                <CardTitle className="mt-4 text-2xl text-primary">Certificate Verified</CardTitle>
                 <Badge variant="secondary" className="mx-auto mt-2">
                   <Award className="mr-1 h-3 w-3" /> Authentic
                 </Badge>
