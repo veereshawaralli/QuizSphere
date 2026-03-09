@@ -71,6 +71,7 @@ export default function EditQuiz() {
       setDescription(quiz.description || '');
       setDurationMinutes(quiz.duration_minutes);
       setIsPublished(quiz.is_published || false);
+      setMaxAttempts(quiz.max_attempts || 1);
 
       if (quiz.start_time) {
         const s = new Date(quiz.start_time);
