@@ -132,7 +132,7 @@ export function CertificateGenerator({
             <strong style={{ color: '#0f172a', fontSize: '24px', display: 'inline-block', marginTop: '10px' }}>{quizTitle}</strong>
           </p>
 
-          <div style={{ display: 'flex', gap: '40px', margin: '20px 0 0', backgroundColor: '#f8fafc', padding: '18px 36px', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', gap: '40px', margin: '10px 0 0', backgroundColor: '#f8fafc', padding: '14px 36px', borderRadius: '10px' }}>
             <div style={{ textAlign: 'center' }}>
               <p style={{ margin: '0', fontSize: '14px', color: '#64748b', textTransform: 'uppercase' }}>Score</p>
               <p style={{ margin: '5px 0 0 0', fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>{score} / {totalMarks}</p>
