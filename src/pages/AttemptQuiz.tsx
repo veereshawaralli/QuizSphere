@@ -52,6 +52,7 @@ export default function AttemptQuiz() {
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
   const submissionIdRef = useRef<string | null>(null);
+  const fullscreenExitHandled = useRef(false);
   const handleSubmitRef = useRef<() => void>();
 
   // Redirect if not logged in
