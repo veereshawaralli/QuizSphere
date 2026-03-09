@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Button } from './ui/button';
@@ -25,6 +25,24 @@ export function CertificateGenerator({
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [logoDataUrl, setLogoDataUrl] = useState<string>('');
+
+  // Preload logo as base64 so html2canvas can render it
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        setLogoDataUrl(canvas.toDataURL('image/png'));
+      }
+    };
+    img.src = universityLogo;
+  }, []);
 
   const handleDownload = async () => {
     if (!certificateRef.current) return;
@@ -37,6 +55,7 @@ export function CertificateGenerator({
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2, // Higher resolution
         useCORS: true,
+        allowTaint: true,
         logging: false,
       });
       
@@ -107,7 +126,7 @@ export function CertificateGenerator({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-            <img src={universityLogo} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} crossOrigin="anonymous" />
+            {logoDataUrl && <img src={logoDataUrl} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} />}
             <div style={{ textAlign: 'center' }}>
               <h1 style={{ fontSize: '32px', color: '#1e3a8a', margin: '0', fontWeight: 'bold' }}>Sharnbasva University</h1>
               <h2 style={{ fontSize: '20px', color: '#334155', margin: '5px 0 0 0' }}>Faculty of Engineering & Technology</h2>
