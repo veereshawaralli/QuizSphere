@@ -71,6 +71,17 @@ export default function EditQuiz() {
       setDurationMinutes(quiz.duration_minutes);
       setIsPublished(quiz.is_published || false);
 
+      if (quiz.start_time) {
+        const s = new Date(quiz.start_time);
+        setStartDate(s);
+        setStartTime(`${String(s.getHours()).padStart(2,'0')}:${String(s.getMinutes()).padStart(2,'0')}`);
+      }
+      if (quiz.end_time) {
+        const e = new Date(quiz.end_time);
+        setEndDate(e);
+        setEndTime(`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`);
+      }
+
       // Fetch questions
       const { data: qs } = await supabase
         .from('questions')
