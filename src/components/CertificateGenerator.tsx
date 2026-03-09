@@ -29,10 +29,6 @@ export function CertificateGenerator({
 
   const eligible = percentage >= 70;
 
-  if (!eligible) {
-    return null;
-  }
-
   // Preload logo as base64 so html2canvas can render it
   useEffect(() => {
     const img = new Image();
