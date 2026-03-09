@@ -95,12 +95,14 @@ export default function Login() {
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <CardTitle className="font-heading text-xl">
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              {isResetPassword ? 'Reset Password' : isSignUp ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription>
-              {isSignUp
-                ? 'Register for the CSD Quiz Portal'
-                : `Welcome back${roleHint ? `, ${roleHint}` : ''}! Sign in to continue.`}
+              {isResetPassword
+                ? 'Enter your email to receive a password reset link'
+                : isSignUp
+                  ? 'Register for the CSD Quiz Portal'
+                  : `Welcome back${roleHint ? `, ${roleHint}` : ''}! Sign in to continue.`}
             </CardDescription>
           </CardHeader>
 
