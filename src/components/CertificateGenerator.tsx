@@ -83,7 +83,7 @@ export function CertificateGenerator({
           boxSizing: 'border-box',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           border: '20px solid #1e3a8a', // Using a standard blue
           fontFamily: 'sans-serif',
           backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)',
