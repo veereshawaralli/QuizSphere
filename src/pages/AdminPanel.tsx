@@ -140,6 +140,16 @@ export default function AdminPanel() {
 
   if (role !== 'admin') return null;
 
+  // Filter users by search query (name or email)
+  const filteredUsers = users.filter(u => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      u.full_name.toLowerCase().includes(query) ||
+      (u.email && u.email.toLowerCase().includes(query))
+    );
+  });
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
