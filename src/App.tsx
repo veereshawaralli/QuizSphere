@@ -18,6 +18,7 @@ import Materials from "./pages/Materials";
 import AdminPanel from "./pages/AdminPanel";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
