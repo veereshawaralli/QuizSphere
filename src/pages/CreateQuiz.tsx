@@ -103,6 +103,24 @@ export default function CreateQuiz() {
     setSaving(true);
 
     try {
+      // Build start/end datetime
+      let startDateTime: string | null = null;
+      let endDateTime: string | null = null;
+
+      if (startDate) {
+        const [sh, sm] = startTime.split(':').map(Number);
+        const sdt = new Date(startDate);
+        sdt.setHours(sh, sm, 0, 0);
+        startDateTime = sdt.toISOString();
+      }
+
+      if (endDate) {
+        const [eh, em] = endTime.split(':').map(Number);
+        const edt = new Date(endDate);
+        edt.setHours(eh, em, 0, 0);
+        endDateTime = edt.toISOString();
+      }
+
       // Step 1: Create the quiz
       const { data: quiz, error: quizError } = await supabase
         .from('quizzes')
@@ -112,6 +130,8 @@ export default function CreateQuiz() {
           duration_minutes: durationMinutes,
           created_by: user!.id,
           is_published: publish,
+          start_time: startDateTime,
+          end_time: endDateTime,
         })
         .select()
         .single();
