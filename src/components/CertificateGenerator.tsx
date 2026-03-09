@@ -100,6 +100,7 @@ export function CertificateGenerator({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'space-between',
             backgroundColor: 'white',
             boxSizing: 'border-box',
           }}
