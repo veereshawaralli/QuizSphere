@@ -60,6 +60,7 @@ export default function AdminPanel() {
       user_id: u.user_id,
       email: u.email || 'No email',
       full_name: u.full_name || 'Unknown',
+      usn: u.usn || '',
       role: u.role,
       role_id: u.role_id,
     }));
