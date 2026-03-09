@@ -49,12 +49,46 @@ export default function AttemptQuiz() {
   const [totalMarks, setTotalMarks] = useState<number | null>(null);
   const [alreadyAttempted, setAlreadyAttempted] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [fullscreenActive, setFullscreenActive] = useState(false);
+  const [quizStarted, setQuizStarted] = useState(false);
   const submissionIdRef = useRef<string | null>(null);
+  const fullscreenExitHandled = useRef(false);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
   }, [user, authLoading, navigate]);
+
+  // Enter fullscreen when quiz starts
+  useEffect(() => {
+    if (quizStarted && !submitted && !alreadyAttempted) {
+      document.documentElement.requestFullscreen?.().then(() => {
+        setFullscreenActive(true);
+      }).catch((err) => {
+        console.warn('Fullscreen request denied:', err);
+      });
+    }
+  }, [quizStarted, submitted, alreadyAttempted]);
+
+  // Listen for fullscreen exit → auto-submit
+  useEffect(() => {
+    if (!quizStarted || submitted) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && !fullscreenExitHandled.current) {
+        fullscreenExitHandled.current = true;
+        toast({
+          title: 'Fullscreen exited',
+          description: 'Your quiz has been automatically submitted.',
+          variant: 'destructive',
+        });
+        handleSubmit();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [quizStarted, submitted, handleSubmit, toast]);
 
   // Load quiz, questions, and check prior attempt
   useEffect(() => {
