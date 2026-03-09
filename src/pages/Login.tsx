@@ -64,8 +64,23 @@ export default function Login() {
           description: 'Check your email to verify your account.',
         });
       } else {
+        // Check if input is a USN (not an email)
+        let loginEmail = email;
+        const isEmail = email.includes('@');
+
+        if (!isEmail) {
+          // Look up email by USN
+          const { data: resolvedEmail, error: usnErr } = await supabase
+            .rpc('get_email_by_usn', { _usn: email });
+
+          if (usnErr || !resolvedEmail) {
+            throw new Error('No account found with this USN. Please check your USN or use your email to sign in.');
+          }
+          loginEmail = resolvedEmail;
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: loginEmail,
           password,
         });
         if (error) throw error;
