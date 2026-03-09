@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Button } from './ui/button';
@@ -29,22 +29,42 @@ export function CertificateGenerator({
 
   const eligible = percentage >= 70;
 
-  // Preload logo as base64 so html2canvas can render it
-  useEffect(() => {
+  const ensureLogoDataUrl = useCallback(async () => {
+    if (logoDataUrl) return logoDataUrl;
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
+
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Unable to prepare logo canvas'));
+          return;
+        }
+
         ctx.drawImage(img, 0, 0);
-        setLogoDataUrl(canvas.toDataURL('image/png'));
-      }
-    };
-    img.src = universityLogo;
-  }, []);
+        resolve(canvas.toDataURL('image/png'));
+      };
+
+      img.onerror = () => reject(new Error('Logo failed to load'));
+      img.src = universityLogo;
+    });
+
+    setLogoDataUrl(dataUrl);
+    return dataUrl;
+  }, [logoDataUrl]);
+
+  // Preload logo as base64 so html2canvas can render it
+  useEffect(() => {
+    ensureLogoDataUrl().catch((error) => {
+      console.error('Logo preload failed:', error);
+    });
+  }, [ensureLogoDataUrl]);
 
   if (!eligible) {
     return null;
@@ -53,18 +73,20 @@ export function CertificateGenerator({
   const handleDownload = async () => {
     if (!certificateRef.current) return;
     setIsGenerating(true);
-    
+
     try {
+      await ensureLogoDataUrl();
+
       // Temporarily make the certificate visible for html2canvas
       certificateRef.current.style.display = 'flex';
-      
+
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2, // Higher resolution
         useCORS: true,
         allowTaint: true,
         logging: false,
       });
-      
+
       certificateRef.current.style.display = 'none';
 
       const imgData = canvas.toDataURL('image/png');
@@ -95,7 +117,7 @@ export function CertificateGenerator({
       </Button>
 
       {/* Hidden Certificate DOM Element */}
-      <div 
+      <div
         ref={certificateRef}
         style={{
           display: 'none',
@@ -132,7 +154,7 @@ export function CertificateGenerator({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-            {logoDataUrl && <img src={logoDataUrl} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} />}
+            <img src={logoDataUrl || universityLogo} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} />
             <div style={{ textAlign: 'center' }}>
               <h1 style={{ fontSize: '32px', color: '#1e3a8a', margin: '0', fontWeight: 'bold' }}>Sharnbasva University</h1>
               <h2 style={{ fontSize: '20px', color: '#334155', margin: '5px 0 0 0' }}>Faculty of Engineering & Technology</h2>
