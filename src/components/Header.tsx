@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut } from 'lucide-react';
 import universityLogo from '@/assets/university-logo.png';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Header() {
   const { user, signOut } = useAuth();
@@ -30,7 +31,8 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-3">
+          <ThemeToggle />
           {user ? (
             <Button size="sm" variant="outline" onClick={handleSignOut} className="border-white/30 bg-white/10 text-primary-foreground hover:bg-white/20 gap-2 rounded-lg">
               <LogOut className="h-4 w-4" />
@@ -48,3 +50,4 @@ export default function Header() {
     </header>
   );
 }
+
