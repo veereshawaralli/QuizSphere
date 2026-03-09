@@ -49,12 +49,47 @@ export default function AttemptQuiz() {
   const [totalMarks, setTotalMarks] = useState<number | null>(null);
   const [alreadyAttempted, setAlreadyAttempted] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
+  const [fullscreenActive, setFullscreenActive] = useState(false);
+  const [quizStarted, setQuizStarted] = useState(false);
   const submissionIdRef = useRef<string | null>(null);
+  const fullscreenExitHandled = useRef(false);
+  const handleSubmitRef = useRef<() => void>();
 
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
   }, [user, authLoading, navigate]);
+
+  // Enter fullscreen when quiz starts
+  useEffect(() => {
+    if (quizStarted && !submitted && !alreadyAttempted) {
+      document.documentElement.requestFullscreen?.().then(() => {
+        setFullscreenActive(true);
+      }).catch((err) => {
+        console.warn('Fullscreen request denied:', err);
+      });
+    }
+  }, [quizStarted, submitted, alreadyAttempted]);
+
+  // Listen for fullscreen exit → auto-submit
+  useEffect(() => {
+    if (!quizStarted || submitted) return;
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && !fullscreenExitHandled.current) {
+        fullscreenExitHandled.current = true;
+        toast({
+          title: 'Fullscreen exited',
+          description: 'Your quiz has been automatically submitted.',
+          variant: 'destructive',
+        });
+        handleSubmitRef.current?.();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [quizStarted, submitted, toast]);
 
   // Load quiz, questions, and check prior attempt
   useEffect(() => {
@@ -103,6 +138,7 @@ export default function AttemptQuiz() {
       const shuffled = (qList || []).sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
       setSecondsLeft(quizData.duration_minutes * 60);
+      setQuizStarted(true);
       setPageLoading(false);
     }
 
@@ -205,6 +241,18 @@ export default function AttemptQuiz() {
       setSubmitting(false);
     }
   }, [submitting, submitted, quiz, user, answers, toast]);
+
+  // Keep ref in sync
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
+  // Exit fullscreen when submitted
+  useEffect(() => {
+    if (submitted && document.fullscreenElement) {
+      document.exitFullscreen?.();
+    }
+  }, [submitted]);
 
   if (authLoading || pageLoading) {
     return (
