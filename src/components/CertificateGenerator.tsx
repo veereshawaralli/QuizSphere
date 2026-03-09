@@ -133,20 +133,30 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: 'auto', padding: '0 40px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: 'auto', padding: '0 20px' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
+              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
                 {format(date, 'MMMM do, yyyy')}
               </div>
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Date of Completion</p>
             </div>
+            
+            {/* HOD Signature */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', height: '40px', position: 'relative' }}>
-                {/* Placeholder for Signature */}
-                <span style={{ position: 'absolute', bottom: '5px', left: '0', width: '100%', fontStyle: 'italic', color: '#94a3b8', fontSize: '14px' }}>Digitally Signed</span>
+              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '50px', height: '60px', position: 'relative' }}>
+                {/* Space for signature */}
               </div>
-              <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Authorized Signature</p>
-              <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
+              <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>HOD</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
+            </div>
+            
+            {/* Coordinator Signature */}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '50px', height: '60px', position: 'relative' }}>
+                {/* Space for signature */}
+              </div>
+              <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>Coordinator</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Department Coordinator</p>
             </div>
           </div>
 
