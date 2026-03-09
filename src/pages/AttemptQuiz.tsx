@@ -171,20 +171,26 @@ export default function AttemptQuiz() {
       }
       setQuiz(quizData);
 
-      // Check if already attempted
-      const { data: existingSub } = await supabase
+      // Check how many times already attempted (max 2 allowed)
+      const { data: existingSubs, count } = await supabase
         .from('quiz_submissions')
-        .select('id, score, total_marks, is_submitted')
+        .select('id, score, total_marks, is_submitted', { count: 'exact' })
         .eq('quiz_id', quizId!)
         .eq('student_id', user!.id)
-        .eq('is_submitted', true)
-        .maybeSingle();
+        .eq('is_submitted', true);
 
-      if (existingSub) {
+      const attemptsMade = count || 0;
+      setAttemptCount(attemptsMade);
+
+      if (attemptsMade >= 2) {
+        // Already used both attempts - show last result
         setAlreadyAttempted(true);
-        setScore(existingSub.score);
-        setTotalMarks(existingSub.total_marks);
-        submissionIdRef.current = existingSub.id;
+        const lastSub = existingSubs?.[existingSubs.length - 1];
+        if (lastSub) {
+          setScore(lastSub.score);
+          setTotalMarks(lastSub.total_marks);
+          submissionIdRef.current = lastSub.id;
+        }
         setSubmitted(true);
         setPageLoading(false);
         return;
