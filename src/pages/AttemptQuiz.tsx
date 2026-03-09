@@ -141,6 +141,7 @@ export default function AttemptQuiz() {
         setAlreadyAttempted(true);
         setScore(existingSub.score);
         setTotalMarks(existingSub.total_marks);
+        submissionIdRef.current = existingSub.id;
         setSubmitted(true);
         setPageLoading(false);
         return;
@@ -317,6 +318,9 @@ export default function AttemptQuiz() {
                     totalMarks={totalMarks || 0}
                     percentage={percentage}
                     date={new Date()}
+                    submissionId={submissionIdRef.current || ''}
+                    quizId={quiz.id}
+                    studentId={user?.id || ''}
                   />
                 </div>
               </CardContent>
