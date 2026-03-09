@@ -522,7 +522,7 @@ export default function AttemptQuiz() {
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
                     {canRetry
-                      ? 'You need at least 70% to earn a certificate. You have 1 more attempt!'
+                      ? `You need at least 70% to earn a certificate. You have ${maxAllowed - attemptsUsed} more attempt(s)!`
                       : 'You need at least 70% to earn a certificate. No more attempts remaining.'}
                   </p>
                 )}
