@@ -61,6 +61,7 @@ export default function AttemptQuiz() {
   const [pageLoading, setPageLoading] = useState(true);
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [readyToStart, setReadyToStart] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState<QuestionWithAnswer[]>([]);
   const [reviewIdx, setReviewIdx] = useState(0);
