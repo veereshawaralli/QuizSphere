@@ -36,6 +36,8 @@ interface Quiz {
   title: string;
   description: string | null;
   duration_minutes: number;
+  start_time: string | null;
+  end_time: string | null;
 }
 
 export default function AttemptQuiz() {
