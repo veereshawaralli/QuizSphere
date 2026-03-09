@@ -36,6 +36,7 @@ interface Quiz {
   title: string;
   description: string | null;
   duration_minutes: number;
+  max_attempts: number;
   start_time: string | null;
   end_time: string | null;
 }
@@ -60,6 +61,7 @@ export default function AttemptQuiz() {
   const [pageLoading, setPageLoading] = useState(true);
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [readyToStart, setReadyToStart] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState<QuestionWithAnswer[]>([]);
   const [reviewIdx, setReviewIdx] = useState(0);
@@ -171,7 +173,7 @@ export default function AttemptQuiz() {
       // Fetch quiz
       const { data: quizData, error: qErr } = await supabase
         .from('quizzes')
-        .select('id, title, description, duration_minutes, start_time, end_time')
+        .select('id, title, description, duration_minutes, max_attempts, start_time, end_time')
         .eq('id', quizId!)
         .single();
 
@@ -219,9 +221,10 @@ export default function AttemptQuiz() {
 
       const attemptsMade = count || 0;
       setAttemptCount(attemptsMade);
+      const maxAllowed = quizData.max_attempts || 1;
 
-      if (attemptsMade >= 2) {
-        // Already used both attempts - show last result
+      if (attemptsMade >= maxAllowed) {
+        // Already used all attempts - show last result
         setAlreadyAttempted(true);
         const lastSub = existingSubs?.[existingSubs.length - 1];
         if (lastSub) {
@@ -244,7 +247,7 @@ export default function AttemptQuiz() {
       const shuffled = (qList || []).sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
       setSecondsLeft(quizData.duration_minutes * 60);
-      setQuizStarted(true);
+      setReadyToStart(true);
       setPageLoading(false);
     }
 
@@ -370,6 +373,59 @@ export default function AttemptQuiz() {
 
   if (!quiz) return null;
 
+  // Pre-quiz start screen - requires user click to enter fullscreen (fixes 2nd attempt bug)
+  if (readyToStart && !quizStarted && !submitted) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 px-4 py-8">
+          <div className="container mx-auto max-w-lg">
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">{quiz.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-center">
+                {quiz.description && (
+                  <p className="text-muted-foreground">{quiz.description}</p>
+                )}
+                <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" /> {quiz.duration_minutes} min
+                  </span>
+                  <span>{questions.length} questions</span>
+                </div>
+                {attemptCount > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Attempt {attemptCount + 1} of {quiz.max_attempts}
+                  </p>
+                )}
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-left space-y-1">
+                  <p className="font-medium flex items-center gap-1"><AlertTriangle className="h-4 w-4" /> Rules:</p>
+                  <ul className="list-disc list-inside text-muted-foreground">
+                    <li>Quiz will enter fullscreen mode</li>
+                    <li>Exiting fullscreen or switching tabs will auto-submit</li>
+                    <li>Copy/paste and right-click are disabled</li>
+                  </ul>
+                </div>
+                <Button
+                  size="lg"
+                  className="w-full"
+                  onClick={() => {
+                    fullscreenExitHandled.current = false;
+                    setQuizStarted(true);
+                  }}
+                >
+                  Start Quiz
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Review mode screen
   if (reviewMode && reviewData.length > 0) {
     const current = reviewData[reviewIdx];
@@ -466,7 +522,8 @@ export default function AttemptQuiz() {
   if (submitted) {
     const percentage = totalMarks ? Math.round((score! / totalMarks) * 100) : 0;
     const attemptsUsed = alreadyAttempted ? attemptCount : attemptCount + 1;
-    const canRetry = attemptsUsed < 2 && percentage < 70;
+    const maxAllowed = quiz.max_attempts || 1;
+    const canRetry = attemptsUsed < maxAllowed && percentage < 70;
     const canReview = percentage >= 70;
 
     const handleReview = async () => {
@@ -513,12 +570,12 @@ export default function AttemptQuiz() {
                   Score: {score} / {totalMarks}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Attempts used: {attemptsUsed} / 2
+                  Attempts used: {attemptsUsed} / {maxAllowed}
                 </p>
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
                     {canRetry
-                      ? 'You need at least 70% to earn a certificate. You have 1 more attempt!'
+                      ? `You need at least 70% to earn a certificate. You have ${maxAllowed - attemptsUsed} more attempt(s)!`
                       : 'You need at least 70% to earn a certificate. No more attempts remaining.'}
                   </p>
                 )}

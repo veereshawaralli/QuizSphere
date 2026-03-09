@@ -40,6 +40,7 @@ export default function EditQuiz() {
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [isPublished, setIsPublished] = useState(false);
+  const [maxAttempts, setMaxAttempts] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState('09:00');
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -70,6 +71,7 @@ export default function EditQuiz() {
       setDescription(quiz.description || '');
       setDurationMinutes(quiz.duration_minutes);
       setIsPublished(quiz.is_published || false);
+      setMaxAttempts(quiz.max_attempts || 1);
 
       if (quiz.start_time) {
         const s = new Date(quiz.start_time);
@@ -166,6 +168,7 @@ export default function EditQuiz() {
           title: title.trim(),
           description: description.trim() || null,
           duration_minutes: durationMinutes,
+          max_attempts: maxAttempts,
           is_published: newPublishState,
           start_time: startDateTime,
           end_time: endDateTime,
@@ -251,6 +254,18 @@ export default function EditQuiz() {
                   id="duration" type="number" min={1} max={180}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 30)}
+                  className="w-32"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxAttempts">Max Attempts per Student</Label>
+                <Input
+                  id="maxAttempts"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={maxAttempts}
+                  onChange={(e) => setMaxAttempts(parseInt(e.target.value) || 1)}
                   className="w-32"
                 />
               </div>

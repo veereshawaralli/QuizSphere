@@ -228,6 +228,7 @@ export type Database = {
           end_time: string | null
           id: string
           is_published: boolean | null
+          max_attempts: number
           start_time: string | null
           title: string
           updated_at: string
@@ -240,6 +241,7 @@ export type Database = {
           end_time?: string | null
           id?: string
           is_published?: boolean | null
+          max_attempts?: number
           start_time?: string | null
           title: string
           updated_at?: string
@@ -252,6 +254,7 @@ export type Database = {
           end_time?: string | null
           id?: string
           is_published?: boolean | null
+          max_attempts?: number
           start_time?: string | null
           title?: string
           updated_at?: string

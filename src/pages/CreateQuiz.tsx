@@ -50,6 +50,7 @@ export default function CreateQuiz() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
+  const [maxAttempts, setMaxAttempts] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState('09:00');
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -128,6 +129,7 @@ export default function CreateQuiz() {
           title: title.trim(),
           description: description.trim() || null,
           duration_minutes: durationMinutes,
+          max_attempts: maxAttempts,
           created_by: user!.id,
           is_published: publish,
           start_time: startDateTime,
@@ -221,6 +223,18 @@ export default function CreateQuiz() {
                   max={180}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 30)}
+                  className="w-32"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxAttempts">Max Attempts per Student</Label>
+                <Input
+                  id="maxAttempts"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={maxAttempts}
+                  onChange={(e) => setMaxAttempts(parseInt(e.target.value) || 1)}
                   className="w-32"
                 />
               </div>
