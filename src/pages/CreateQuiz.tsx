@@ -129,6 +129,7 @@ export default function CreateQuiz() {
           title: title.trim(),
           description: description.trim() || null,
           duration_minutes: durationMinutes,
+          max_attempts: maxAttempts,
           created_by: user!.id,
           is_published: publish,
           start_time: startDateTime,
