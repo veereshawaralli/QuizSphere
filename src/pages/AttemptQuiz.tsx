@@ -141,6 +141,7 @@ export default function AttemptQuiz() {
         setAlreadyAttempted(true);
         setScore(existingSub.score);
         setTotalMarks(existingSub.total_marks);
+        submissionIdRef.current = existingSub.id;
         setSubmitted(true);
         setPageLoading(false);
         return;
