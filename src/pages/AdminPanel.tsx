@@ -109,10 +109,11 @@ export default function AdminPanel() {
     }
 
     // CSV format
-    const headers = ['Name', 'Email', 'Role'];
+    const headers = ['Name', 'Email', 'USN', 'Role'];
     const rows = filteredUsers.map(u => [
       u.full_name,
       u.email || '',
+      u.usn || '',
       u.role,
     ]);
 
