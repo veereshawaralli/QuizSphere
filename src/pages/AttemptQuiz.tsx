@@ -469,7 +469,8 @@ export default function AttemptQuiz() {
   if (submitted) {
     const percentage = totalMarks ? Math.round((score! / totalMarks) * 100) : 0;
     const attemptsUsed = alreadyAttempted ? attemptCount : attemptCount + 1;
-    const canRetry = attemptsUsed < 2 && percentage < 70;
+    const maxAllowed = quiz.max_attempts || 1;
+    const canRetry = attemptsUsed < maxAllowed && percentage < 70;
     const canReview = percentage >= 70;
 
     const handleReview = async () => {
