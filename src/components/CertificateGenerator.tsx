@@ -27,6 +27,8 @@ export function CertificateGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
 
+  const eligible = percentage >= 70;
+
   // Preload logo as base64 so html2canvas can render it
   useEffect(() => {
     const img = new Image();
@@ -43,6 +45,10 @@ export function CertificateGenerator({
     };
     img.src = universityLogo;
   }, []);
+
+  if (!eligible) {
+    return null;
+  }
 
   const handleDownload = async () => {
     if (!certificateRef.current) return;

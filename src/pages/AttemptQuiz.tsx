@@ -283,6 +283,11 @@ export default function AttemptQuiz() {
                 <p className="text-muted-foreground">
                   Score: {score} / {totalMarks}
                 </p>
+                {percentage < 70 && (
+                  <p className="text-sm text-muted-foreground">
+                    You need at least 70% to earn a certificate. Keep practicing!
+                  </p>
+                )}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                   <Button onClick={() => navigate('/quizzes')} variant="outline">
                     Back to Quizzes
