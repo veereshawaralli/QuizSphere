@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Plus, Clock, FileQuestion, ArrowLeft, Trash2 } from 'lucide-react';
+import { Plus, Clock, FileQuestion, ArrowLeft, Trash2, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
