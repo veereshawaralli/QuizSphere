@@ -91,9 +91,20 @@ export function CertificateGenerator({
           zIndex: -1,
         }}
       >
-        <div style={{ border: '4px solid #1e3a8a', padding: '40px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'white' }}>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
+        <div
+          style={{
+            border: '4px solid #1e3a8a',
+            padding: '32px',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            boxSizing: 'border-box',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
             {/* Hardcode the asset path for preview */}
             <img src="/src/assets/university-logo.png" alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} crossOrigin="anonymous" />
             <div style={{ textAlign: 'center' }}>
@@ -103,25 +114,25 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          <h1 style={{ fontSize: '48px', color: '#0f172a', margin: '20px 0', textTransform: 'uppercase', letterSpacing: '4px', borderBottom: '2px solid #cbd5e1', paddingBottom: '10px' }}>
+          <h1 style={{ fontSize: '48px', color: '#0f172a', margin: '14px 0', textTransform: 'uppercase', letterSpacing: '4px', borderBottom: '2px solid #cbd5e1', paddingBottom: '10px' }}>
             Certificate of Completion
           </h1>
 
-          <p style={{ fontSize: '20px', color: '#475569', margin: '20px 0' }}>
+          <p style={{ fontSize: '20px', color: '#475569', margin: '16px 0' }}>
             This is to certify that
           </p>
 
-          <h2 style={{ fontSize: '36px', color: '#1e3a8a', margin: '10px 0', fontStyle: 'italic', fontWeight: 'bold' }}>
+          <h2 style={{ fontSize: '36px', color: '#1e3a8a', margin: '6px 0', fontStyle: 'italic', fontWeight: 'bold' }}>
             {studentName}
           </h2>
 
-          <p style={{ fontSize: '20px', color: '#475569', margin: '20px 0', textAlign: 'center', maxWidth: '800px' }}>
+          <p style={{ fontSize: '20px', color: '#475569', margin: '16px 0', textAlign: 'center', maxWidth: '800px' }}>
             has successfully completed the assessment for
             <br />
             <strong style={{ color: '#0f172a', fontSize: '24px', display: 'inline-block', marginTop: '10px' }}>{quizTitle}</strong>
           </p>
 
-          <div style={{ display: 'flex', gap: '40px', margin: '30px 0', backgroundColor: '#f8fafc', padding: '20px 40px', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', gap: '40px', margin: '20px 0 0', backgroundColor: '#f8fafc', padding: '18px 36px', borderRadius: '10px' }}>
             <div style={{ textAlign: 'center' }}>
               <p style={{ margin: '0', fontSize: '14px', color: '#64748b', textTransform: 'uppercase' }}>Score</p>
               <p style={{ margin: '5px 0 0 0', fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>{score} / {totalMarks}</p>
@@ -133,28 +144,25 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: 'auto', padding: '0 20px' }}>
+          {/* Signatures row (kept inside the visible area for PDF capture) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '26px', padding: '18px 20px 0', borderTop: '1px solid #cbd5e1' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
+              <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
                 {format(date, 'MMMM do, yyyy')}
               </div>
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Date of Completion</p>
             </div>
-            
+
             {/* HOD Signature */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '50px', height: '60px', position: 'relative' }}>
-                {/* Space for signature */}
-              </div>
+              <div style={{ width: '200px', height: '70px', borderBottom: '1px solid #0f172a', marginBottom: '10px' }} />
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>HOD</p>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
             </div>
-            
+
             {/* Coordinator Signature */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '180px', marginBottom: '50px', height: '60px', position: 'relative' }}>
-                {/* Space for signature */}
-              </div>
+              <div style={{ width: '200px', height: '70px', borderBottom: '1px solid #0f172a', marginBottom: '10px' }} />
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>Coordinator</p>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Department Coordinator</p>
             </div>
