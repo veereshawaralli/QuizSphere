@@ -145,7 +145,7 @@ export function CertificateGenerator({
           </div>
 
           {/* Signatures row (kept inside the visible area for PDF capture) */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '26px', padding: '18px 20px 0', borderTop: '1px solid #cbd5e1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid #cbd5e1' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
                 {format(date, 'MMMM do, yyyy')}
