@@ -373,12 +373,6 @@ export default function AttemptQuiz() {
                       Try Again
                     </Button>
                   )}
-                  </p>
-                )}
-                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button onClick={() => navigate('/quizzes')} variant="outline">
-                    Back to Quizzes
-                  </Button>
                   <CertificateGenerator 
                     studentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}
                     quizTitle={quiz.title}
