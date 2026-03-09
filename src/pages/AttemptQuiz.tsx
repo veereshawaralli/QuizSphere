@@ -138,6 +138,7 @@ export default function AttemptQuiz() {
       const shuffled = (qList || []).sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
       setSecondsLeft(quizData.duration_minutes * 60);
+      setQuizStarted(true);
       setPageLoading(false);
     }
 
