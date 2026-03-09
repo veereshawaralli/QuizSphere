@@ -20,6 +20,7 @@ interface UserWithRole {
   user_id: string;
   full_name: string;
   email?: string;
+  usn?: string;
   role: string;
   role_id: string;
 }
