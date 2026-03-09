@@ -28,6 +28,19 @@ export default function Quizzes() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [fetching, setFetching] = useState(true);
+  const { toast } = useToast();
+
+  const handleDeleteQuiz = async (quizId: string, quizTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${quizTitle}"? This will also delete all questions, submissions, and answers.`)) return;
+
+    const { error } = await supabase.from('quizzes').delete().eq('id', quizId);
+    if (error) {
+      toast({ title: 'Failed to delete quiz', description: error.message, variant: 'destructive' });
+    } else {
+      setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
+      toast({ title: 'Quiz deleted successfully' });
+    }
+  };
 
   // Redirect if not logged in
   useEffect(() => {
