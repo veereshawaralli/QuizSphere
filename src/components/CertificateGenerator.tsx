@@ -46,6 +46,10 @@ export function CertificateGenerator({
     img.src = universityLogo;
   }, []);
 
+  if (!eligible) {
+    return null;
+  }
+
   const handleDownload = async () => {
     if (!certificateRef.current) return;
     setIsGenerating(true);
