@@ -332,6 +332,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
           role_id: string
           user_id: string
+          usn: string
         }[]
       }
       has_role: {
