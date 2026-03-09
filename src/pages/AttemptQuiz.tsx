@@ -181,23 +181,28 @@ export default function AttemptQuiz() {
         return;
       }
 
-      // Check scheduling constraints
-      const now = new Date();
-      if (quizData.start_time && now < new Date(quizData.start_time)) {
+      // Check scheduling constraints using UTC comparison
+      const now = Date.now();
+      const startTime = quizData.start_time ? new Date(quizData.start_time).getTime() : null;
+      const endTime = quizData.end_time ? new Date(quizData.end_time).getTime() : null;
+
+      if (startTime && now < startTime) {
         toast({ 
           title: 'Quiz not yet available', 
-          description: `This quiz opens on ${new Date(quizData.start_time).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`,
+          description: `This quiz opens on ${new Date(quizData.start_time!).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`,
           variant: 'destructive' 
         });
+        setPageLoading(false);
         navigate('/quizzes');
         return;
       }
-      if (quizData.end_time && now > new Date(quizData.end_time)) {
+      if (endTime && now > endTime) {
         toast({ 
           title: 'Quiz has ended', 
           description: 'The time window for this quiz has passed.',
           variant: 'destructive' 
         });
+        setPageLoading(false);
         navigate('/quizzes');
         return;
       }
