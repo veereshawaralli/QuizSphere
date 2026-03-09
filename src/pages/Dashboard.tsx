@@ -40,7 +40,7 @@ export default function Dashboard() {
 
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto max-w-5xl">
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="font-heading text-2xl font-bold">
                 Welcome, {user.user_metadata?.full_name || user.email}
@@ -49,10 +49,16 @@ export default function Dashboard() {
                 Role: <span className="font-medium capitalize">{role || 'unassigned'}</span>
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                My Profile
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
