@@ -131,6 +131,7 @@ export default function AdminPanel() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Current Role</TableHead>
                       <TableHead>Change Role</TableHead>
                       <TableHead>Action</TableHead>
@@ -140,6 +141,7 @@ export default function AdminPanel() {
                     {users.map((u) => (
                       <TableRow key={u.role_id}>
                         <TableCell className="font-medium">{u.full_name}</TableCell>
+                        <TableCell className="text-muted-foreground">{u.email}</TableCell>
                         <TableCell>
                           <span className="capitalize">{u.role}</span>
                         </TableCell>
