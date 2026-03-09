@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { ArrowLeft, Plus, Trash2, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Eye, CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface QuestionForm {
   question_text: string;
@@ -46,6 +50,10 @@ export default function CreateQuiz() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState('09:00');
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [endTime, setEndTime] = useState('17:00');
 
   // Questions list
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
@@ -95,6 +103,24 @@ export default function CreateQuiz() {
     setSaving(true);
 
     try {
+      // Build start/end datetime
+      let startDateTime: string | null = null;
+      let endDateTime: string | null = null;
+
+      if (startDate) {
+        const [sh, sm] = startTime.split(':').map(Number);
+        const sdt = new Date(startDate);
+        sdt.setHours(sh, sm, 0, 0);
+        startDateTime = sdt.toISOString();
+      }
+
+      if (endDate) {
+        const [eh, em] = endTime.split(':').map(Number);
+        const edt = new Date(endDate);
+        edt.setHours(eh, em, 0, 0);
+        endDateTime = edt.toISOString();
+      }
+
       // Step 1: Create the quiz
       const { data: quiz, error: quizError } = await supabase
         .from('quizzes')
@@ -104,6 +130,8 @@ export default function CreateQuiz() {
           duration_minutes: durationMinutes,
           created_by: user!.id,
           is_published: publish,
+          start_time: startDateTime,
+          end_time: endDateTime,
         })
         .select()
         .single();
@@ -195,6 +223,102 @@ export default function CreateQuiz() {
                   onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 30)}
                   className="w-32"
                 />
+              </div>
+
+              {/* Quiz Scheduling */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="font-medium mb-3">Quiz Schedule (Optional)</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Set a time window during which students can attempt this quiz. Leave empty for no restrictions.
+                </p>
+                
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Start Date/Time */}
+                  <div className="space-y-2">
+                    <Label>Start Date & Time</Label>
+                    <div className="flex gap-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !startDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {startDate ? format(startDate, "PPP") : "Pick date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={startDate}
+                            onSelect={setStartDate}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="w-28"
+                      />
+                    </div>
+                  </div>
+
+                  {/* End Date/Time */}
+                  <div className="space-y-2">
+                    <Label>End Date & Time</Label>
+                    <div className="flex gap-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !endDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {endDate ? format(endDate, "PPP") : "Pick date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={endDate}
+                            onSelect={setEndDate}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="w-28"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {startDate && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => {
+                      setStartDate(undefined);
+                      setEndDate(undefined);
+                    }}
+                  >
+                    Clear schedule
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

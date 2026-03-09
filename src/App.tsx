@@ -19,6 +19,7 @@ import AdminPanel from "./pages/AdminPanel";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/quizzes" element={<Quizzes />} />
             <Route path="/quizzes/create" element={<CreateQuiz />} />
             <Route path="/quizzes/:quizId/edit" element={<EditQuiz />} />

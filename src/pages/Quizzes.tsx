@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Plus, Clock, FileQuestion, ArrowLeft, Trash2 } from 'lucide-react';
+import { Plus, Clock, FileQuestion, ArrowLeft, Trash2, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
@@ -21,6 +21,8 @@ interface Quiz {
   is_published: boolean | null;
   created_at: string;
   created_by: string;
+  start_time: string | null;
+  end_time: string | null;
 }
 
 export default function Quizzes() {
@@ -128,12 +130,19 @@ export default function Quizzes() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           {quiz.duration_minutes} min
                         </span>
+                        {quiz.start_time && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {new Date(quiz.start_time).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                            {quiz.end_time && ` – ${new Date(quiz.end_time).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`}
+                          </span>
+                        )}
                         <span>
                           Created {new Date(quiz.created_at).toLocaleDateString()}
                         </span>
@@ -147,11 +156,30 @@ export default function Quizzes() {
                               Edit Quiz
                             </Button>
                           </Link>
-                        ) : quiz.is_published ? (
-                          <Link to={`/quizzes/${quiz.id}/attempt`}>
-                            <Button size="sm">Start Quiz</Button>
-                          </Link>
-                        ) : null}
+                        ) : (() => {
+                            const now = new Date();
+                            const start = quiz.start_time ? new Date(quiz.start_time) : null;
+                            const end = quiz.end_time ? new Date(quiz.end_time) : null;
+                            const withinWindow = (!start || now >= start) && (!end || now <= end);
+                            const notStarted = start && now < start;
+                            const ended = end && now > end;
+
+                            if (!quiz.is_published) return null;
+                            if (notStarted) return (
+                              <span className="text-sm text-muted-foreground">
+                                Opens {start.toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                              </span>
+                            );
+                            if (ended) return (
+                              <Badge variant="secondary">Quiz Ended</Badge>
+                            );
+                            if (withinWindow) return (
+                              <Link to={`/quizzes/${quiz.id}/attempt`}>
+                                <Button size="sm">Start Quiz</Button>
+                              </Link>
+                            );
+                            return null;
+                          })()}
                         {role === 'admin' && (
                           <Button
                             variant="destructive"
