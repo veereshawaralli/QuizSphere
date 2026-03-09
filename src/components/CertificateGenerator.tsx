@@ -25,6 +25,24 @@ export function CertificateGenerator({
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [logoDataUrl, setLogoDataUrl] = useState<string>('');
+
+  // Preload logo as base64 so html2canvas can render it
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        setLogoDataUrl(canvas.toDataURL('image/png'));
+      }
+    };
+    img.src = universityLogo;
+  }, []);
 
   const handleDownload = async () => {
     if (!certificateRef.current) return;
@@ -37,6 +55,7 @@ export function CertificateGenerator({
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2, // Higher resolution
         useCORS: true,
+        allowTaint: true,
         logging: false,
       });
       
