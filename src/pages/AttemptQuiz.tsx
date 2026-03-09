@@ -318,6 +318,9 @@ export default function AttemptQuiz() {
                     totalMarks={totalMarks || 0}
                     percentage={percentage}
                     date={new Date()}
+                    submissionId={submissionIdRef.current || ''}
+                    quizId={quiz.id}
+                    studentId={user?.id || ''}
                   />
                 </div>
               </CardContent>
