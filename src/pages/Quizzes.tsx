@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Plus, Clock, FileQuestion, ArrowLeft } from 'lucide-react';
+import { Plus, Clock, FileQuestion, ArrowLeft, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
   id: string;
@@ -27,6 +28,19 @@ export default function Quizzes() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [fetching, setFetching] = useState(true);
+  const { toast } = useToast();
+
+  const handleDeleteQuiz = async (quizId: string, quizTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${quizTitle}"? This will also delete all questions, submissions, and answers.`)) return;
+
+    const { error } = await supabase.from('quizzes').delete().eq('id', quizId);
+    if (error) {
+      toast({ title: 'Failed to delete quiz', description: error.message, variant: 'destructive' });
+    } else {
+      setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
+      toast({ title: 'Quiz deleted successfully' });
+    }
+  };
 
   // Redirect if not logged in
   useEffect(() => {
@@ -126,17 +140,29 @@ export default function Quizzes() {
                       </div>
 
                       {/* Faculty can edit, students can attempt */}
-                      {isFacultyOrAdmin && quiz.created_by === user.id ? (
-                        <Link to={`/quizzes/${quiz.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            Edit Quiz
+                      <div className="flex items-center gap-2">
+                        {isFacultyOrAdmin && quiz.created_by === user.id ? (
+                          <Link to={`/quizzes/${quiz.id}/edit`}>
+                            <Button variant="outline" size="sm">
+                              Edit Quiz
+                            </Button>
+                          </Link>
+                        ) : quiz.is_published ? (
+                          <Link to={`/quizzes/${quiz.id}/attempt`}>
+                            <Button size="sm">Start Quiz</Button>
+                          </Link>
+                        ) : null}
+                        {role === 'admin' && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
+                          >
+                            <Trash2 className="mr-1 h-4 w-4" />
+                            Delete
                           </Button>
-                        </Link>
-                      ) : quiz.is_published ? (
-                        <Link to={`/quizzes/${quiz.id}/attempt`}>
-                          <Button size="sm">Start Quiz</Button>
-                        </Link>
-                      ) : null}
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
