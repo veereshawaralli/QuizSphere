@@ -1,73 +1,70 @@
-# Welcome to your Lovable project
+# CSD Quiz Portal 🎓
 
-## Project info
+A comprehensive Quiz and Study Material management platform built for the Department of Computer Science & Design, Sharnbasva University. This application allows faculty to create and manage quizzes, share study materials, and enables students to take assessments and earn downloadable certificates.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Features
 
-## How can I edit this code?
+- **Role-Based Access Control**
+  - **Admin**: Manage user roles (promote students to faculty).
+  - **Faculty**: Create quizzes, view student results, and upload study materials.
+  - **Student**: Attempt quizzes, download certificates upon completion, and access study materials.
+- **Quiz Management**
+  - Create quizzes with multiple-choice questions.
+  - Set duration, total marks, and publish status.
+- **Automated Certification**
+  - Dynamically generated PDF certificates using `html2canvas` and `jsPDF`.
+  - Includes student score, percentage, and date of completion.
+- **Study Materials**
+  - Upload and share documents, PDFs, and notes.
+- **Authentication & Security**
+  - Secure login and registration powered by Supabase Auth.
+  - Row Level Security (RLS) ensuring data privacy based on user roles.
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend**: React.js, Vite, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Backend & Database**: Supabase (PostgreSQL, Auth, Storage)
+- **PDF Generation**: `jsPDF`, `html2canvas`
+- **Routing**: React Router
+- **Icons**: Lucide React
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 📦 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
+- Node.js & npm installed.
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```sh
+   git clone <YOUR_GIT_URL>
+   cd <YOUR_PROJECT_NAME>
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```sh
+   npm install
+   ```
 
-Follow these steps:
+3. **Environment Setup**
+   The project requires a connection to a Supabase backend. If you are running this locally through Lovable, the environment variables (`.env`) are automatically configured.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Start the development server**
+   ```sh
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🏗️ Project Structure
 
-# Step 3: Install the necessary dependencies.
-npm i
+- `src/components/`: Reusable UI components (including CertificateGenerator and shadcn/ui components).
+- `src/pages/`: Main application pages (Dashboard, Login, Quizzes, Results, Materials, AdminPanel).
+- `src/contexts/`: React contexts (e.g., AuthContext for managing user state).
+- `src/lib/`: Utility functions and Supabase client configuration.
+- `src/integrations/supabase/`: Auto-generated Supabase types and client setup.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🌐 Deployment
 
-**Edit a file directly in GitHub**
+This project is optimized for deployment via [Lovable](https://lovable.dev/). Simply open your Lovable project and click on **Share -> Publish**.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+You can also connect a custom domain by navigating to **Project > Settings > Domains**.
