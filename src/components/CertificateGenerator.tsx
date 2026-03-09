@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import QRCode from 'qrcode';
 import { Button } from './ui/button';
 import { Download, Award } from 'lucide-react';
 import { format } from 'date-fns';
+import { supabase } from '@/lib/supabase';
 import universityLogo from '../assets/university-logo.png';
 
 interface CertificateProps {
@@ -13,6 +15,9 @@ interface CertificateProps {
   totalMarks: number;
   percentage: number;
   date: Date;
+  submissionId: string;
+  quizId: string;
+  studentId: string;
 }
 
 export function CertificateGenerator({
@@ -22,10 +27,15 @@ export function CertificateGenerator({
   totalMarks,
   percentage,
   date,
+  submissionId,
+  quizId,
+  studentId,
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [certificateId, setCertificateId] = useState<string | null>(null);
 
   const eligible = percentage >= 70;
 
@@ -41,16 +51,10 @@ export function CertificateGenerator({
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
-
-        if (!ctx) {
-          reject(new Error('Unable to prepare logo canvas'));
-          return;
-        }
-
+        if (!ctx) { reject(new Error('Canvas error')); return; }
         ctx.drawImage(img, 0, 0);
         resolve(canvas.toDataURL('image/png'));
       };
-
       img.onerror = () => reject(new Error('Logo failed to load'));
       img.src = universityLogo;
     });
@@ -59,16 +63,61 @@ export function CertificateGenerator({
     return dataUrl;
   }, [logoDataUrl]);
 
-  // Preload logo as base64 so html2canvas can render it
   useEffect(() => {
-    ensureLogoDataUrl().catch((error) => {
-      console.error('Logo preload failed:', error);
-    });
+    ensureLogoDataUrl().catch(console.error);
   }, [ensureLogoDataUrl]);
+
+  // Check if certificate already exists for this submission
+  useEffect(() => {
+    if (!submissionId) return;
+    supabase
+      .from('certificates')
+      .select('id')
+      .eq('submission_id', submissionId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setCertificateId(data.id);
+      });
+  }, [submissionId]);
 
   if (!eligible) {
     return null;
   }
+
+  const getOrCreateCertificate = async (): Promise<string> => {
+    if (certificateId) return certificateId;
+
+    // Check again in case of race condition
+    const { data: existing } = await supabase
+      .from('certificates')
+      .select('id')
+      .eq('submission_id', submissionId)
+      .maybeSingle();
+
+    if (existing) {
+      setCertificateId(existing.id);
+      return existing.id;
+    }
+
+    const { data: newCert, error } = await supabase
+      .from('certificates')
+      .insert({
+        student_id: studentId,
+        submission_id: submissionId,
+        quiz_id: quizId,
+        student_name: studentName,
+        quiz_title: quizTitle,
+        score,
+        total_marks: totalMarks,
+        percentage,
+      })
+      .select('id')
+      .single();
+
+    if (error || !newCert) throw error || new Error('Failed to create certificate');
+    setCertificateId(newCert.id);
+    return newCert.id;
+  };
 
   const handleDownload = async () => {
     if (!certificateRef.current || percentage < 70) return;
@@ -77,11 +126,21 @@ export function CertificateGenerator({
     try {
       await ensureLogoDataUrl();
 
-      // Temporarily make the certificate visible for html2canvas
+      // Get or create certificate record
+      const certId = await getOrCreateCertificate();
+
+      // Generate QR code pointing to verify page
+      const verifyUrl = `${window.location.origin}/verify/${certId}`;
+      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 120, margin: 1 });
+      setQrDataUrl(qrUrl);
+
+      // Wait a tick for the QR to render in DOM
+      await new Promise((r) => setTimeout(r, 100));
+
       certificateRef.current.style.display = 'flex';
 
       const canvas = await html2canvas(certificateRef.current, {
-        scale: 2, // Higher resolution
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -93,7 +152,7 @@ export function CertificateGenerator({
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
-        format: [canvas.width, canvas.height]
+        format: [canvas.width, canvas.height],
       });
 
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
@@ -124,15 +183,15 @@ export function CertificateGenerator({
           position: 'fixed',
           top: '-9999px',
           left: '-9999px',
-          width: '1056px', // 11 inches at 96 DPI
-          height: '816px', // 8.5 inches at 96 DPI
+          width: '1056px',
+          height: '816px',
           backgroundColor: 'white',
           padding: '40px',
           boxSizing: 'border-box',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          border: '20px solid #1e3a8a', // Using a standard blue
+          border: '20px solid #1e3a8a',
           fontFamily: 'sans-serif',
           backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)',
           backgroundSize: '20px 20px',
@@ -192,7 +251,7 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          {/* Signatures row (kept inside the visible area for PDF capture) */}
+          {/* Signatures + QR row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid #cbd5e1' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
@@ -208,11 +267,14 @@ export function CertificateGenerator({
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
             </div>
 
-            {/* Coordinator Signature */}
+            {/* QR Code for verification */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '200px', height: '50px', borderBottom: '1px solid #0f172a', marginBottom: '8px' }} />
-              <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>Coordinator</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Department Coordinator</p>
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Verify QR" style={{ width: '90px', height: '90px' }} />
+              ) : (
+                <div style={{ width: '90px', height: '90px', backgroundColor: '#f1f5f9', borderRadius: '4px' }} />
+              )}
+              <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: '#64748b' }}>Scan to verify</p>
             </div>
           </div>
 
