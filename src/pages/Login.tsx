@@ -17,6 +17,7 @@ import { GraduationCap } from 'lucide-react';
 export default function Login() {
   const { user, loading: authLoading } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -36,7 +37,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isResetPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+
+        toast({
+          title: 'Password reset email sent!',
+          description: 'Check your email for a link to reset your password.',
+        });
+        setIsResetPassword(false);
+      } else if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -83,18 +95,20 @@ export default function Login() {
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <CardTitle className="font-heading text-xl">
-              {isSignUp ? 'Create Account' : 'Sign In'}
+              {isResetPassword ? 'Reset Password' : isSignUp ? 'Create Account' : 'Sign In'}
             </CardTitle>
             <CardDescription>
-              {isSignUp
-                ? 'Register for the CSD Quiz Portal'
-                : `Welcome back${roleHint ? `, ${roleHint}` : ''}! Sign in to continue.`}
+              {isResetPassword
+                ? 'Enter your email to receive a password reset link'
+                : isSignUp
+                  ? 'Register for the CSD Quiz Portal'
+                  : `Welcome back${roleHint ? `, ${roleHint}` : ''}! Sign in to continue.`}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {isSignUp && (
+              {isSignUp && !isResetPassword && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
@@ -119,33 +133,68 @@ export default function Login() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
+              {!isResetPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+              )}
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
+                {loading 
+                  ? 'Please wait...' 
+                  : isResetPassword 
+                    ? 'Send Reset Link'
+                    : isSignUp 
+                      ? 'Create Account' 
+                      : 'Sign In'}
               </Button>
             </form>
 
+            {!isResetPassword && !isSignUp && (
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsResetPassword(true)}
+                  className="text-sm text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+
             <div className="mt-4 text-center text-sm text-muted-foreground">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="font-medium text-primary underline-offset-4 hover:underline"
-              >
-                {isSignUp ? 'Sign In' : 'Sign Up'}
-              </button>
+              {isResetPassword ? (
+                <>
+                  Remember your password?{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsResetPassword(false)}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    Sign In
+                  </button>
+                </>
+              ) : (
+                <>
+                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                  </button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
