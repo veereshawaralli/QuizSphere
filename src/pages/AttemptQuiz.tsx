@@ -171,7 +171,7 @@ export default function AttemptQuiz() {
       // Fetch quiz
       const { data: quizData, error: qErr } = await supabase
         .from('quizzes')
-        .select('id, title, description, duration_minutes')
+        .select('id, title, description, duration_minutes, start_time, end_time')
         .eq('id', quizId!)
         .single();
 
@@ -180,6 +180,28 @@ export default function AttemptQuiz() {
         navigate('/quizzes');
         return;
       }
+
+      // Check scheduling constraints
+      const now = new Date();
+      if (quizData.start_time && now < new Date(quizData.start_time)) {
+        toast({ 
+          title: 'Quiz not yet available', 
+          description: `This quiz opens on ${new Date(quizData.start_time).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`,
+          variant: 'destructive' 
+        });
+        navigate('/quizzes');
+        return;
+      }
+      if (quizData.end_time && now > new Date(quizData.end_time)) {
+        toast({ 
+          title: 'Quiz has ended', 
+          description: 'The time window for this quiz has passed.',
+          variant: 'destructive' 
+        });
+        navigate('/quizzes');
+        return;
+      }
+
       setQuiz(quizData);
 
       // Check how many times already attempted (max 2 allowed)
