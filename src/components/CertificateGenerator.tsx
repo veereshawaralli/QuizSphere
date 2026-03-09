@@ -251,20 +251,13 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          {/* Signatures + QR row */}
+          {/* Date + QR row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid #cbd5e1' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
                 {format(date, 'MMMM do, yyyy')}
               </div>
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Date of Completion</p>
-            </div>
-
-            {/* HOD Signature */}
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '200px', height: '50px', borderBottom: '1px solid #0f172a', marginBottom: '8px' }} />
-              <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>HOD</p>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
             </div>
 
             {/* QR Code for verification */}
