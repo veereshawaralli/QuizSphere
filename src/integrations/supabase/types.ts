@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      certificates: {
+        Row: {
+          id: string
+          issued_at: string
+          percentage: number
+          quiz_id: string
+          quiz_title: string
+          score: number
+          student_id: string
+          student_name: string
+          submission_id: string
+          total_marks: number
+        }
+        Insert: {
+          id?: string
+          issued_at?: string
+          percentage: number
+          quiz_id: string
+          quiz_title: string
+          score: number
+          student_id: string
+          student_name: string
+          submission_id: string
+          total_marks: number
+        }
+        Update: {
+          id?: string
+          issued_at?: string
+          percentage?: number
+          quiz_id?: string
+          quiz_title?: string
+          score?: number
+          student_id?: string
+          student_name?: string
+          submission_id?: string
+          total_marks?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "quiz_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materials: {
         Row: {
           created_at: string
