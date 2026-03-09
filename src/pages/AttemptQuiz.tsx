@@ -373,7 +373,7 @@ export default function AttemptQuiz() {
                     i === reviewIdx
                       ? 'bg-primary text-primary-foreground'
                       : q.is_correct
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-accent text-accent-foreground'
                         : 'bg-destructive text-destructive-foreground'
                   }`}
                 >
@@ -396,14 +396,14 @@ export default function AttemptQuiz() {
                   const isSelected = current.selected_option === opt.key;
                   const isCorrect = current.correct_option === opt.key;
                   let cls = 'w-full rounded-lg border p-3 text-left flex items-center gap-2 ';
-                  if (isCorrect) cls += 'border-green-500 bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200';
+                  if (isCorrect) cls += 'border-primary bg-primary/10 text-foreground';
                   else if (isSelected && !isCorrect) cls += 'border-destructive bg-destructive/10 text-destructive';
                   else cls += 'border-border text-foreground';
                   return (
                     <div key={opt.key} className={cls}>
                       <span className="font-semibold mr-1">{opt.key}.</span>
                       <span className="flex-1">{opt.text}</span>
-                      {isCorrect && <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />}
+                      {isCorrect && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
                       {isSelected && !isCorrect && <XCircle className="h-4 w-4 text-destructive shrink-0" />}
                     </div>
                   );
