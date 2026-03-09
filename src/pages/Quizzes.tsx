@@ -140,17 +140,29 @@ export default function Quizzes() {
                       </div>
 
                       {/* Faculty can edit, students can attempt */}
-                      {isFacultyOrAdmin && quiz.created_by === user.id ? (
-                        <Link to={`/quizzes/${quiz.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            Edit Quiz
+                      <div className="flex items-center gap-2">
+                        {isFacultyOrAdmin && quiz.created_by === user.id ? (
+                          <Link to={`/quizzes/${quiz.id}/edit`}>
+                            <Button variant="outline" size="sm">
+                              Edit Quiz
+                            </Button>
+                          </Link>
+                        ) : quiz.is_published ? (
+                          <Link to={`/quizzes/${quiz.id}/attempt`}>
+                            <Button size="sm">Start Quiz</Button>
+                          </Link>
+                        ) : null}
+                        {role === 'admin' && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
+                          >
+                            <Trash2 className="mr-1 h-4 w-4" />
+                            Delete
                           </Button>
-                        </Link>
-                      ) : quiz.is_published ? (
-                        <Link to={`/quizzes/${quiz.id}/attempt`}>
-                          <Button size="sm">Start Quiz</Button>
-                        </Link>
-                      ) : null}
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
