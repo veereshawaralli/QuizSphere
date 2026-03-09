@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/materials" element={<Materials />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
