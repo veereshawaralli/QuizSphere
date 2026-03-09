@@ -4,6 +4,7 @@ import jsPDF from 'jspdf';
 import { Button } from './ui/button';
 import { Download, Award } from 'lucide-react';
 import { format } from 'date-fns';
+import universityLogo from '../assets/university-logo.png';
 
 interface CertificateProps {
   studentName: string;
