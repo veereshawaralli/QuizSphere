@@ -8,12 +8,13 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Trash2 } from 'lucide-react';
+import { Shield, Trash2, Download, Search } from 'lucide-react';
 
 interface UserWithRole {
   user_id: string;
@@ -26,6 +27,7 @@ interface UserWithRole {
 export default function AdminPanel() {
   const { user, role, loading: authLoading } = useAuth();
   const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -98,6 +100,36 @@ export default function AdminPanel() {
     toast({ title: 'User removed', description: `${fullName} has been removed.` });
   }
 
+  function handleExportUsers() {
+    if (filteredUsers.length === 0) {
+      toast({ title: 'No users', description: 'No users to export.', variant: 'destructive' });
+      return;
+    }
+
+    // CSV format
+    const headers = ['Name', 'Email', 'Role'];
+    const rows = filteredUsers.map(u => [
+      u.full_name,
+      u.email || '',
+      u.role,
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({ title: 'Exported', description: `${filteredUsers.length} users exported to CSV.` });
+  }
+
   if (authLoading || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -108,24 +140,53 @@ export default function AdminPanel() {
 
   if (role !== 'admin') return null;
 
+  // Filter users by search query (name or email)
+  const filteredUsers = users.filter(u => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      u.full_name.toLowerCase().includes(query) ||
+      (u.email && u.email.toLowerCase().includes(query))
+    );
+  });
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
 
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto max-w-4xl">
-          <div className="mb-6 flex items-center gap-3">
-            <Shield className="h-6 w-6 text-primary" />
-            <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Roles</h1>
+          <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-primary" />
+              <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Roles</h1>
+            </div>
+            <Button onClick={handleExportUsers} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Users
+            </Button>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>All Users</CardTitle>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <CardTitle>All Users ({filteredUsers.length})</CardTitle>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              {users.length === 0 ? (
-                <p className="text-muted-foreground">No users found.</p>
+              {filteredUsers.length === 0 ? (
+                <p className="text-muted-foreground">
+                  {searchQuery ? 'No users match your search.' : 'No users found.'}
+                </p>
               ) : (
                 <Table>
                   <TableHeader>
@@ -138,7 +199,7 @@ export default function AdminPanel() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((u) => (
+                    {filteredUsers.map((u) => (
                       <TableRow key={u.role_id}>
                         <TableCell className="font-medium">{u.full_name}</TableCell>
                         <TableCell className="text-muted-foreground">{u.email}</TableCell>
