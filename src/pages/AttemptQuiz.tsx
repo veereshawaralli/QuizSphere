@@ -83,13 +83,13 @@ export default function AttemptQuiz() {
           description: 'Your quiz has been automatically submitted.',
           variant: 'destructive',
         });
-        handleSubmit();
+        handleSubmitRef.current?.();
       }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [quizStarted, submitted, handleSubmit, toast]);
+  }, [quizStarted, submitted, toast]);
 
   // Load quiz, questions, and check prior attempt
   useEffect(() => {
