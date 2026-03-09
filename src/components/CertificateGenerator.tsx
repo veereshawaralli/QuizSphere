@@ -155,14 +155,14 @@ export function CertificateGenerator({
 
             {/* HOD Signature */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '200px', height: '70px', borderBottom: '1px solid #0f172a', marginBottom: '10px' }} />
+              <div style={{ width: '200px', height: '50px', borderBottom: '1px solid #0f172a', marginBottom: '8px' }} />
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>HOD</p>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Head of Department</p>
             </div>
 
             {/* Coordinator Signature */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: '200px', height: '70px', borderBottom: '1px solid #0f172a', marginBottom: '10px' }} />
+              <div style={{ width: '200px', height: '50px', borderBottom: '1px solid #0f172a', marginBottom: '8px' }} />
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: 'bold' }}>Coordinator</p>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Department Coordinator</p>
             </div>
