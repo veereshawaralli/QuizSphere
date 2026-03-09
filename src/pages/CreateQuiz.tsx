@@ -225,6 +225,18 @@ export default function CreateQuiz() {
                   className="w-32"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxAttempts">Max Attempts per Student</Label>
+                <Input
+                  id="maxAttempts"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={maxAttempts}
+                  onChange={(e) => setMaxAttempts(parseInt(e.target.value) || 1)}
+                  className="w-32"
+                />
+              </div>
 
               {/* Quiz Scheduling */}
               <div className="border-t pt-4 mt-4">
