@@ -168,6 +168,7 @@ export default function EditQuiz() {
           title: title.trim(),
           description: description.trim() || null,
           duration_minutes: durationMinutes,
+          max_attempts: maxAttempts,
           is_published: newPublishState,
           start_time: startDateTime,
           end_time: endDateTime,
