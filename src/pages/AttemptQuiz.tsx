@@ -48,6 +48,7 @@ export default function AttemptQuiz() {
   const [score, setScore] = useState<number | null>(null);
   const [totalMarks, setTotalMarks] = useState<number | null>(null);
   const [alreadyAttempted, setAlreadyAttempted] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
   const [pageLoading, setPageLoading] = useState(true);
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
@@ -170,20 +171,26 @@ export default function AttemptQuiz() {
       }
       setQuiz(quizData);
 
-      // Check if already attempted
-      const { data: existingSub } = await supabase
+      // Check how many times already attempted (max 2 allowed)
+      const { data: existingSubs, count } = await supabase
         .from('quiz_submissions')
-        .select('id, score, total_marks, is_submitted')
+        .select('id, score, total_marks, is_submitted', { count: 'exact' })
         .eq('quiz_id', quizId!)
         .eq('student_id', user!.id)
-        .eq('is_submitted', true)
-        .maybeSingle();
+        .eq('is_submitted', true);
 
-      if (existingSub) {
+      const attemptsMade = count || 0;
+      setAttemptCount(attemptsMade);
+
+      if (attemptsMade >= 2) {
+        // Already used both attempts - show last result
         setAlreadyAttempted(true);
-        setScore(existingSub.score);
-        setTotalMarks(existingSub.total_marks);
-        submissionIdRef.current = existingSub.id;
+        const lastSub = existingSubs?.[existingSubs.length - 1];
+        if (lastSub) {
+          setScore(lastSub.score);
+          setTotalMarks(lastSub.total_marks);
+          submissionIdRef.current = lastSub.id;
+        }
         setSubmitted(true);
         setPageLoading(false);
         return;
@@ -328,6 +335,9 @@ export default function AttemptQuiz() {
   // Results screen
   if (submitted) {
     const percentage = totalMarks ? Math.round((score! / totalMarks) * 100) : 0;
+    const attemptsUsed = alreadyAttempted ? attemptCount : attemptCount + 1;
+    const canRetry = attemptsUsed < 2 && percentage < 70;
+    
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -336,7 +346,7 @@ export default function AttemptQuiz() {
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">
-                  {alreadyAttempted ? 'Already Attempted' : 'Quiz Submitted!'}
+                  {alreadyAttempted ? 'Maximum Attempts Reached' : 'Quiz Submitted!'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-center">
@@ -344,15 +354,25 @@ export default function AttemptQuiz() {
                 <p className="text-muted-foreground">
                   Score: {score} / {totalMarks}
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  Attempts used: {attemptsUsed} / 2
+                </p>
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
-                    You need at least 70% to earn a certificate. Keep practicing!
+                    {canRetry 
+                      ? 'You need at least 70% to earn a certificate. You have 1 more attempt!'
+                      : 'You need at least 70% to earn a certificate. No more attempts remaining.'}
                   </p>
                 )}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                   <Button onClick={() => navigate('/quizzes')} variant="outline">
                     Back to Quizzes
                   </Button>
+                  {canRetry && (
+                    <Button onClick={() => window.location.reload()}>
+                      Try Again
+                    </Button>
+                  )}
                   <CertificateGenerator 
                     studentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}
                     quizTitle={quiz.title}
