@@ -109,6 +109,48 @@ export default function AttemptQuiz() {
     };
   }, [quizStarted, submitted, toast]);
 
+  // Prevent copy, cut, paste, screenshot, right-click, print during quiz
+  useEffect(() => {
+    if (!quizStarted || submitted) return;
+
+    const preventAction = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const preventKeys = (e: KeyboardEvent) => {
+      // Block PrintScreen, Ctrl+C, Ctrl+A, Ctrl+P, Ctrl+S, Ctrl+Shift+I (DevTools)
+      if (
+        e.key === 'PrintScreen' ||
+        (e.ctrlKey && ['c', 'a', 'p', 's', 'u'].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) ||
+        e.key === 'F12'
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    document.addEventListener('copy', preventAction);
+    document.addEventListener('cut', preventAction);
+    document.addEventListener('paste', preventAction);
+    document.addEventListener('contextmenu', preventAction);
+    document.addEventListener('keydown', preventKeys);
+    // Disable text selection via CSS
+    document.body.style.userSelect = 'none';
+    (document.body.style as any).webkitUserSelect = 'none';
+
+    return () => {
+      document.removeEventListener('copy', preventAction);
+      document.removeEventListener('cut', preventAction);
+      document.removeEventListener('paste', preventAction);
+      document.removeEventListener('contextmenu', preventAction);
+      document.removeEventListener('keydown', preventKeys);
+      document.body.style.userSelect = '';
+      (document.body.style as any).webkitUserSelect = '';
+    };
+  }, [quizStarted, submitted]);
+
   // Load quiz, questions, and check prior attempt
   useEffect(() => {
     if (!user || !quizId) return;
