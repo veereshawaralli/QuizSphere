@@ -183,8 +183,10 @@ export default function AdminPanel() {
               </div>
             </CardHeader>
             <CardContent>
-              {users.length === 0 ? (
-                <p className="text-muted-foreground">No users found.</p>
+              {filteredUsers.length === 0 ? (
+                <p className="text-muted-foreground">
+                  {searchQuery ? 'No users match your search.' : 'No users found.'}
+                </p>
               ) : (
                 <Table>
                   <TableHeader>
