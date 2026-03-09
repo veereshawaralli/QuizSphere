@@ -87,8 +87,26 @@ export default function AttemptQuiz() {
       }
     };
 
+    const handleVisibilityChange = () => {
+      if (document.hidden && !fullscreenExitHandled.current) {
+        fullscreenExitHandled.current = true;
+        toast({
+          title: 'Tab switched',
+          description: 'Your quiz has been automatically submitted.',
+          variant: 'destructive',
+        });
+        handleSubmitRef.current?.();
+      }
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleVisibilityChange);
+    };
   }, [quizStarted, submitted, toast]);
 
   // Load quiz, questions, and check prior attempt
