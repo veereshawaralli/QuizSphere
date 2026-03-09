@@ -37,7 +37,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isResetPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+
+        toast({
+          title: 'Password reset email sent!',
+          description: 'Check your email for a link to reset your password.',
+        });
+        setIsResetPassword(false);
+      } else if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
