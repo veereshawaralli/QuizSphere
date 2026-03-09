@@ -137,11 +137,11 @@ export default function Login() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email or USN</Label>
+                <Label htmlFor="email">{isSignUp ? 'Email' : 'Email or USN'}</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="student@sharnbasva.edu"
+                  type={isSignUp ? 'email' : 'text'}
+                  placeholder={isSignUp ? 'student@sharnbasva.edu' : 'Email or USN (e.g. 1SH21CS001)'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
