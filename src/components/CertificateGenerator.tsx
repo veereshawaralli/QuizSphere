@@ -126,7 +126,7 @@ export function CertificateGenerator({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-            <img src={universityLogo} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} crossOrigin="anonymous" />
+            {logoDataUrl && <img src={logoDataUrl} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} />}
             <div style={{ textAlign: 'center' }}>
               <h1 style={{ fontSize: '32px', color: '#1e3a8a', margin: '0', fontWeight: 'bold' }}>Sharnbasva University</h1>
               <h2 style={{ fontSize: '20px', color: '#334155', margin: '5px 0 0 0' }}>Faculty of Engineering & Technology</h2>
