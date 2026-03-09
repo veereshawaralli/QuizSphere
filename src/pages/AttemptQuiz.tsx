@@ -242,6 +242,18 @@ export default function AttemptQuiz() {
     }
   }, [submitting, submitted, quiz, user, answers, toast]);
 
+  // Keep ref in sync
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
+  // Exit fullscreen when submitted
+  useEffect(() => {
+    if (submitted && document.fullscreenElement) {
+      document.exitFullscreen?.();
+    }
+  }, [submitted]);
+
   if (authLoading || pageLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
