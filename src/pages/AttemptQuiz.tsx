@@ -25,6 +25,12 @@ interface Question {
   sort_order: number | null;
 }
 
+interface QuestionWithAnswer extends Question {
+  correct_option: string;
+  selected_option: string | null;
+  is_correct: boolean;
+}
+
 interface Quiz {
   id: string;
   title: string;
