@@ -173,7 +173,7 @@ export default function AttemptQuiz() {
       // Fetch quiz
       const { data: quizData, error: qErr } = await supabase
         .from('quizzes')
-        .select('id, title, description, duration_minutes, start_time, end_time')
+        .select('id, title, description, duration_minutes, max_attempts, start_time, end_time')
         .eq('id', quizId!)
         .single();
 
