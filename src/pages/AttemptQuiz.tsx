@@ -335,6 +335,9 @@ export default function AttemptQuiz() {
   // Results screen
   if (submitted) {
     const percentage = totalMarks ? Math.round((score! / totalMarks) * 100) : 0;
+    const attemptsUsed = alreadyAttempted ? attemptCount : attemptCount + 1;
+    const canRetry = attemptsUsed < 2 && percentage < 70;
+    
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -343,7 +346,7 @@ export default function AttemptQuiz() {
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">
-                  {alreadyAttempted ? 'Already Attempted' : 'Quiz Submitted!'}
+                  {alreadyAttempted ? 'Maximum Attempts Reached' : 'Quiz Submitted!'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-center">
@@ -351,9 +354,25 @@ export default function AttemptQuiz() {
                 <p className="text-muted-foreground">
                   Score: {score} / {totalMarks}
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  Attempts used: {attemptsUsed} / 2
+                </p>
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
-                    You need at least 70% to earn a certificate. Keep practicing!
+                    {canRetry 
+                      ? 'You need at least 70% to earn a certificate. You have 1 more attempt!'
+                      : 'You need at least 70% to earn a certificate. No more attempts remaining.'}
+                  </p>
+                )}
+                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button onClick={() => navigate('/quizzes')} variant="outline">
+                    Back to Quizzes
+                  </Button>
+                  {canRetry && (
+                    <Button onClick={() => window.location.reload()}>
+                      Try Again
+                    </Button>
+                  )}
                   </p>
                 )}
                 <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
