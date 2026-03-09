@@ -156,14 +156,31 @@ export default function AdminPanel() {
 
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto max-w-4xl">
-          <div className="mb-6 flex items-center gap-3">
-            <Shield className="h-6 w-6 text-primary" />
-            <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Roles</h1>
+          <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-primary" />
+              <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Roles</h1>
+            </div>
+            <Button onClick={handleExportUsers} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Users
+            </Button>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>All Users</CardTitle>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <CardTitle>All Users ({filteredUsers.length})</CardTitle>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {users.length === 0 ? (
