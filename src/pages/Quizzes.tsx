@@ -21,6 +21,8 @@ interface Quiz {
   is_published: boolean | null;
   created_at: string;
   created_by: string;
+  start_time: string | null;
+  end_time: string | null;
 }
 
 export default function Quizzes() {
