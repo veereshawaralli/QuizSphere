@@ -221,9 +221,10 @@ export default function AttemptQuiz() {
 
       const attemptsMade = count || 0;
       setAttemptCount(attemptsMade);
+      const maxAllowed = quizData.max_attempts || 1;
 
-      if (attemptsMade >= 2) {
-        // Already used both attempts - show last result
+      if (attemptsMade >= maxAllowed) {
+        // Already used all attempts - show last result
         setAlreadyAttempted(true);
         const lastSub = existingSubs?.[existingSubs.length - 1];
         if (lastSub) {
@@ -246,7 +247,7 @@ export default function AttemptQuiz() {
       const shuffled = (qList || []).sort(() => Math.random() - 0.5);
       setQuestions(shuffled);
       setSecondsLeft(quizData.duration_minutes * 60);
-      setQuizStarted(true);
+      setReadyToStart(true);
       setPageLoading(false);
     }
 
