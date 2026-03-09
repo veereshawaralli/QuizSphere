@@ -48,6 +48,7 @@ export default function AttemptQuiz() {
   const [score, setScore] = useState<number | null>(null);
   const [totalMarks, setTotalMarks] = useState<number | null>(null);
   const [alreadyAttempted, setAlreadyAttempted] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
   const [pageLoading, setPageLoading] = useState(true);
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
