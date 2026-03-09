@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CertificateGenerator } from '@/components/CertificateGenerator';
 
@@ -23,6 +23,12 @@ interface Question {
   option_d: string;
   marks: number;
   sort_order: number | null;
+}
+
+interface QuestionWithAnswer extends Question {
+  correct_option: string;
+  selected_option: string | null;
+  is_correct: boolean;
 }
 
 interface Quiz {
@@ -52,6 +58,9 @@ export default function AttemptQuiz() {
   const [pageLoading, setPageLoading] = useState(true);
   const [fullscreenActive, setFullscreenActive] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [reviewData, setReviewData] = useState<QuestionWithAnswer[]>([]);
+  const [reviewIdx, setReviewIdx] = useState(0);
   const submissionIdRef = useRef<string | null>(null);
   const fullscreenExitHandled = useRef(false);
   const handleSubmitRef = useRef<() => void>();
@@ -332,12 +341,132 @@ export default function AttemptQuiz() {
 
   if (!quiz) return null;
 
+  // Review mode screen
+  if (reviewMode && reviewData.length > 0) {
+    const current = reviewData[reviewIdx];
+    const opts = [
+      { key: 'A', text: current.option_a },
+      { key: 'B', text: current.option_b },
+      { key: 'C', text: current.option_c },
+      { key: 'D', text: current.option_d },
+    ];
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 px-4 py-6">
+          <div className="container mx-auto max-w-3xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h1 className="font-heading text-xl font-bold">{quiz.title} — Review</h1>
+                <p className="text-sm text-muted-foreground">You can review answers since you scored ≥ 70%</p>
+              </div>
+              <Button variant="outline" onClick={() => setReviewMode(false)}>Back to Results</Button>
+            </div>
+
+            {/* Navigation dots */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {reviewData.map((q, i) => (
+                <button
+                  key={q.id}
+                  onClick={() => setReviewIdx(i)}
+                  className={`h-8 w-8 rounded-full text-sm font-medium transition-colors ${
+                    i === reviewIdx
+                      ? 'bg-primary text-primary-foreground'
+                      : q.is_correct
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-destructive text-destructive-foreground'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg">
+                    Q{reviewIdx + 1}. {current.question_text}
+                  </CardTitle>
+                  <Badge variant="outline">{current.marks} marks</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {opts.map((opt) => {
+                  const isSelected = current.selected_option === opt.key;
+                  const isCorrect = current.correct_option === opt.key;
+                  let cls = 'w-full rounded-lg border p-3 text-left flex items-center gap-2 ';
+                  if (isCorrect) cls += 'border-primary bg-primary/10 text-foreground';
+                  else if (isSelected && !isCorrect) cls += 'border-destructive bg-destructive/10 text-destructive';
+                  else cls += 'border-border text-foreground';
+                  return (
+                    <div key={opt.key} className={cls}>
+                      <span className="font-semibold mr-1">{opt.key}.</span>
+                      <span className="flex-1">{opt.text}</span>
+                      {isCorrect && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
+                      {isSelected && !isCorrect && <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                    </div>
+                  );
+                })}
+                {!current.selected_option && (
+                  <p className="text-sm text-muted-foreground italic">You did not answer this question.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="mt-6 flex items-center justify-between">
+              <Button variant="outline" disabled={reviewIdx === 0} onClick={() => setReviewIdx(i => i - 1)}>
+                <ChevronLeft className="mr-1 h-4 w-4" /> Previous
+              </Button>
+              {reviewIdx < reviewData.length - 1 ? (
+                <Button onClick={() => setReviewIdx(i => i + 1)}>
+                  Next <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => setReviewMode(false)}>Finish Review</Button>
+              )}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   // Results screen
   if (submitted) {
     const percentage = totalMarks ? Math.round((score! / totalMarks) * 100) : 0;
     const attemptsUsed = alreadyAttempted ? attemptCount : attemptCount + 1;
     const canRetry = attemptsUsed < 2 && percentage < 70;
-    
+    const canReview = percentage >= 70;
+
+    const handleReview = async () => {
+      if (!submissionIdRef.current) return;
+      const { data: qaData } = await supabase
+        .from('student_answers')
+        .select('question_id, selected_option, is_correct')
+        .eq('submission_id', submissionIdRef.current);
+
+      const { data: qData } = await supabase
+        .from('questions')
+        .select('id, question_text, option_a, option_b, option_c, option_d, marks, sort_order, correct_option')
+        .eq('quiz_id', quiz!.id);
+
+      if (!qData || !qaData) return;
+      const merged: QuestionWithAnswer[] = qData.map(q => {
+        const ans = qaData.find(a => a.question_id === q.id);
+        return {
+          ...q,
+          correct_option: q.correct_option,
+          selected_option: ans?.selected_option || null,
+          is_correct: ans?.is_correct || false,
+        };
+      });
+      setReviewData(merged);
+      setReviewIdx(0);
+      setReviewMode(true);
+    };
+
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -359,12 +488,17 @@ export default function AttemptQuiz() {
                 </p>
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
-                    {canRetry 
+                    {canRetry
                       ? 'You need at least 70% to earn a certificate. You have 1 more attempt!'
                       : 'You need at least 70% to earn a certificate. No more attempts remaining.'}
                   </p>
                 )}
-                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                {canReview && (
+                  <p className="text-sm text-primary font-medium">
+                    🎉 Great job! You can review your answers below.
+                  </p>
+                )}
+                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
                   <Button onClick={() => navigate('/quizzes')} variant="outline">
                     Back to Quizzes
                   </Button>
@@ -373,7 +507,12 @@ export default function AttemptQuiz() {
                       Try Again
                     </Button>
                   )}
-                  <CertificateGenerator 
+                  {canReview && (
+                    <Button variant="secondary" onClick={handleReview}>
+                      <Eye className="mr-1 h-4 w-4" /> Review Answers
+                    </Button>
+                  )}
+                  <CertificateGenerator
                     studentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}
                     quizTitle={quiz.title}
                     score={score || 0}
