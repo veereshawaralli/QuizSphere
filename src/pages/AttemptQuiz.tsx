@@ -517,7 +517,7 @@ export default function AttemptQuiz() {
                   Score: {score} / {totalMarks}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Attempts used: {attemptsUsed} / 2
+                  Attempts used: {attemptsUsed} / {maxAllowed}
                 </p>
                 {percentage < 70 && (
                   <p className="text-sm text-muted-foreground">
