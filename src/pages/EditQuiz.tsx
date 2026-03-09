@@ -142,6 +142,23 @@ export default function EditQuiz() {
     const newPublishState = publish !== undefined ? publish : isPublished;
 
     try {
+      // Build start/end datetime
+      let startDateTime: string | null = null;
+      let endDateTime: string | null = null;
+
+      if (startDate) {
+        const [sh, sm] = startTime.split(':').map(Number);
+        const sdt = new Date(startDate);
+        sdt.setHours(sh, sm, 0, 0);
+        startDateTime = sdt.toISOString();
+      }
+      if (endDate) {
+        const [eh, em] = endTime.split(':').map(Number);
+        const edt = new Date(endDate);
+        edt.setHours(eh, em, 0, 0);
+        endDateTime = edt.toISOString();
+      }
+
       // Update quiz details
       const { error: updateErr } = await supabase
         .from('quizzes')
@@ -150,6 +167,8 @@ export default function EditQuiz() {
           description: description.trim() || null,
           duration_minutes: durationMinutes,
           is_published: newPublishState,
+          start_time: startDateTime,
+          end_time: endDateTime,
         })
         .eq('id', quizId!);
 
