@@ -36,6 +36,7 @@ interface Quiz {
   title: string;
   description: string | null;
   duration_minutes: number;
+  max_attempts: number;
   start_time: string | null;
   end_time: string | null;
 }
