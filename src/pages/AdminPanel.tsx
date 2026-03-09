@@ -143,13 +143,14 @@ export default function AdminPanel() {
 
   if (role !== 'admin') return null;
 
-  // Filter users by search query (name or email)
+  // Filter users by search query (name, email, or USN)
   const filteredUsers = users.filter(u => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
     return (
       u.full_name.toLowerCase().includes(query) ||
-      (u.email && u.email.toLowerCase().includes(query))
+      (u.email && u.email.toLowerCase().includes(query)) ||
+      (u.usn && u.usn.toLowerCase().includes(query))
     );
   });
 
