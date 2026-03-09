@@ -38,8 +38,8 @@ A comprehensive Quiz and Study Material management platform built for the Depart
 
 1. **Clone the repository**
    ```sh
-   git clone <YOUR_GIT_URL>
-   cd <YOUR_PROJECT_NAME>
+   git clone https://github.com/veereshawaralli/sukcsd.git
+   cd sukcsd
    ```
 
 2. **Install dependencies**
