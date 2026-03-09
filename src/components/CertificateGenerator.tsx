@@ -114,7 +114,7 @@ export function CertificateGenerator({
             </div>
           </div>
 
-          <h1 style={{ fontSize: '48px', color: '#0f172a', margin: '14px 0', textTransform: 'uppercase', letterSpacing: '4px', borderBottom: '2px solid #cbd5e1', paddingBottom: '10px' }}>
+          <h1 style={{ fontSize: '40px', color: '#0f172a', margin: '8px 0', textTransform: 'uppercase', letterSpacing: '4px', borderBottom: '2px solid #cbd5e1', paddingBottom: '8px' }}>
             Certificate of Completion
           </h1>
 
