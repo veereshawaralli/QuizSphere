@@ -195,6 +195,7 @@ export default function AdminPanel() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>USN</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Current Role</TableHead>
                       <TableHead>Change Role</TableHead>
@@ -205,6 +206,7 @@ export default function AdminPanel() {
                     {filteredUsers.map((u) => (
                       <TableRow key={u.role_id}>
                         <TableCell className="font-medium">{u.full_name}</TableCell>
+                        <TableCell className="text-muted-foreground">{u.usn || '—'}</TableCell>
                         <TableCell className="text-muted-foreground">{u.email}</TableCell>
                         <TableCell>
                           <span className="capitalize">{u.role}</span>
