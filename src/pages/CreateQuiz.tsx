@@ -50,6 +50,10 @@ export default function CreateQuiz() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState('09:00');
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [endTime, setEndTime] = useState('17:00');
 
   // Questions list
   const [questions, setQuestions] = useState<QuestionForm[]>([{ ...emptyQuestion }]);
