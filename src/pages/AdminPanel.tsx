@@ -100,6 +100,36 @@ export default function AdminPanel() {
     toast({ title: 'User removed', description: `${fullName} has been removed.` });
   }
 
+  function handleExportUsers() {
+    if (filteredUsers.length === 0) {
+      toast({ title: 'No users', description: 'No users to export.', variant: 'destructive' });
+      return;
+    }
+
+    // CSV format
+    const headers = ['Name', 'Email', 'Role'];
+    const rows = filteredUsers.map(u => [
+      u.full_name,
+      u.email || '',
+      u.role,
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({ title: 'Exported', description: `${filteredUsers.length} users exported to CSV.` });
+  }
+
   if (authLoading || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
