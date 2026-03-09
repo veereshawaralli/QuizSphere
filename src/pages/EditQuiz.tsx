@@ -40,6 +40,10 @@ export default function EditQuiz() {
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [isPublished, setIsPublished] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState('09:00');
+  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [endTime, setEndTime] = useState('17:00');
   const [questions, setQuestions] = useState<QuestionForm[]>([]);
   const [loadingQuiz, setLoadingQuiz] = useState(true);
   const [saving, setSaving] = useState(false);
