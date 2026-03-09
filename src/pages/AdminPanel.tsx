@@ -44,29 +44,24 @@ export default function AdminPanel() {
 
   async function fetchUsers() {
     setLoading(true);
-    // Fetch profiles and roles separately, then merge
-    const [profilesRes, rolesRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, full_name'),
-      supabase.from('user_roles').select('id, user_id, role'),
-    ]);
+    // Call the admin-only function to get users with emails
+    const { data, error } = await supabase.rpc('get_users_with_emails');
 
-    if (profilesRes.error || rolesRes.error) {
-      toast({ title: 'Error', description: 'Could not load users.', variant: 'destructive' });
+    if (error) {
+      toast({ title: 'Error', description: error.message || 'Could not load users.', variant: 'destructive' });
       setLoading(false);
       return;
     }
 
-    const merged: UserWithRole[] = (rolesRes.data || []).map((r) => {
-      const profile = (profilesRes.data || []).find((p) => p.user_id === r.user_id);
-      return {
-        user_id: r.user_id,
-        full_name: profile?.full_name || 'Unknown',
-        role: r.role,
-        role_id: r.id,
-      };
-    });
+    const usersData: UserWithRole[] = (data || []).map((u: any) => ({
+      user_id: u.user_id,
+      email: u.email || 'No email',
+      full_name: u.full_name || 'Unknown',
+      role: u.role,
+      role_id: u.role_id,
+    }));
 
-    setUsers(merged);
+    setUsers(usersData);
     setLoading(false);
   }
 
@@ -136,6 +131,7 @@ export default function AdminPanel() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Current Role</TableHead>
                       <TableHead>Change Role</TableHead>
                       <TableHead>Action</TableHead>
@@ -145,6 +141,7 @@ export default function AdminPanel() {
                     {users.map((u) => (
                       <TableRow key={u.role_id}>
                         <TableCell className="font-medium">{u.full_name}</TableCell>
+                        <TableCell className="text-muted-foreground">{u.email}</TableCell>
                         <TableCell>
                           <span className="capitalize">{u.role}</span>
                         </TableCell>
