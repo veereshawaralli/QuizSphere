@@ -494,7 +494,7 @@ export default function AttemptQuiz() {
                   </p>
                 )}
                 {canReview && (
-                  <p className="text-sm text-green-600 font-medium">
+                  <p className="text-sm text-primary font-medium">
                     🎉 Great job! You can review your answers below.
                   </p>
                 )}
