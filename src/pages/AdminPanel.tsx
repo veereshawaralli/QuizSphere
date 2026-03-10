@@ -87,19 +87,23 @@ export default function AdminPanel() {
   }
 
   async function handleRemoveUser(userId: string, fullName: string) {
-    // Delete role and profile entries for this user
-    const [roleRes, profileRes] = await Promise.all([
-      supabase.from('user_roles').delete().eq('user_id', userId),
-      supabase.from('profiles').delete().eq('user_id', userId),
-    ]);
+    // Call edge function to fully delete user (auth + profile + role)
+    const { data, error } = await supabase.functions.invoke('delete-user', {
+      body: { user_id: userId },
+    });
 
-    if (roleRes.error || profileRes.error) {
-      toast({ title: 'Error', description: roleRes.error?.message || profileRes.error?.message || 'Could not remove user.', variant: 'destructive' });
+    if (error) {
+      toast({ title: 'Error', description: error.message || 'Could not remove user.', variant: 'destructive' });
+      return;
+    }
+
+    if (data && !data.success) {
+      toast({ title: 'Error', description: data.error || 'Could not remove user.', variant: 'destructive' });
       return;
     }
 
     setUsers((prev) => prev.filter((u) => u.user_id !== userId));
-    toast({ title: 'User removed', description: `${fullName} has been removed.` });
+    toast({ title: 'User removed', description: `${fullName} has been permanently removed and must re-register to access the system.` });
   }
 
   function handleExportUsers() {
