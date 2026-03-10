@@ -346,6 +346,8 @@ export default function AttemptQuiz() {
     } catch (err) {
       console.error('Submission error:', err);
       toast({ title: 'Failed to submit quiz', variant: 'destructive' });
+      // Even on error, end the quiz to prevent being stuck
+      setSubmitted(true);
     } finally {
       setSubmitting(false);
     }
