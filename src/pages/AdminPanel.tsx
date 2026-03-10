@@ -9,12 +9,14 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Trash2, Download, Search } from 'lucide-react';
+import { Shield, Trash2, Download, Search, KeyRound } from 'lucide-react';
 
 interface UserWithRole {
   user_id: string;
@@ -30,6 +32,10 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState<UserWithRole | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -47,7 +53,6 @@ export default function AdminPanel() {
 
   async function fetchUsers() {
     setLoading(true);
-    // Call the admin-only function to get users with emails
     const { data, error } = await supabase.rpc('get_users_with_emails');
 
     if (error) {
@@ -87,7 +92,6 @@ export default function AdminPanel() {
   }
 
   async function handleRemoveUser(userId: string, fullName: string) {
-    // Call edge function to fully delete user (auth + profile + role)
     const { data, error } = await supabase.functions.invoke('delete-user', {
       body: { user_id: userId },
     });
@@ -106,13 +110,43 @@ export default function AdminPanel() {
     toast({ title: 'User removed', description: `${fullName} has been permanently removed and must re-register to access the system.` });
   }
 
+  async function handleResetPassword() {
+    if (!resetTarget || !newPassword) return;
+    if (newPassword.length < 6) {
+      toast({ title: 'Error', description: 'Password must be at least 6 characters.', variant: 'destructive' });
+      return;
+    }
+
+    setResetting(true);
+    const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+      body: { user_id: resetTarget.user_id, new_password: newPassword },
+    });
+
+    if (error) {
+      toast({ title: 'Error', description: error.message || 'Failed to reset password.', variant: 'destructive' });
+      setResetting(false);
+      return;
+    }
+
+    if (data && !data.success) {
+      toast({ title: 'Error', description: data.error || 'Failed to reset password.', variant: 'destructive' });
+      setResetting(false);
+      return;
+    }
+
+    toast({ title: 'Password reset', description: `Password for ${resetTarget.full_name} has been updated.` });
+    setResetDialogOpen(false);
+    setNewPassword('');
+    setResetTarget(null);
+    setResetting(false);
+  }
+
   function handleExportUsers() {
     if (filteredUsers.length === 0) {
       toast({ title: 'No users', description: 'No users to export.', variant: 'destructive' });
       return;
     }
 
-    // CSV format
     const headers = ['Name', 'Email', 'USN', 'Role'];
     const rows = filteredUsers.map(u => [
       u.full_name,
@@ -147,7 +181,6 @@ export default function AdminPanel() {
 
   if (role !== 'admin') return null;
 
-  // Filter users by search query (name, email, or USN)
   const filteredUsers = users.filter(u => {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
@@ -163,11 +196,11 @@ export default function AdminPanel() {
       <Header />
 
       <main className="flex-1 px-4 py-8">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-5xl">
           <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
               <Shield className="h-6 w-6 text-primary" />
-              <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Roles</h1>
+              <h1 className="font-heading text-2xl font-bold">Admin Panel – Manage Users</h1>
             </div>
             <Button onClick={handleExportUsers} variant="outline">
               <Download className="mr-2 h-4 w-4" />
@@ -182,7 +215,7 @@ export default function AdminPanel() {
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by name or email..."
+                    placeholder="Search by name, email, or USN..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -196,77 +229,126 @@ export default function AdminPanel() {
                   {searchQuery ? 'No users match your search.' : 'No users found.'}
                 </p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>USN</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Current Role</TableHead>
-                      <TableHead>Change Role</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((u) => (
-                      <TableRow key={u.role_id}>
-                        <TableCell className="font-medium">{u.full_name}</TableCell>
-                        <TableCell className="text-muted-foreground">{u.usn || '—'}</TableCell>
-                        <TableCell className="text-muted-foreground">{u.email}</TableCell>
-                        <TableCell>
-                          <span className="capitalize">{u.role}</span>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={u.role}
-                            onValueChange={(val) => handleRoleChange(u.role_id, u.user_id, val)}
-                            disabled={u.user_id === user?.id}
-                          >
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="student">Student</SelectItem>
-                              <SelectItem value="faculty">Faculty</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          {u.user_id !== user?.id && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">
-                                  <Trash2 className="mr-1 h-4 w-4" />
-                                  Remove
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Remove {u.full_name}?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will remove the user's role and profile. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleRemoveUser(u.user_id, u.full_name)}>
-                                    Remove
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>USN</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Change Role</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.map((u) => (
+                        <TableRow key={u.role_id}>
+                          <TableCell className="font-medium">{u.full_name}</TableCell>
+                          <TableCell className="text-muted-foreground">{u.usn || '—'}</TableCell>
+                          <TableCell className="text-muted-foreground">{u.email}</TableCell>
+                          <TableCell>
+                            <span className="capitalize">{u.role}</span>
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={u.role}
+                              onValueChange={(val) => handleRoleChange(u.role_id, u.user_id, val)}
+                              disabled={u.user_id === user?.id}
+                            >
+                              <SelectTrigger className="w-[120px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="student">Student</SelectItem>
+                                <SelectItem value="faculty">Faculty</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {u.user_id !== user?.id && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setResetTarget(u);
+                                      setNewPassword('');
+                                      setResetDialogOpen(true);
+                                    }}
+                                  >
+                                    <KeyRound className="mr-1 h-4 w-4" />
+                                    Reset
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="destructive" size="sm">
+                                        <Trash2 className="mr-1 h-4 w-4" />
+                                        Remove
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Remove {u.full_name}?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will permanently delete this user. They will need to register again to access the system. This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleRemoveUser(u.user_id, u.full_name)}>
+                                          Remove
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
       </main>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              Set a new password for <strong>{resetTarget?.full_name}</strong> ({resetTarget?.email})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="Enter new password (min 6 characters)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleResetPassword} disabled={resetting || newPassword.length < 6}>
+              {resetting ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
