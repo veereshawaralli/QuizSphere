@@ -1,0 +1,1 @@
+ALTER TABLE public.quiz_submissions DROP CONSTRAINT IF EXISTS quiz_submissions_quiz_id_student_id_key;
