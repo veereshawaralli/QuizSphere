@@ -1,6 +1,4 @@
-// Results page - Faculty sees all submissions, Students see their own
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +7,8 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trophy, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Trophy, Users, CheckCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface Quiz {
   id: string;
@@ -25,9 +24,11 @@ interface Submission {
   is_submitted: boolean;
   submitted_at: string | null;
   started_at: string;
-  student_email?: string;
   student_name?: string;
 }
+
+type SortField = 'quiz' | 'student' | 'score' | 'date';
+type SortDir = 'asc' | 'desc';
 
 export default function Results() {
   const { user, role, loading } = useAuth();
@@ -36,12 +37,13 @@ export default function Results() {
   const [selectedQuiz, setSelectedQuiz] = useState<string>('all');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
     if (!loading && !user) navigate('/login');
   }, [user, loading, navigate]);
 
-  // Fetch quizzes
   useEffect(() => {
     if (!user) return;
     async function fetchQuizzes() {
@@ -54,7 +56,6 @@ export default function Results() {
     fetchQuizzes();
   }, [user]);
 
-  // Fetch submissions
   useEffect(() => {
     if (!user) return;
     async function fetchSubmissions() {
@@ -68,23 +69,17 @@ export default function Results() {
       if (selectedQuiz !== 'all') {
         query = query.eq('quiz_id', selectedQuiz);
       }
-
-      // Students only see their own
       if (role === 'student') {
         query = query.eq('student_id', user.id);
       }
 
       const { data } = await query;
 
-      // For faculty, fetch student profiles
       if (data && (role === 'faculty' || role === 'admin')) {
-        const studentIds = [...new Set(data.map((s) => s.student_id))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, full_name');
 
-        // Note: faculty can't read other profiles due to RLS. 
-        // We'll use user metadata from submissions instead.
         const profileMap = new Map(
           (profiles || []).map((p) => [p.user_id, p.full_name])
         );
@@ -102,17 +97,57 @@ export default function Results() {
     fetchSubmissions();
   }, [user, role, selectedQuiz]);
 
-  if (loading || !user) return null;
-
   const quizTitle = (quizId: string) =>
     quizzes.find((q) => q.id === quizId)?.title || 'Unknown Quiz';
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />;
+    return sortDir === 'asc'
+      ? <ArrowUp className="ml-1 h-3 w-3" />
+      : <ArrowDown className="ml-1 h-3 w-3" />;
+  };
+
+  const sortedSubmissions = useMemo(() => {
+    const sorted = [...submissions].sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case 'quiz':
+          cmp = quizTitle(a.quiz_id).localeCompare(quizTitle(b.quiz_id));
+          break;
+        case 'student':
+          cmp = (a.student_name || '').localeCompare(b.student_name || '');
+          break;
+        case 'score': {
+          const pctA = a.total_marks ? ((a.score || 0) / a.total_marks) : 0;
+          const pctB = b.total_marks ? ((b.score || 0) / b.total_marks) : 0;
+          cmp = pctA - pctB;
+          break;
+        }
+        case 'date':
+          cmp = (a.submitted_at || '').localeCompare(b.submitted_at || '');
+          break;
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  }, [submissions, sortField, sortDir, quizzes]);
+
+  if (loading || !user) return null;
 
   const avgScore =
     submissions.length > 0
       ? Math.round(
           submissions.reduce(
-            (sum, s) =>
-              sum + ((s.score || 0) / (s.total_marks || 1)) * 100,
+            (sum, s) => sum + ((s.score || 0) / (s.total_marks || 1)) * 100,
             0
           ) / submissions.length
         )
@@ -142,9 +177,7 @@ export default function Results() {
               <SelectContent>
                 <SelectItem value="all">All Quizzes</SelectItem>
                 {quizzes.map((q) => (
-                  <SelectItem key={q.id} value={q.id}>
-                    {q.title}
-                  </SelectItem>
+                  <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -182,8 +215,7 @@ export default function Results() {
                 <div>
                   <p className="text-2xl font-bold">
                     {submissions.filter(
-                      (s) =>
-                        s.total_marks && s.score && s.score / s.total_marks >= 0.5
+                      (s) => s.total_marks && s.score && s.score / s.total_marks >= 0.5
                     ).length}
                   </p>
                   <p className="text-sm text-muted-foreground">Passed (≥50%)</p>
@@ -213,16 +245,32 @@ export default function Results() {
                     <thead>
                       <tr className="border-b text-left">
                         {(role === 'faculty' || role === 'admin') && (
-                          <th className="pb-3 pr-4 font-medium text-muted-foreground">Student</th>
+                          <th className="pb-3 pr-4">
+                            <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort('student')}>
+                              Student <SortIcon field="student" />
+                            </Button>
+                          </th>
                         )}
-                        <th className="pb-3 pr-4 font-medium text-muted-foreground">Quiz</th>
-                        <th className="pb-3 pr-4 font-medium text-muted-foreground">Score</th>
+                        <th className="pb-3 pr-4">
+                          <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort('quiz')}>
+                            Quiz <SortIcon field="quiz" />
+                          </Button>
+                        </th>
+                        <th className="pb-3 pr-4">
+                          <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort('score')}>
+                            Score <SortIcon field="score" />
+                          </Button>
+                        </th>
                         <th className="pb-3 pr-4 font-medium text-muted-foreground">Percentage</th>
-                        <th className="pb-3 font-medium text-muted-foreground">Submitted</th>
+                        <th className="pb-3">
+                          <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort('date')}>
+                            Submitted <SortIcon field="date" />
+                          </Button>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {submissions.map((s) => {
+                      {sortedSubmissions.map((s) => {
                         const pct = s.total_marks
                           ? Math.round(((s.score || 0) / s.total_marks) * 100)
                           : 0;
@@ -230,7 +278,7 @@ export default function Results() {
                           <tr key={s.id} className="border-b last:border-0">
                             {(role === 'faculty' || role === 'admin') && (
                               <td className="py-3 pr-4 font-medium">
-                                {(s as any).student_name || 'Student'}
+                                {s.student_name || 'Student'}
                               </td>
                             )}
                             <td className="py-3 pr-4">{quizTitle(s.quiz_id)}</td>
