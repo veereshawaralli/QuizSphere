@@ -70,10 +70,44 @@ serve(async (req) => {
     // Use service role client to delete user data and auth entry
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Delete related data first (profiles, roles get cascade-deleted or manual)
+    // Delete all related data in correct order (respecting foreign keys)
+    // 1. Delete student_answers (references quiz_submissions)
+    const { data: submissions } = await adminClient
+      .from("quiz_submissions")
+      .select("id")
+      .eq("student_id", user_id);
+    
+    if (submissions && submissions.length > 0) {
+      const submissionIds = submissions.map((s: any) => s.id);
+      await adminClient.from("student_answers").delete().in("submission_id", submissionIds);
+    }
+
+    // 2. Delete certificates (references quiz_submissions and quizzes)
+    await adminClient.from("certificates").delete().eq("student_id", user_id);
+
+    // 3. Delete quiz_submissions
+    await adminClient.from("quiz_submissions").delete().eq("student_id", user_id);
+
+    // 4. Delete questions for quizzes created by this user
+    const { data: userQuizzes } = await adminClient
+      .from("quizzes")
+      .select("id")
+      .eq("created_by", user_id);
+    
+    if (userQuizzes && userQuizzes.length > 0) {
+      const quizIds = userQuizzes.map((q: any) => q.id);
+      await adminClient.from("questions").delete().in("quiz_id", quizIds);
+    }
+
+    // 5. Delete quizzes created by this user
+    await adminClient.from("quizzes").delete().eq("created_by", user_id);
+
+    // 6. Delete materials uploaded by this user
+    await adminClient.from("materials").delete().eq("uploaded_by", user_id);
+
+    // 7. Delete user_roles and profiles
     await adminClient.from("user_roles").delete().eq("user_id", user_id);
     await adminClient.from("profiles").delete().eq("user_id", user_id);
-
     // Delete from auth.users - this fully removes the user
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
 
