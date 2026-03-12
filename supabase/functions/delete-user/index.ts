@@ -37,8 +37,10 @@ serve(async (req) => {
       });
     }
 
-    // Check admin role
-    const { data: roleData } = await callerClient
+    // Check admin role using service role client to bypass RLS
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    
+    const { data: roleData } = await adminClient
       .from("user_roles")
       .select("role")
       .eq("user_id", caller.id)
@@ -67,22 +69,35 @@ serve(async (req) => {
       });
     }
 
-    // Use service role client to delete user data and auth entry
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    console.log(`Deleting user ${user_id}...`);
 
-    // Delete all related data in correct order (respecting foreign keys)
+    // Delete from auth.users FIRST - this is the most important step
+    // This prevents the user from logging in again
+    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user_id);
+
+    if (deleteAuthError) {
+      console.error("Error deleting auth user:", deleteAuthError);
+      return new Response(JSON.stringify({ error: `Failed to delete user: ${deleteAuthError.message}` }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`Auth user deleted. Cleaning up related data...`);
+
+    // Now clean up remaining data (some may cascade automatically)
     // 1. Delete student_answers (references quiz_submissions)
     const { data: submissions } = await adminClient
       .from("quiz_submissions")
       .select("id")
       .eq("student_id", user_id);
-    
+
     if (submissions && submissions.length > 0) {
       const submissionIds = submissions.map((s: any) => s.id);
       await adminClient.from("student_answers").delete().in("submission_id", submissionIds);
     }
 
-    // 2. Delete certificates (references quiz_submissions and quizzes)
+    // 2. Delete certificates
     await adminClient.from("certificates").delete().eq("student_id", user_id);
 
     // 3. Delete quiz_submissions
@@ -93,7 +108,7 @@ serve(async (req) => {
       .from("quizzes")
       .select("id")
       .eq("created_by", user_id);
-    
+
     if (userQuizzes && userQuizzes.length > 0) {
       const quizIds = userQuizzes.map((q: any) => q.id);
       await adminClient.from("questions").delete().in("quiz_id", quizIds);
@@ -108,16 +123,8 @@ serve(async (req) => {
     // 7. Delete user_roles and profiles
     await adminClient.from("user_roles").delete().eq("user_id", user_id);
     await adminClient.from("profiles").delete().eq("user_id", user_id);
-    // Delete from auth.users - this fully removes the user
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
 
-    if (deleteError) {
-      console.error("Error deleting auth user:", deleteError);
-      return new Response(JSON.stringify({ error: deleteError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    console.log(`User ${user_id} fully deleted.`);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
