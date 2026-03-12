@@ -54,7 +54,7 @@ export default function Login() {
           password,
           options: {
             data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/email-verified`,
           },
         });
         if (error) throw error;
