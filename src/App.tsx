@@ -21,6 +21,7 @@ import VerifyCertificate from "./pages/VerifyCertificate";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import EmailVerified from "./pages/EmailVerified";
 
 const queryClient = new QueryClient();
 
