@@ -92,17 +92,28 @@ export default function AdminPanel() {
   }
 
   async function handleRemoveUser(userId: string, fullName: string) {
-    const { data, error } = await supabase.functions.invoke('delete-user', {
-      body: { user_id: userId },
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { user_id: userId },
+      });
 
-    if (error) {
-      toast({ title: 'Error', description: error.message || 'Could not remove user.', variant: 'destructive' });
-      return;
-    }
+      if (error) {
+        // Try to parse the error body for more details
+        let errorMsg = 'Could not remove user.';
+        try {
+          const errorBody = typeof error === 'object' && 'context' in error ? await error.context?.json() : null;
+          if (errorBody?.error) errorMsg = errorBody.error;
+        } catch { /* ignore parse error */ }
+        toast({ title: 'Error', description: error.message || errorMsg, variant: 'destructive' });
+        return;
+      }
 
-    if (data && !data.success) {
-      toast({ title: 'Error', description: data.error || 'Could not remove user.', variant: 'destructive' });
+      if (data && !data.success) {
+        toast({ title: 'Error', description: data.error || 'Could not remove user.', variant: 'destructive' });
+        return;
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Could not remove user.', variant: 'destructive' });
       return;
     }
 

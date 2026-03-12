@@ -46,7 +46,7 @@ export default function Dashboard() {
                 Welcome, {user.user_metadata?.full_name || user.email}
               </h1>
               <p className="text-muted-foreground">
-                Role: <span className="font-medium capitalize">{role || 'unassigned'}</span>
+                Role: <span className="font-medium capitalize">{role || 'Student'}</span>
               </p>
             </div>
             <div className="flex items-center gap-2">
