@@ -71,13 +71,22 @@ serve(async (req) => {
 
     console.log(`Deleting user ${user_id}...`);
 
-    // Delete from auth.users FIRST - this is the most important step
-    // This prevents the user from logging in again
+    // Delete auth account first to immediately revoke login capability
     const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user_id);
 
     if (deleteAuthError) {
       console.error("Error deleting auth user:", deleteAuthError);
-      return new Response(JSON.stringify({ error: `Failed to delete user: ${deleteAuthError.message}` }), {
+      return new Response(JSON.stringify({ error: `Failed to delete auth account: ${deleteAuthError.message}` }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify auth account is actually gone (prevents false positive success)
+    const { data: authLookup } = await adminClient.auth.admin.getUserById(user_id);
+    if (authLookup?.user) {
+      console.error("Auth account still exists after delete attempt", { user_id });
+      return new Response(JSON.stringify({ error: "Failed to fully remove auth account. Please try again." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -85,44 +94,56 @@ serve(async (req) => {
 
     console.log(`Auth user deleted. Cleaning up related data...`);
 
-    // Now clean up remaining data (some may cascade automatically)
     // 1. Delete student_answers (references quiz_submissions)
-    const { data: submissions } = await adminClient
+    const { data: submissions, error: submissionsError } = await adminClient
       .from("quiz_submissions")
       .select("id")
       .eq("student_id", user_id);
 
+    if (submissionsError) throw submissionsError;
+
     if (submissions && submissions.length > 0) {
       const submissionIds = submissions.map((s: any) => s.id);
-      await adminClient.from("student_answers").delete().in("submission_id", submissionIds);
+      const { error: answersError } = await adminClient.from("student_answers").delete().in("submission_id", submissionIds);
+      if (answersError) throw answersError;
     }
 
     // 2. Delete certificates
-    await adminClient.from("certificates").delete().eq("student_id", user_id);
+    const { error: certificatesError } = await adminClient.from("certificates").delete().eq("student_id", user_id);
+    if (certificatesError) throw certificatesError;
 
     // 3. Delete quiz_submissions
-    await adminClient.from("quiz_submissions").delete().eq("student_id", user_id);
+    const { error: submissionsDeleteError } = await adminClient.from("quiz_submissions").delete().eq("student_id", user_id);
+    if (submissionsDeleteError) throw submissionsDeleteError;
 
     // 4. Delete questions for quizzes created by this user
-    const { data: userQuizzes } = await adminClient
+    const { data: userQuizzes, error: userQuizzesError } = await adminClient
       .from("quizzes")
       .select("id")
       .eq("created_by", user_id);
 
+    if (userQuizzesError) throw userQuizzesError;
+
     if (userQuizzes && userQuizzes.length > 0) {
       const quizIds = userQuizzes.map((q: any) => q.id);
-      await adminClient.from("questions").delete().in("quiz_id", quizIds);
+      const { error: questionsDeleteError } = await adminClient.from("questions").delete().in("quiz_id", quizIds);
+      if (questionsDeleteError) throw questionsDeleteError;
     }
 
     // 5. Delete quizzes created by this user
-    await adminClient.from("quizzes").delete().eq("created_by", user_id);
+    const { error: quizzesDeleteError } = await adminClient.from("quizzes").delete().eq("created_by", user_id);
+    if (quizzesDeleteError) throw quizzesDeleteError;
 
     // 6. Delete materials uploaded by this user
-    await adminClient.from("materials").delete().eq("uploaded_by", user_id);
+    const { error: materialsDeleteError } = await adminClient.from("materials").delete().eq("uploaded_by", user_id);
+    if (materialsDeleteError) throw materialsDeleteError;
 
     // 7. Delete user_roles and profiles
-    await adminClient.from("user_roles").delete().eq("user_id", user_id);
-    await adminClient.from("profiles").delete().eq("user_id", user_id);
+    const { error: userRolesDeleteError } = await adminClient.from("user_roles").delete().eq("user_id", user_id);
+    if (userRolesDeleteError) throw userRolesDeleteError;
+
+    const { error: profilesDeleteError } = await adminClient.from("profiles").delete().eq("user_id", user_id);
+    if (profilesDeleteError) throw profilesDeleteError;
 
     console.log(`User ${user_id} fully deleted.`);
 
