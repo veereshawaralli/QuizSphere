@@ -14,10 +14,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+
+    if (!user) {
       navigate('/login');
+      return;
     }
-  }, [user, loading, navigate]);
+
+    if (!role) {
+      void signOut().finally(() => navigate('/login'));
+    }
+  }, [user, role, loading, navigate, signOut]);
 
   if (loading) {
     return (

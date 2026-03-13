@@ -15,7 +15,7 @@ import Footer from '@/components/Footer';
 import { GraduationCap } from 'lucide-react';
 
 export default function Login() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading, signOut } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -27,10 +27,17 @@ export default function Login() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (authLoading) return;
+
+    if (user && role) {
       navigate('/dashboard');
+      return;
     }
-  }, [user, authLoading, navigate]);
+
+    if (user && !role) {
+      void signOut();
+    }
+  }, [user, role, authLoading, navigate, signOut]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,11 +86,25 @@ export default function Login() {
           loginEmail = resolvedEmail;
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email: loginEmail,
           password,
         });
         if (error) throw error;
+
+        const { data: userRole, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', signInData.user.id)
+          .maybeSingle();
+
+        if (roleError) throw roleError;
+
+        if (!userRole) {
+          await supabase.auth.signOut();
+          throw new Error('This account has been removed by admin. Please contact admin.');
+        }
+
         navigate('/dashboard');
       }
     } catch (error: any) {
