@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import EmailVerified from "./pages/EmailVerified";
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
