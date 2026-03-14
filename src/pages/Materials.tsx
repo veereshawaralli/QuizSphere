@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Upload, FileText, Download, Trash2, Plus } from 'lucide-react';
+import { Upload, FileText, Download, Trash2, Plus, ArrowLeft } from 'lucide-react';
 
 interface Material {
   id: string;
