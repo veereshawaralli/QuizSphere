@@ -272,17 +272,38 @@ export default function Results() {
               </div>
             </div>
 
-            <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Filter by quiz" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Quizzes</SelectItem>
-                {quizzes.map((q) => (
-                  <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Filter by quiz" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Quizzes</SelectItem>
+                  {quizzes.map((q) => (
+                    <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {(role === 'admin' || role === 'faculty') && submissions.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleDownloadPDF}>
+                      Download as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDownloadDOCX}>
+                      Download as DOCX
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
           {/* Summary cards */}
