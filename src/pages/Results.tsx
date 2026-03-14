@@ -159,7 +159,11 @@ export default function Results() {
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
               <h1 className="font-heading text-2xl font-bold">
                 {role === 'faculty' || role === 'admin' ? 'Student Results' : 'My Results'}
               </h1>
