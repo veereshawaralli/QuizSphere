@@ -1,7 +1,7 @@
 // Auth context - manages user session across the app
 // Provides login state, user info, and role to all components
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
+  const roleRequestIdRef = useRef(0);
 
   // Fetch user role from user_roles table
   async function fetchUserRole(userId: string) {
@@ -40,59 +41,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error || !data) {
-      console.warn('Could not fetch user role:', error?.message);
+    if (error) {
+      console.warn('Could not fetch user role:', error.message);
       return null;
     }
-    return data.role as UserRole;
+
+    return (data?.role as UserRole) ?? null;
+  }
+
+  async function syncAuthState(nextSession: Session | null) {
+    setSession(nextSession);
+    setUser(nextSession?.user ?? null);
+
+    if (!nextSession?.user) {
+      setRole(null);
+      setLoading(false);
+      return;
+    }
+
+    const requestId = ++roleRequestIdRef.current;
+    setLoading(true);
+
+    const userRole = await fetchUserRole(nextSession.user.id);
+
+    // Ignore stale async responses
+    if (requestId !== roleRequestIdRef.current) return;
+
+    setRole(userRole);
+    setLoading(false);
   }
 
   useEffect(() => {
-    // Listen for auth changes first (recommended by Supabase docs)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          // Use setTimeout to avoid potential deadlock with Supabase
-          setTimeout(async () => {
-            const userRole = await fetchUserRole(session.user.id);
-            setRole(userRole);
-            setLoading(false);
-          }, 0);
-        } else {
-          setRole(null);
-          setLoading(false);
-        }
+      (_event, nextSession) => {
+        void syncAuthState(nextSession);
       }
     );
 
-    // Then check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        fetchUserRole(session.user.id).then((userRole) => {
-          setRole(userRole);
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
+    void supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      void syncAuthState(currentSession);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
+    roleRequestIdRef.current += 1;
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
     setRole(null);
+    setLoading(false);
   };
 
   return (
