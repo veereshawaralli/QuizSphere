@@ -172,6 +172,7 @@ export default function Results() {
                   ? 'View all student quiz submissions and scores.'
                   : 'Your quiz scores and performance.'}
               </p>
+              </div>
             </div>
 
             <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>

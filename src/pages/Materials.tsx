@@ -164,6 +164,7 @@ export default function Materials() {
                   ? 'Upload and manage learning resources.'
                   : 'Download study materials shared by faculty.'}
               </p>
+              </div>
             </div>
 
             {isFacultyOrAdmin && (
