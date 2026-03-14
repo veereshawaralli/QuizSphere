@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Trophy, Users, CheckCircle, ArrowUpDown, ArrowUp, ArrowDown, ArrowLeft } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Trophy, Users, CheckCircle, ArrowUpDown, ArrowUp, ArrowDown, ArrowLeft, Download } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
   id: string;
@@ -141,6 +143,101 @@ export default function Results() {
     return sorted;
   }, [submissions, sortField, sortDir, quizzes]);
 
+  const { toast } = useToast();
+
+  const getExportData = useCallback(() => {
+    const title = selectedQuiz !== 'all' ? quizTitle(selectedQuiz) : 'All Quizzes';
+    const rows = sortedSubmissions.map((s) => {
+      const pct = s.total_marks ? Math.round(((s.score || 0) / s.total_marks) * 100) : 0;
+      return {
+        student: s.student_name || 'Student',
+        quiz: quizTitle(s.quiz_id),
+        score: `${s.score ?? 0} / ${s.total_marks ?? 0}`,
+        percentage: `${pct}%`,
+        status: pct >= 50 ? 'Passed' : 'Failed',
+        date: s.submitted_at ? new Date(s.submitted_at).toLocaleDateString() : '—',
+      };
+    });
+    return { title, rows };
+  }, [sortedSubmissions, selectedQuiz, quizzes]);
+
+  const handleDownloadPDF = useCallback(async () => {
+    const { default: jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
+    const { title, rows } = getExportData();
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Results: ${title}`, 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated on ${new Date().toLocaleString()}`, 14, 28);
+
+    (doc as any).autoTable({
+      startY: 35,
+      head: [['Student', 'Quiz', 'Score', '%', 'Status', 'Date']],
+      body: rows.map((r) => [r.student, r.quiz, r.score, r.percentage, r.status, r.date]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [30, 58, 138] },
+    });
+
+    doc.save(`results-${title.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+    toast({ title: 'PDF downloaded successfully' });
+  }, [getExportData, toast]);
+
+  const handleDownloadDOCX = useCallback(async () => {
+    const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, BorderStyle, AlignmentType } = await import('docx');
+    const { saveAs } = await import('file-saver');
+    const { title, rows } = getExportData();
+
+    const headerCells = ['Student', 'Quiz', 'Score', '%', 'Status', 'Date'].map(
+      (text) =>
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text, bold: true, size: 20, color: 'FFFFFF' })] })],
+          shading: { fill: '1E3A8A', type: 'clear' as any, color: 'auto' },
+          width: { size: 1500, type: WidthType.DXA },
+        })
+    );
+
+    const dataRows = rows.map(
+      (r) =>
+        new TableRow({
+          children: [r.student, r.quiz, r.score, r.percentage, r.status, r.date].map(
+            (text) =>
+              new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text, size: 18 })] })],
+                width: { size: 1500, type: WidthType.DXA },
+              })
+          ),
+        })
+    );
+
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: `Results: ${title}`, bold: true, size: 32 })],
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              children: [new TextRun({ text: `Generated on ${new Date().toLocaleString()}`, size: 18, color: '666666' })],
+              spacing: { after: 300 },
+            }),
+            new Table({
+              rows: [new TableRow({ children: headerCells }), ...dataRows],
+              width: { size: 100, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `results-${title.replace(/\s+/g, '-').toLowerCase()}.docx`);
+    toast({ title: 'DOCX downloaded successfully' });
+  }, [getExportData, toast]);
+
   if (loading || !user) return null;
 
   const avgScore =
@@ -175,17 +272,38 @@ export default function Results() {
               </div>
             </div>
 
-            <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Filter by quiz" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Quizzes</SelectItem>
-                {quizzes.map((q) => (
-                  <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select value={selectedQuiz} onValueChange={setSelectedQuiz}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Filter by quiz" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Quizzes</SelectItem>
+                  {quizzes.map((q) => (
+                    <SelectItem key={q.id} value={q.id}>{q.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {(role === 'admin' || role === 'faculty') && submissions.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleDownloadPDF}>
+                      Download as PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDownloadDOCX}>
+                      Download as DOCX
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
           {/* Summary cards */}
