@@ -31,13 +31,8 @@ export default function Login() {
 
     if (user && role) {
       navigate('/dashboard');
-      return;
     }
-
-    if (user && !role) {
-      void signOut();
-    }
-  }, [user, role, authLoading, navigate, signOut]);
+  }, [user, role, authLoading, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
