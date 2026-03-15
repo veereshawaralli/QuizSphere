@@ -98,27 +98,32 @@ export default function AdminPanel() {
       });
 
       if (error) {
-        // Try to parse the error body for more details
         let errorMsg = 'Could not remove user.';
         try {
-          const errorBody = typeof error === 'object' && 'context' in error ? await error.context?.json() : null;
-          if (errorBody?.error) errorMsg = errorBody.error;
+          if (error instanceof Error && 'context' in error) {
+            const res = (error as any).context;
+            if (res && typeof res.json === 'function') {
+              const body = await res.json();
+              if (body?.error) errorMsg = body.error;
+            }
+          }
         } catch { /* ignore parse error */ }
-        toast({ title: 'Error', description: error.message || errorMsg, variant: 'destructive' });
+        console.error('Delete user error:', error);
+        toast({ title: 'Error', description: errorMsg, variant: 'destructive' });
         return;
       }
 
-      if (data && !data.success) {
-        toast({ title: 'Error', description: data.error || 'Could not remove user.', variant: 'destructive' });
+      if (data && data.error) {
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
         return;
       }
+
+      setUsers((prev) => prev.filter((u) => u.user_id !== userId));
+      toast({ title: 'User removed', description: `${fullName} has been permanently removed and must re-register to access the system.` });
     } catch (err: any) {
+      console.error('Delete user exception:', err);
       toast({ title: 'Error', description: err.message || 'Could not remove user.', variant: 'destructive' });
-      return;
     }
-
-    setUsers((prev) => prev.filter((u) => u.user_id !== userId));
-    toast({ title: 'User removed', description: `${fullName} has been permanently removed and must re-register to access the system.` });
   }
 
   async function handleResetPassword() {
