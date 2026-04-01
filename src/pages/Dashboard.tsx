@@ -2,7 +2,8 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -12,6 +13,7 @@ import { BookOpen, Trophy, FileText, LogOut, Shield, User } from 'lucide-react';
 export default function Dashboard() {
   const { user, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
     if (loading) return;
@@ -25,6 +27,40 @@ export default function Dashboard() {
       void signOut().finally(() => navigate('/login'));
     }
   }, [user, role, loading, navigate, signOut]);
+
+  useEffect(() => {
+    if (!user) {
+      setDisplayName('');
+      return;
+    }
+
+    const fallbackName =
+      (user.user_metadata?.full_name as string | undefined)?.trim() || user.email || 'User';
+    setDisplayName(fallbackName);
+
+    let ignore = false;
+
+    const loadProfileName = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (ignore || error) return;
+
+      const savedName = data?.full_name?.trim();
+      if (savedName) {
+        setDisplayName(savedName);
+      }
+    };
+
+    void loadProfileName();
+
+    return () => {
+      ignore = true;
+    };
+  }, [user]);
 
   if (loading) {
     return (
@@ -49,9 +85,7 @@ export default function Dashboard() {
         <div className="container mx-auto max-w-5xl">
           <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="font-heading text-2xl font-bold">
-                Welcome, {user.user_metadata?.full_name || user.email}
-              </h1>
+              <h1 className="font-heading text-2xl font-bold">Welcome, {displayName || user.email}</h1>
               <p className="text-muted-foreground">
                 Role: <span className="font-medium capitalize">{role || 'Student'}</span>
               </p>
