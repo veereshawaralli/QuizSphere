@@ -69,30 +69,7 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Deleting user ${user_id}...`);
-
-    // Delete auth account first to immediately revoke login capability
-    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user_id);
-
-    if (deleteAuthError) {
-      console.error("Error deleting auth user:", deleteAuthError);
-      return new Response(JSON.stringify({ error: `Failed to delete auth account: ${deleteAuthError.message}` }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Verify auth account is actually gone (prevents false positive success)
-    const { data: authLookup } = await adminClient.auth.admin.getUserById(user_id);
-    if (authLookup?.user) {
-      console.error("Auth account still exists after delete attempt", { user_id });
-      return new Response(JSON.stringify({ error: "Failed to fully remove auth account. Please try again." }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    console.log(`Auth user deleted. Cleaning up related data...`);
+    console.log(`Deleting user ${user_id}: cleaning related data first...`);
 
     // 1. Delete student_answers (references quiz_submissions)
     const { data: submissions, error: submissionsError } = await adminClient
@@ -144,6 +121,29 @@ serve(async (req) => {
 
     const { error: profilesDeleteError } = await adminClient.from("profiles").delete().eq("user_id", user_id);
     if (profilesDeleteError) throw profilesDeleteError;
+
+    console.log(`Related data cleaned. Deleting auth account...`);
+
+    // Delete auth account last because some tables use NO ACTION foreign keys to auth.users
+    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user_id);
+
+    if (deleteAuthError) {
+      console.error("Error deleting auth user:", deleteAuthError);
+      return new Response(JSON.stringify({ error: `Failed to delete auth account: ${deleteAuthError.message}` }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify auth account is actually gone (prevents false positive success)
+    const { data: authLookup, error: authLookupError } = await adminClient.auth.admin.getUserById(user_id);
+    if (!authLookupError && authLookup?.user) {
+      console.error("Auth account still exists after delete attempt", { user_id });
+      return new Response(JSON.stringify({ error: "Failed to fully remove auth account. Please try again." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     console.log(`User ${user_id} fully deleted.`);
 
