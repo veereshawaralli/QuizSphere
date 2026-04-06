@@ -70,9 +70,14 @@ export default function AttemptQuiz() {
   const fullscreenExitHandled = useRef(false);
   const handleSubmitRef = useRef<() => void>();
 
-  // Redirect if not logged in
+  // Redirect if not logged in; fetch USN
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
+    if (user) {
+      supabase.from('profiles').select('usn').eq('user_id', user.id).maybeSingle().then(({ data }) => {
+        if (data?.usn) setStudentUsn(data.usn);
+      });
+    }
   }, [user, authLoading, navigate]);
 
   // Enter fullscreen when quiz starts
