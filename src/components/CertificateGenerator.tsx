@@ -10,6 +10,7 @@ import universityLogo from '../assets/university-logo.png';
 
 interface CertificateProps {
   studentName: string;
+  studentUsn: string;
   quizTitle: string;
   score: number;
   totalMarks: number;
@@ -22,6 +23,7 @@ interface CertificateProps {
 
 export function CertificateGenerator({
   studentName,
+  studentUsn,
   quizTitle,
   score,
   totalMarks,
@@ -41,10 +43,8 @@ export function CertificateGenerator({
 
   const ensureLogoDataUrl = useCallback(async () => {
     if (logoDataUrl) return logoDataUrl;
-
     const img = new Image();
     img.crossOrigin = 'anonymous';
-
     const dataUrl = await new Promise<string>((resolve, reject) => {
       img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -58,7 +58,6 @@ export function CertificateGenerator({
       img.onerror = () => reject(new Error('Logo failed to load'));
       img.src = universityLogo;
     });
-
     setLogoDataUrl(dataUrl);
     return dataUrl;
   }, [logoDataUrl]);
@@ -67,7 +66,6 @@ export function CertificateGenerator({
     ensureLogoDataUrl().catch(console.error);
   }, [ensureLogoDataUrl]);
 
-  // Check if certificate already exists for this submission
   useEffect(() => {
     if (!submissionId) return;
     supabase
@@ -80,25 +78,19 @@ export function CertificateGenerator({
       });
   }, [submissionId]);
 
-  if (!eligible) {
-    return null;
-  }
+  if (!eligible) return null;
 
   const getOrCreateCertificate = async (): Promise<string> => {
     if (certificateId) return certificateId;
-
-    // Check again in case of race condition
     const { data: existing } = await supabase
       .from('certificates')
       .select('id')
       .eq('submission_id', submissionId)
       .maybeSingle();
-
     if (existing) {
       setCertificateId(existing.id);
       return existing.id;
     }
-
     const { data: newCert, error } = await supabase
       .from('certificates')
       .insert({
@@ -113,7 +105,6 @@ export function CertificateGenerator({
       })
       .select('id')
       .single();
-
     if (error || !newCert) throw error || new Error('Failed to create certificate');
     setCertificateId(newCert.id);
     return newCert.id;
@@ -122,39 +113,27 @@ export function CertificateGenerator({
   const handleDownload = async () => {
     if (!certificateRef.current || percentage < 70) return;
     setIsGenerating(true);
-
     try {
       await ensureLogoDataUrl();
-
-      // Get or create certificate record
       const certId = await getOrCreateCertificate();
-
-      // Generate QR code pointing to verify page
       const verifyUrl = `${window.location.origin}/verify/${certId}`;
-      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 120, margin: 1 });
+      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 140, margin: 1 });
       setQrDataUrl(qrUrl);
-
-      // Wait a tick for the QR to render in DOM
       await new Promise((r) => setTimeout(r, 100));
-
       certificateRef.current.style.display = 'flex';
-
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
       });
-
       certificateRef.current.style.display = 'none';
-
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
         format: [canvas.width, canvas.height],
       });
-
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save(`${studentName.replace(/\s+/g, '_')}_${quizTitle.replace(/\s+/g, '_')}_Certificate.pdf`);
     } catch (error) {
@@ -164,18 +143,20 @@ export function CertificateGenerator({
     }
   };
 
+  // Color palette
+  const indigo = '#2d3561';
+  const teal = '#14b8a6';
+  const darkText = '#0f172a';
+  const mutedText = '#64748b';
+
   return (
     <>
       <Button onClick={handleDownload} disabled={isGenerating} className="gap-2 w-full sm:w-auto">
-        {isGenerating ? (
-          <Award className="h-4 w-4 animate-pulse" />
-        ) : (
-          <Download className="h-4 w-4" />
-        )}
+        {isGenerating ? <Award className="h-4 w-4 animate-pulse" /> : <Download className="h-4 w-4" />}
         {isGenerating ? 'Generating...' : 'Download Certificate'}
       </Button>
 
-      {/* Hidden Certificate DOM Element */}
+      {/* Hidden Certificate DOM */}
       <div
         ref={certificateRef}
         style={{
@@ -185,93 +166,174 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          backgroundColor: 'white',
-          padding: '40px',
+          backgroundColor: '#ffffff',
           boxSizing: 'border-box',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          border: '20px solid #1e3a8a',
-          fontFamily: 'sans-serif',
-          backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)',
-          backgroundSize: '20px 20px',
+          fontFamily: "'Space Grotesk', 'Segoe UI', Arial, sans-serif",
           zIndex: -1,
+          overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            border: '4px solid #1e3a8a',
-            padding: '32px',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            boxSizing: 'border-box',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-            <img src={logoDataUrl || universityLogo} alt="University Logo" style={{ height: '80px', objectFit: 'contain' }} />
+        {/* Top accent bar */}
+        <div style={{
+          height: '8px',
+          background: `linear-gradient(90deg, ${indigo} 0%, ${teal} 50%, ${indigo} 100%)`,
+          width: '100%',
+        }} />
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flex: 1,
+          padding: '30px 60px 24px',
+          boxSizing: 'border-box',
+        }}>
+
+          {/* Header: Logo + University */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <img src={logoDataUrl || universityLogo} alt="Logo" style={{ height: '64px', width: '64px', objectFit: 'contain' }} />
             <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontSize: '32px', color: '#1e3a8a', margin: '0', fontWeight: 'bold' }}>Sharnbasva University</h1>
-              <h2 style={{ fontSize: '20px', color: '#334155', margin: '5px 0 0 0' }}>Faculty of Engineering & Technology</h2>
-              <p style={{ fontSize: '16px', color: '#64748b', margin: '5px 0 0 0' }}>Department of Computer Science & Design</p>
+              <h1 style={{ fontSize: '26px', color: indigo, margin: 0, fontWeight: 700, letterSpacing: '1px', fontFamily: "'DM Serif Display', Georgia, serif" }}>
+                SHARNBASVA UNIVERSITY
+              </h1>
+              <p style={{ fontSize: '13px', color: mutedText, margin: '2px 0 0', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                Department of Computer Science & Design
+              </p>
             </div>
           </div>
 
-          <h1 style={{ fontSize: '40px', color: '#0f172a', margin: '8px 0', textTransform: 'uppercase', letterSpacing: '4px', borderBottom: '2px solid #cbd5e1', paddingBottom: '8px' }}>
-            Certificate of Completion
-          </h1>
+          {/* Decorative divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '70%', margin: '12px 0 4px' }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
+            <div style={{ width: '8px', height: '8px', backgroundColor: teal, transform: 'rotate(45deg)' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
+          </div>
 
-          <p style={{ fontSize: '18px', color: '#475569', margin: '8px 0' }}>
+          {/* Title */}
+          <h2 style={{
+            fontSize: '36px',
+            color: indigo,
+            margin: '4px 0',
+            fontWeight: 700,
+            letterSpacing: '6px',
+            textTransform: 'uppercase',
+            fontFamily: "'DM Serif Display', Georgia, serif",
+          }}>
+            Certificate
+          </h2>
+          <p style={{ fontSize: '14px', color: mutedText, margin: 0, letterSpacing: '4px', textTransform: 'uppercase' }}>
+            of Achievement
+          </p>
+
+          {/* Certify text */}
+          <p style={{ fontSize: '15px', color: mutedText, margin: '12px 0 0' }}>
             This is to certify that
           </p>
 
-          <h2 style={{ fontSize: '32px', color: '#1e3a8a', margin: '4px 0', fontStyle: 'italic', fontWeight: 'bold' }}>
+          {/* Student Name */}
+          <h3 style={{
+            fontSize: '34px',
+            color: indigo,
+            margin: '4px 0 0',
+            fontWeight: 700,
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            borderBottom: `3px solid ${teal}`,
+            paddingBottom: '4px',
+            lineHeight: 1.2,
+          }}>
             {studentName}
-          </h2>
+          </h3>
 
-          <p style={{ fontSize: '18px', color: '#475569', margin: '8px 0', textAlign: 'center', maxWidth: '800px' }}>
-            has successfully completed the assessment for
-            <br />
-            <strong style={{ color: '#0f172a', fontSize: '24px', display: 'inline-block', marginTop: '10px' }}>{quizTitle}</strong>
+          {/* USN */}
+          {studentUsn && (
+            <p style={{ fontSize: '14px', color: mutedText, margin: '4px 0 0', letterSpacing: '1px' }}>
+              USN: <strong style={{ color: darkText }}>{studentUsn}</strong>
+            </p>
+          )}
+
+          {/* Description */}
+          <p style={{ fontSize: '15px', color: mutedText, margin: '10px 0 0', textAlign: 'center', maxWidth: '700px', lineHeight: 1.5 }}>
+            has successfully completed the assessment
+          </p>
+          <p style={{
+            fontSize: '22px',
+            color: darkText,
+            margin: '4px 0 0',
+            fontWeight: 600,
+            textAlign: 'center',
+            fontFamily: "'DM Serif Display', Georgia, serif",
+          }}>
+            "{quizTitle}"
           </p>
 
-          <div style={{ display: 'flex', gap: '40px', margin: '10px 0 0', backgroundColor: '#f8fafc', padding: '14px 36px', borderRadius: '10px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ margin: '0', fontSize: '14px', color: '#64748b', textTransform: 'uppercase' }}>Score</p>
-              <p style={{ margin: '5px 0 0 0', fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>{score} / {totalMarks}</p>
+          {/* Score cards */}
+          <div style={{
+            display: 'flex',
+            gap: '24px',
+            margin: '14px 0 0',
+          }}>
+            <div style={{
+              textAlign: 'center',
+              padding: '10px 28px',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              backgroundColor: '#f8fafc',
+            }}>
+              <p style={{ margin: 0, fontSize: '11px', color: mutedText, textTransform: 'uppercase', letterSpacing: '1px' }}>Score</p>
+              <p style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: indigo }}>{score} / {totalMarks}</p>
             </div>
-            <div style={{ width: '2px', backgroundColor: '#cbd5e1' }}></div>
-            <div style={{ textAlign: 'center' }}>
-              <p style={{ margin: '0', fontSize: '14px', color: '#64748b', textTransform: 'uppercase' }}>Percentage</p>
-              <p style={{ margin: '5px 0 0 0', fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>{percentage}%</p>
+            <div style={{
+              textAlign: 'center',
+              padding: '10px 28px',
+              borderRadius: '8px',
+              backgroundColor: indigo,
+            }}>
+              <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px' }}>Percentage</p>
+              <p style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>{percentage}%</p>
             </div>
           </div>
 
-          {/* Date + QR row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid #cbd5e1' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid #0f172a', width: '200px', marginBottom: '10px', paddingBottom: '5px', fontSize: '16px', color: '#334155' }}>
+          {/* Footer: Date + QR */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            width: '100%',
+            marginTop: '14px',
+            paddingTop: '12px',
+            borderTop: `2px solid ${teal}`,
+          }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '16px', color: darkText, fontWeight: 600 }}>
                 {format(date, 'MMMM do, yyyy')}
-              </div>
-              <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Date of Completion</p>
+              </p>
+              <p style={{ margin: '2px 0 0', fontSize: '11px', color: mutedText, textTransform: 'uppercase', letterSpacing: '1px' }}>Date of Completion</p>
             </div>
 
-            {/* QR Code for verification */}
+            <div style={{ textAlign: 'center', fontSize: '11px', color: mutedText }}>
+              <p style={{ margin: 0 }}>CSD Quiz & Learning Portal</p>
+              <p style={{ margin: '1px 0 0' }}>Sharnbasva University, Kalaburagi</p>
+            </div>
+
             <div style={{ textAlign: 'center' }}>
               {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '90px', height: '90px' }} />
+                <img src={qrDataUrl} alt="Verify QR" style={{ width: '80px', height: '80px' }} />
               ) : (
-                <div style={{ width: '90px', height: '90px', backgroundColor: '#f1f5f9', borderRadius: '4px' }} />
+                <div style={{ width: '80px', height: '80px', backgroundColor: '#f1f5f9', borderRadius: '4px' }} />
               )}
-              <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: '#64748b' }}>Scan to verify</p>
+              <p style={{ margin: '2px 0 0', fontSize: '9px', color: mutedText }}>Scan to verify</p>
             </div>
           </div>
-
         </div>
+
+        {/* Bottom accent bar */}
+        <div style={{
+          height: '8px',
+          background: `linear-gradient(90deg, ${indigo} 0%, ${teal} 50%, ${indigo} 100%)`,
+          width: '100%',
+        }} />
       </div>
     </>
   );
