@@ -65,13 +65,19 @@ export default function AttemptQuiz() {
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState<QuestionWithAnswer[]>([]);
   const [reviewIdx, setReviewIdx] = useState(0);
+  const [studentUsn, setStudentUsn] = useState<string>('');
   const submissionIdRef = useRef<string | null>(null);
   const fullscreenExitHandled = useRef(false);
   const handleSubmitRef = useRef<() => void>();
 
-  // Redirect if not logged in
+  // Redirect if not logged in; fetch USN
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
+    if (user) {
+      supabase.from('profiles').select('usn').eq('user_id', user.id).maybeSingle().then(({ data }) => {
+        if (data?.usn) setStudentUsn(data.usn);
+      });
+    }
   }, [user, authLoading, navigate]);
 
   // Enter fullscreen when quiz starts
@@ -602,6 +608,7 @@ export default function AttemptQuiz() {
                   )}
                   <CertificateGenerator
                     studentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}
+                    studentUsn={studentUsn}
                     quizTitle={quiz.title}
                     score={score || 0}
                     totalMarks={totalMarks || 0}
