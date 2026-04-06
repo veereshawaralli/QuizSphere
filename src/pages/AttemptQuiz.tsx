@@ -65,6 +65,7 @@ export default function AttemptQuiz() {
   const [reviewMode, setReviewMode] = useState(false);
   const [reviewData, setReviewData] = useState<QuestionWithAnswer[]>([]);
   const [reviewIdx, setReviewIdx] = useState(0);
+  const [studentUsn, setStudentUsn] = useState<string>('');
   const submissionIdRef = useRef<string | null>(null);
   const fullscreenExitHandled = useRef(false);
   const handleSubmitRef = useRef<() => void>();
