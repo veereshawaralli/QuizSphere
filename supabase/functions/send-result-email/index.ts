@@ -43,30 +43,32 @@ serve(async (req) => {
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
           </head>
-          <body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+          <body style="font-family: 'Space Grotesk', 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-              <div style="background: linear-gradient(135deg, #2d3561 0%, #4a3f75 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">CSD Quiz Portal</h1>
-                <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0; font-size: 14px;">Sharnbasva University</p>
+              <div style="background: linear-gradient(135deg, hsl(235, 45%, 28%) 0%, hsl(235, 45%, 38%) 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <img src="https://egcahlohmpfkgdouxcdj.supabase.co/storage/v1/object/public/email-assets/university-logo.png" alt="Sharnbasva University Logo" style="height: 70px; width: 70px; object-fit: contain; margin-bottom: 12px; border-radius: 8px; background: white; padding: 4px;" />
+                <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: 'DM Serif Display', Georgia, serif;">Sharnbasva University</h1>
+                <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0 0; font-size: 13px; letter-spacing: 0.5px;">Department of Computer Science &amp; Design</p>
+                <p style="color: rgba(255,255,255,0.7); margin: 4px 0 0 0; font-size: 12px;">CSD Quiz &amp; Learning Portal</p>
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h2 style="color: #2d3561; margin: 0 0 20px 0;">Hello ${studentName || 'Student'},</h2>
+                <h2 style="color: hsl(235, 45%, 28%); margin: 0 0 20px 0; font-family: 'DM Serif Display', Georgia, serif;">Hello ${studentName || 'Student'},</h2>
                 
                 <p style="color: #555; font-size: 16px; line-height: 1.6;">
                   Your quiz submission has been evaluated. Here are your results:
                 </p>
                 
                 <div style="background-color: ${passed ? '#e8f5e9' : '#ffebee'}; border-left: 4px solid ${passed ? '#2ea97d' : '#e53935'}; padding: 20px; margin: 20px 0; border-radius: 4px;">
-                  <h3 style="color: #2d3561; margin: 0 0 15px 0;">${quizTitle}</h3>
+                  <h3 style="color: hsl(235, 45%, 28%); margin: 0 0 15px 0;">${quizTitle}</h3>
                   <table style="width: 100%; border-collapse: collapse;">
                     <tr>
                       <td style="padding: 8px 0; color: #666;">Score:</td>
-                      <td style="padding: 8px 0; color: #2d3561; font-weight: bold; text-align: right;">${score} / ${totalMarks}</td>
+                      <td style="padding: 8px 0; color: hsl(235, 45%, 28%); font-weight: bold; text-align: right;">${score} / ${totalMarks}</td>
                     </tr>
                     <tr>
                       <td style="padding: 8px 0; color: #666;">Percentage:</td>
-                      <td style="padding: 8px 0; color: #2d3561; font-weight: bold; text-align: right;">${percentage.toFixed(1)}%</td>
+                      <td style="padding: 8px 0; color: hsl(235, 45%, 28%); font-weight: bold; text-align: right;">${percentage.toFixed(1)}%</td>
                     </tr>
                     <tr>
                       <td style="padding: 8px 0; color: #666;">Status:</td>
@@ -83,10 +85,15 @@ serve(async (req) => {
                 
                 <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
                 
-                <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-                  Department of Computer Science & Design<br>
-                  Sharnbasva University
-                </p>
+                <div style="text-align: center;">
+                  <p style="color: #999; font-size: 12px; margin: 0;">
+                    Department of Computer Science &amp; Design<br>
+                    Sharnbasva University, Kalaburagi
+                  </p>
+                  <p style="color: #bbb; font-size: 11px; margin: 8px 0 0 0;">
+                    This is an automated email from the CSD Quiz Portal. Please do not reply.
+                  </p>
+                </div>
               </div>
             </div>
           </body>
