@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { GraduationCap } from 'lucide-react';
-import { lovable } from '@/integrations/lovable/index';
+
 
 export default function Login() {
   const { user, role, loading: authLoading, signOut } = useAuth();
@@ -210,18 +210,19 @@ export default function Login() {
                   onClick={async () => {
                     setLoading(true);
                     try {
-                      const result = await lovable.auth.signInWithOAuth('google', {
-                        redirect_uri: window.location.origin,
+                      const { error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                          redirectTo: `${window.location.origin}/dashboard`,
+                        },
                       });
-                      if (result.error) {
+                      if (error) {
                         toast({
                           title: 'Error',
-                          description: result.error.message || 'Google sign-in failed.',
+                          description: error.message || 'Google sign-in failed.',
                           variant: 'destructive',
                         });
                       }
-                      if (result.redirected) return;
-                      navigate('/dashboard');
                     } catch (err: any) {
                       toast({
                         title: 'Error',
