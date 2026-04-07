@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { GraduationCap } from 'lucide-react';
-import { lovable } from '@/integrations/lovable/index';
+
 
 export default function Login() {
   const { user, role, loading: authLoading, signOut } = useAuth();
