@@ -143,11 +143,15 @@ export function CertificateGenerator({
     }
   };
 
-  // Color palette
+  // Website theme colors
   const indigo = '#2d3561';
+  const indigoDark = '#1e2544';
   const teal = '#14b8a6';
-  const darkText = '#0f172a';
-  const mutedText = '#64748b';
+  const tealLight = '#5eead4';
+  const white = '#ffffff';
+  const slate100 = '#f1f5f9';
+  const slate300 = '#cbd5e1';
+  const slate500 = '#64748b';
 
   return (
     <>
@@ -166,7 +170,7 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          backgroundColor: '#ffffff',
+          backgroundColor: white,
           boxSizing: 'border-box',
           flexDirection: 'column',
           fontFamily: "'Space Grotesk', 'Segoe UI', Arial, sans-serif",
@@ -174,92 +178,128 @@ export function CertificateGenerator({
           overflow: 'hidden',
         }}
       >
-        {/* Top accent bar */}
+        {/* Top indigo header band */}
         <div style={{
-          height: '8px',
-          background: `linear-gradient(90deg, ${indigo} 0%, ${teal} 50%, ${indigo} 100%)`,
-          width: '100%',
-        }} />
+          height: '80px',
+          background: `linear-gradient(135deg, ${indigoDark} 0%, ${indigo} 100%)`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          padding: '0 40px',
+        }}>
+          <img src={logoDataUrl || universityLogo} alt="Logo" style={{ height: '52px', width: '52px', objectFit: 'contain', borderRadius: '50%', border: `2px solid ${teal}` }} />
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '22px', color: white, margin: 0, fontWeight: 700, letterSpacing: '2px', fontFamily: "'DM Serif Display', Georgia, serif" }}>
+              SHARNBASVA UNIVERSITY
+            </h1>
+            <p style={{ fontSize: '11px', color: tealLight, margin: '2px 0 0', letterSpacing: '3px', textTransform: 'uppercase', fontWeight: 500 }}>
+              Department of Computer Science & Design
+            </p>
+          </div>
+        </div>
 
+        {/* Teal accent line */}
+        <div style={{ height: '4px', background: `linear-gradient(90deg, ${teal}, ${tealLight}, ${teal})` }} />
+
+        {/* Main body */}
         <div style={{
+          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          flex: 1,
-          padding: '30px 60px 24px',
+          justifyContent: 'center',
+          padding: '24px 60px 20px',
           boxSizing: 'border-box',
+          position: 'relative',
         }}>
+          {/* Corner decorations */}
+          <div style={{ position: 'absolute', top: '20px', left: '20px', width: '40px', height: '40px', borderTop: `3px solid ${teal}`, borderLeft: `3px solid ${teal}` }} />
+          <div style={{ position: 'absolute', top: '20px', right: '20px', width: '40px', height: '40px', borderTop: `3px solid ${teal}`, borderRight: `3px solid ${teal}` }} />
+          <div style={{ position: 'absolute', bottom: '20px', left: '20px', width: '40px', height: '40px', borderBottom: `3px solid ${teal}`, borderLeft: `3px solid ${teal}` }} />
+          <div style={{ position: 'absolute', bottom: '20px', right: '20px', width: '40px', height: '40px', borderBottom: `3px solid ${teal}`, borderRight: `3px solid ${teal}` }} />
 
-          {/* Header: Logo + University */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <img src={logoDataUrl || universityLogo} alt="Logo" style={{ height: '64px', width: '64px', objectFit: 'contain' }} />
-            <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontSize: '26px', color: indigo, margin: 0, fontWeight: 700, letterSpacing: '1px', fontFamily: "'DM Serif Display', Georgia, serif" }}>
-                SHARNBASVA UNIVERSITY
-              </h1>
-              <p style={{ fontSize: '13px', color: mutedText, margin: '2px 0 0', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                Department of Computer Science & Design
-              </p>
-            </div>
-          </div>
-
-          {/* Decorative divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '70%', margin: '12px 0 4px' }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
-            <div style={{ width: '8px', height: '8px', backgroundColor: teal, transform: 'rotate(45deg)' }} />
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e2e8f0' }} />
+          {/* Award icon area */}
+          <div style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${teal}, ${tealLight})`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '8px',
+          }}>
+            <span style={{ fontSize: '28px', color: white }}>★</span>
           </div>
 
           {/* Title */}
           <h2 style={{
-            fontSize: '36px',
+            fontSize: '38px',
             color: indigo,
-            margin: '4px 0',
+            margin: '0',
             fontWeight: 700,
-            letterSpacing: '6px',
+            letterSpacing: '8px',
             textTransform: 'uppercase',
             fontFamily: "'DM Serif Display', Georgia, serif",
           }}>
             Certificate
           </h2>
-          <p style={{ fontSize: '14px', color: mutedText, margin: 0, letterSpacing: '4px', textTransform: 'uppercase' }}>
+          <p style={{
+            fontSize: '16px',
+            color: teal,
+            margin: '2px 0 0',
+            letterSpacing: '6px',
+            textTransform: 'uppercase',
+            fontWeight: 600,
+          }}>
             of Achievement
           </p>
 
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '60%', margin: '14px 0' }}>
+            <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, transparent, ${slate300})` }} />
+            <div style={{ width: '10px', height: '10px', backgroundColor: teal, transform: 'rotate(45deg)' }} />
+            <div style={{ flex: 1, height: '1px', background: `linear-gradient(to left, transparent, ${slate300})` }} />
+          </div>
+
           {/* Certify text */}
-          <p style={{ fontSize: '15px', color: mutedText, margin: '12px 0 0' }}>
+          <p style={{ fontSize: '14px', color: slate500, margin: '0', letterSpacing: '1px' }}>
             This is to certify that
           </p>
 
           {/* Student Name */}
           <h3 style={{
-            fontSize: '34px',
+            fontSize: '36px',
             color: indigo,
-            margin: '4px 0 0',
+            margin: '6px 0 0',
             fontWeight: 700,
             fontFamily: "'DM Serif Display', Georgia, serif",
-            borderBottom: `3px solid ${teal}`,
-            paddingBottom: '4px',
             lineHeight: 1.2,
           }}>
             {studentName}
           </h3>
+          <div style={{ width: '250px', height: '3px', background: `linear-gradient(90deg, transparent, ${teal}, transparent)`, margin: '4px 0' }} />
 
           {/* USN */}
           {studentUsn && (
-            <p style={{ fontSize: '14px', color: mutedText, margin: '4px 0 0', letterSpacing: '1px' }}>
-              USN: <strong style={{ color: darkText }}>{studentUsn}</strong>
+            <p style={{
+              fontSize: '14px',
+              color: slate500,
+              margin: '4px 0 0',
+              letterSpacing: '2px',
+            }}>
+              USN: <strong style={{ color: indigo, fontWeight: 700 }}>{studentUsn}</strong>
             </p>
           )}
 
           {/* Description */}
-          <p style={{ fontSize: '15px', color: mutedText, margin: '10px 0 0', textAlign: 'center', maxWidth: '700px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '14px', color: slate500, margin: '12px 0 0', textAlign: 'center' }}>
             has successfully completed the assessment
           </p>
           <p style={{
             fontSize: '22px',
-            color: darkText,
+            color: indigo,
             margin: '4px 0 0',
             fontWeight: 600,
             textAlign: 'center',
@@ -269,70 +309,64 @@ export function CertificateGenerator({
           </p>
 
           {/* Score cards */}
-          <div style={{
-            display: 'flex',
-            gap: '24px',
-            margin: '14px 0 0',
-          }}>
+          <div style={{ display: 'flex', gap: '20px', margin: '16px 0 0' }}>
             <div style={{
               textAlign: 'center',
-              padding: '10px 28px',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              backgroundColor: '#f8fafc',
+              padding: '10px 32px',
+              borderRadius: '10px',
+              border: `2px solid ${slate300}`,
+              backgroundColor: slate100,
             }}>
-              <p style={{ margin: 0, fontSize: '11px', color: mutedText, textTransform: 'uppercase', letterSpacing: '1px' }}>Score</p>
-              <p style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: indigo }}>{score} / {totalMarks}</p>
+              <p style={{ margin: 0, fontSize: '10px', color: slate500, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Score</p>
+              <p style={{ margin: '4px 0 0', fontSize: '24px', fontWeight: 700, color: indigo }}>{score} / {totalMarks}</p>
             </div>
             <div style={{
               textAlign: 'center',
-              padding: '10px 28px',
-              borderRadius: '8px',
-              backgroundColor: indigo,
+              padding: '10px 32px',
+              borderRadius: '10px',
+              background: `linear-gradient(135deg, ${indigo}, ${indigoDark})`,
             }}>
-              <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px' }}>Percentage</p>
-              <p style={{ margin: '4px 0 0', fontSize: '22px', fontWeight: 700, color: '#ffffff' }}>{percentage}%</p>
-            </div>
-          </div>
-
-          {/* Footer: Date + QR */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            width: '100%',
-            marginTop: '14px',
-            paddingTop: '12px',
-            borderTop: `2px solid ${teal}`,
-          }}>
-            <div>
-              <p style={{ margin: 0, fontSize: '16px', color: darkText, fontWeight: 600 }}>
-                {format(date, 'MMMM do, yyyy')}
-              </p>
-              <p style={{ margin: '2px 0 0', fontSize: '11px', color: mutedText, textTransform: 'uppercase', letterSpacing: '1px' }}>Date of Completion</p>
-            </div>
-
-            <div style={{ textAlign: 'center', fontSize: '11px', color: mutedText }}>
-              <p style={{ margin: 0 }}>CSD Quiz & Learning Portal</p>
-              <p style={{ margin: '1px 0 0' }}>Sharnbasva University, Kalaburagi</p>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '80px', height: '80px' }} />
-              ) : (
-                <div style={{ width: '80px', height: '80px', backgroundColor: '#f1f5f9', borderRadius: '4px' }} />
-              )}
-              <p style={{ margin: '2px 0 0', fontSize: '9px', color: mutedText }}>Scan to verify</p>
+              <p style={{ margin: 0, fontSize: '10px', color: tealLight, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Percentage</p>
+              <p style={{ margin: '4px 0 0', fontSize: '24px', fontWeight: 700, color: white }}>{percentage}%</p>
             </div>
           </div>
         </div>
 
-        {/* Bottom accent bar */}
+        {/* Footer */}
         <div style={{
-          height: '8px',
-          background: `linear-gradient(90deg, ${indigo} 0%, ${teal} 50%, ${indigo} 100%)`,
-          width: '100%',
+          borderTop: `2px solid ${slate300}`,
+          margin: '0 40px',
+          padding: '12px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '16px', color: indigo, fontWeight: 700 }}>
+              {format(date, 'MMMM do, yyyy')}
+            </p>
+            <p style={{ margin: '2px 0 0', fontSize: '10px', color: slate500, textTransform: 'uppercase', letterSpacing: '2px' }}>Date of Completion</p>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: '12px', color: indigo, fontWeight: 600 }}>CSD Quiz & Learning Portal</p>
+            <p style={{ margin: '2px 0 0', fontSize: '10px', color: slate500 }}>Sharnbasva University, Kalaburagi</p>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Verify QR" style={{ width: '72px', height: '72px', borderRadius: '6px', border: `1px solid ${slate300}` }} />
+            ) : (
+              <div style={{ width: '72px', height: '72px', backgroundColor: slate100, borderRadius: '6px' }} />
+            )}
+            <p style={{ margin: '2px 0 0', fontSize: '9px', color: slate500 }}>Scan to verify</p>
+          </div>
+        </div>
+
+        {/* Bottom accent band */}
+        <div style={{
+          height: '10px',
+          background: `linear-gradient(135deg, ${indigoDark} 0%, ${indigo} 40%, ${teal} 60%, ${tealLight} 100%)`,
         }} />
       </div>
     </>
