@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/~oauth/(.*)",
+      "source": "/~oauth*",
       "destination": "https://oauth.lovable.app/~oauth/$1"
     },
     {
