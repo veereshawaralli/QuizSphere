@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
+import { useReveal } from '@/hooks/use-reveal';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { BookOpen, Trophy, FileText, LogOut, Shield, User, ArrowUpRight } from 'lucide-react';
@@ -40,6 +41,7 @@ export default function Dashboard() {
   const { user, role, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
+  useReveal();
 
   useEffect(() => {
     if (loading) return;
@@ -140,14 +142,16 @@ export default function Dashboard() {
               <Link
                 to={t.to}
                 key={t.to}
-                className={`group bg-background p-8 lift block rise rise-${Math.min(i + 2, 5)}`}
+                className={`group relative bg-background p-8 lift block rise rise-${Math.min(i + 2, 5)} overflow-hidden`}
               >
+                {/* Coral wash on hover */}
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-accent/10 to-transparent transition-all duration-500 group-hover:h-full" />
                 <div className="flex items-start justify-between">
                   <span className="font-mono text-xs text-muted-foreground">{t.no}</span>
                   <ArrowUpRight className="h-5 w-5 text-foreground/40 transition-all group-hover:text-accent group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </div>
-                <t.icon className="mt-12 h-7 w-7 text-foreground transition-colors group-hover:text-accent" strokeWidth={1.5} />
-                <h3 className="mt-6 font-heading text-3xl text-foreground">{t.title}</h3>
+                <t.icon className="mt-12 h-7 w-7 text-foreground transition-all duration-500 group-hover:text-accent group-hover:-rotate-6" strokeWidth={1.5} />
+                <h3 className="mt-6 font-heading text-3xl text-foreground transition-colors group-hover:text-accent">{t.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground min-h-[3.5rem]">
                   {role === 'faculty' || role === 'admin' ? t.facultyCopy : t.studentCopy}
                 </p>
