@@ -1,33 +1,29 @@
-// Editorial footer with marquee tagline and clean meta row.
+// Editorial footer — clean, calm, no marquee.
 
 import { Link } from 'react-router-dom';
 
-const tagline = [
-  'Learn',
-  'Build',
-  'Question',
-  'Iterate',
-  'Ship',
-  'Repeat',
-];
+const tagline = ['Learn', 'Build', 'Question', 'Iterate', 'Ship'];
 
 export default function Footer() {
   return (
     <footer className="relative border-t border-border bg-background">
-      {/* Marquee */}
-      <div className="overflow-hidden border-b border-border py-6">
-        <div className="marquee">
-          <div className="marquee-track">
-            {[...tagline, ...tagline, ...tagline].map((word, i) => (
-              <span
-                key={i}
-                className="font-heading text-5xl md:text-7xl leading-none text-foreground/85 whitespace-nowrap flex items-center gap-12"
-              >
-                {word}
-                <span className="h-2 w-2 rounded-full bg-accent inline-block" />
-              </span>
+      {/* Quiet editorial banner — replaces the marquee */}
+      <div className="border-b border-border">
+        <div className="container mx-auto flex flex-col gap-6 px-6 py-10 md:flex-row md:items-end md:justify-between">
+          <h3 className="font-heading text-4xl md:text-5xl leading-[1] text-foreground max-w-2xl">
+            A quiet place <br className="hidden md:block" />
+            for serious work<span className="text-accent">.</span>
+          </h3>
+          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {tagline.map((w, i) => (
+              <li key={w} className="flex items-center gap-2">
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  0{i + 1}
+                </span>
+                <span className="eyebrow text-foreground/80">{w}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
 

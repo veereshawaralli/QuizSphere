@@ -235,4 +235,40 @@
 
   .shadow-paper { box-shadow: var(--shadow-paper); }
   .shadow-lift { box-shadow: var(--shadow-lift); }
+
+  /* Soft radial accent glow — used behind hero headlines */
+  .accent-glow {
+    position: relative;
+    isolation: isolate;
+  }
+  .accent-glow::before {
+    content: "";
+    position: absolute;
+    inset: -10% -5% auto auto;
+    width: 38rem;
+    height: 38rem;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side,
+      hsl(var(--accent) / 0.18),
+      hsl(var(--accent) / 0.04) 55%,
+      transparent 75%
+    );
+    filter: blur(6px);
+    pointer-events: none;
+  }
+
+  /* Thin hairline divider with a coral seed */
+  .hairline-coral {
+    position: relative;
+    height: 1px;
+    background: hsl(var(--border));
+  }
+  .hairline-coral::before {
+    content: "";
+    position: absolute;
+    left: 0; top: -1px;
+    width: 3rem; height: 3px;
+    background: hsl(var(--accent));
+  }
 }

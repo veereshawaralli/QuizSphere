@@ -87,7 +87,7 @@ export default function Dashboard() {
 
       <main className="flex-1">
         {/* Welcome band */}
-        <section className="border-b border-border grain">
+        <section className="border-b border-border grain accent-glow">
           <div className="container mx-auto px-6 pt-12 pb-16">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <p className="eyebrow text-muted-foreground rise rise-1">{today}</p>
