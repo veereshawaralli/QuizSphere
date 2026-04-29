@@ -56,7 +56,7 @@ export default function Index() {
       <Header />
 
       {/* HERO — editorial split */}
-      <section className="relative grain overflow-hidden">
+      <section className="relative grain accent-glow overflow-hidden">
         <div className="container mx-auto px-6 pt-12 pb-24 md:pt-20 md:pb-32">
           {/* Top meta row */}
           <div className="flex items-center justify-between border-b border-border pb-6">
