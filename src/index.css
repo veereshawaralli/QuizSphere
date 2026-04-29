@@ -271,4 +271,66 @@
     width: 3rem; height: 3px;
     background: hsl(var(--accent));
   }
+
+  /* Scroll reveal — initial state, made visible by IntersectionObserver */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.08s; }
+  .reveal-delay-2 { transition-delay: 0.18s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* Ticker — slow horizontal drift for editorial bands */
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .ticker-track {
+    display: inline-flex;
+    gap: 3.5rem;
+    animation: ticker 60s linear infinite;
+    will-change: transform;
+  }
+
+  /* Sliding fill button — coral wipes across on hover */
+  .btn-wipe {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-wipe::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: hsl(var(--accent));
+    transform: translateY(101%);
+    transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: -1;
+  }
+  .btn-wipe:hover::before { transform: translateY(0); }
+
+  /* Numbered editorial list — large hover number */
+  .num-row { transition: padding 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  .num-row:hover { padding-left: 1rem; }
+
+  /* Soft focus ring for editorial inputs/buttons */
+  .focus-ink:focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 3px;
+  }
+
+  /* Subtle parallax-friendly mask for hero */
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+  }
 }
