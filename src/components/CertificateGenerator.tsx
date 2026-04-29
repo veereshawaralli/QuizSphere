@@ -181,7 +181,6 @@ export function CertificateGenerator({
           zIndex: -1,
           overflow: 'hidden',
           padding: '56px 64px',
-          position: 'fixed',
         }}
       >
         {/* Outer editorial frame — single hairline */}
