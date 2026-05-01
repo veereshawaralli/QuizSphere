@@ -46,8 +46,8 @@ const capabilities = [
 
 const stats = [
   { k: 'Department', v: 'CS & Design', color: 'bg-gradient-candy' },
-  { k: 'Founded', v: '1979', color: 'bg-gradient-aurora' },
-  { k: 'Programs', v: 'BE · ME · PhD', color: 'bg-gradient-sunset' },
+  { k: 'Founded', v: '2023', color: 'bg-gradient-aurora' },
+  { k: 'Programs', v: 'BTech · Mtech · PhD', color: 'bg-gradient-sunset' },
   { k: 'Campus', v: 'Kalaburagi', color: 'bg-gradient-lime' },
 ];
 
