@@ -1,4 +1,4 @@
-// Editorial split-screen login. Left: brand canvas. Right: form.
+// Playful split-screen login. Left: vibrant brand canvas. Right: glass form.
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Rocket } from 'lucide-react';
 import universityLogo from '@/assets/university-logo.png';
 
 export default function Login() {
@@ -102,61 +102,83 @@ export default function Login() {
   }
 
   const roleHint = searchParams.get('role');
-  const title = isResetPassword ? 'Reset password' : isSignUp ? 'Create account' : 'Sign in';
+  const title = isResetPassword ? 'Reset password' : isSignUp ? 'Create account' : 'Welcome back';
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-12 bg-background">
-      {/* Left — brand canvas */}
-      <aside className="relative hidden lg:flex lg:col-span-5 ink-gradient grain text-background flex-col justify-between p-10 overflow-hidden">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="group inline-flex items-center gap-2 eyebrow text-background/70 hover:text-accent">
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
-            Back to home
-          </Link>
-          <p className="eyebrow text-background/50">№ 24</p>
+      {/* Left — vibrant brand canvas */}
+      <aside className="relative hidden lg:flex lg:col-span-5 ink-gradient text-background flex-col justify-between p-10 overflow-hidden">
+        {/* Animated blobs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="blob"
+            style={{ width: 480, height: 480, top: '-10%', left: '-10%',
+              background: 'radial-gradient(circle, hsl(var(--accent) / 0.7), transparent 60%)' }} />
+          <div className="blob"
+            style={{ width: 420, height: 420, bottom: '-15%', right: '-15%',
+              background: 'radial-gradient(circle, hsl(var(--primary) / 0.65), transparent 60%)',
+              animationDelay: '-7s' }} />
+          <div className="blob"
+            style={{ width: 320, height: 320, top: '40%', left: '40%',
+              background: 'radial-gradient(circle, hsl(var(--cyan) / 0.5), transparent 60%)',
+              animationDelay: '-12s' }} />
         </div>
 
-        <div className="rise rise-2">
-          <img src={universityLogo} alt="" className="h-14 w-14 object-contain mb-8 opacity-90 slow-zoom" />
-          <h2 className="font-heading text-5xl xl:text-7xl leading-[0.95] text-background">
-            Show up. <br />
-            <span className="text-accent italic">Sit down.</span> <br />
-            Do the work
+        <div className="relative flex items-center justify-between">
+          <Link to="/" className="group inline-flex items-center gap-2 eyebrow text-background/70 hover:text-accent transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+            Back to home
+          </Link>
+          <span className="pill glass-dark eyebrow text-background/60">№ 24</span>
+        </div>
+
+        <div className="relative rise rise-2">
+          <div className="relative inline-flex float-y mb-8">
+            <span className="absolute inset-0 rounded-3xl bg-gradient-candy opacity-70 blur-xl" />
+            <div className="relative inline-flex items-center justify-center glass-dark rounded-3xl p-3">
+              <img src={universityLogo} alt="" className="h-14 w-14 object-contain" />
+            </div>
+          </div>
+          <h2 className="font-heading text-5xl xl:text-7xl font-bold leading-[0.95]">
+            <span className="text-background">Show up.</span> <br />
+            <span className="text-gradient-candy italic">Sit down.</span> <br />
+            <span className="text-background">Do the work</span>
             <span className="text-accent caret">.</span>
           </h2>
           <p className="mt-8 max-w-sm text-sm leading-relaxed text-background/70">
-            The CSD Quiz &amp; Learning Portal — a focused environment for
-            assessments and study, used daily by students and faculty of
+            The CSD Quiz &amp; Learning Portal — a focused, vibrant environment
+            for assessments and study, used daily by students and faculty of
             Sharnbasva University.
           </p>
         </div>
 
-        <div className="flex items-end justify-between">
+        <div className="relative flex items-end justify-between">
           <p className="eyebrow text-background/50 max-w-[14rem]">
             Sharnbasva University · Department of Computer Science &amp; Design
           </p>
-          <p className="font-mono text-[11px] text-background/40">v 2.4</p>
+          <p className="font-hand text-2xl text-gradient-candy">v 3.0</p>
         </div>
-
-        {/* Decorative coral stripe */}
-        <div className="pointer-events-none absolute -right-20 top-1/3 h-[2px] w-80 bg-accent rotate-[-12deg]" />
-        <div className="pointer-events-none absolute right-12 bottom-32 h-12 w-12 rounded-full border border-accent/60" />
       </aside>
 
       {/* Right — form */}
-      <main className="lg:col-span-7 flex items-center justify-center px-6 py-12">
+      <main className="lg:col-span-7 relative flex items-center justify-center px-6 py-12 overflow-hidden">
+        {/* Subtle background blobs on form side too */}
+        <div className="pointer-events-none absolute inset-0 -z-10 dot-grid opacity-40" />
+        <div className="pointer-events-none absolute -top-20 -right-20 h-80 w-80 rounded-full bg-gradient-candy opacity-15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-aurora opacity-15 blur-3xl" />
+
         <div className="w-full max-w-md rise rise-2">
           {/* Mobile back */}
           <Link to="/" className="lg:hidden inline-flex items-center gap-2 eyebrow text-muted-foreground mb-8 hover:text-accent">
             <ArrowLeft className="h-3.5 w-3.5" /> Home
           </Link>
 
-          <p className="eyebrow text-accent">
-            {isResetPassword ? '§ Recovery' : isSignUp ? '§ Register' : '§ Welcome back'}
-          </p>
-          <h1 className="mt-3 font-heading text-5xl md:text-6xl leading-[0.95] text-foreground">
-            {title}
-            <span className="text-accent">.</span>
+          <span className="pill glass eyebrow text-accent inline-flex">
+            <Sparkles className="h-3 w-3" />
+            {isResetPassword ? 'Recovery' : isSignUp ? 'Register' : 'Welcome back'}
+          </span>
+          <h1 className="mt-4 font-heading text-5xl md:text-6xl font-bold leading-[0.95]">
+            <span className="text-foreground">{title}</span>
+            <span className="text-gradient-candy">.</span>
           </h1>
           <p className="mt-4 text-sm text-muted-foreground max-w-sm">
             {isResetPassword
@@ -176,7 +198,7 @@ export default function Login() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="rounded-none border-0 border-b border-border bg-transparent px-0 text-lg focus-visible:ring-0 focus-visible:border-accent"
+                  className="rounded-2xl glass border-border h-12 text-base focus-visible:ring-2 focus-visible:ring-accent"
                 />
               </div>
             )}
@@ -192,7 +214,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="rounded-none border-0 border-b border-border bg-transparent px-0 text-lg focus-visible:ring-0 focus-visible:border-accent"
+                className="rounded-2xl glass border-border h-12 text-base focus-visible:ring-2 focus-visible:ring-accent"
               />
             </div>
 
@@ -207,7 +229,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="rounded-none border-0 border-b border-border bg-transparent px-0 text-lg focus-visible:ring-0 focus-visible:border-accent"
+                  className="rounded-2xl glass border-border h-12 text-base focus-visible:ring-2 focus-visible:ring-accent"
                 />
               </div>
             )}
@@ -215,12 +237,19 @@ export default function Login() {
             <Button
               type="submit"
               disabled={loading}
-              className="group mt-4 w-full justify-between gap-3 rounded-none bg-foreground py-6 text-background hover:bg-accent hover:text-accent-foreground transition-colors"
+              className="btn-candy group mt-4 w-full justify-center gap-3 rounded-full py-6 text-white"
             >
-              <span className="eyebrow">
-                {loading ? 'Please wait' : isResetPassword ? 'Send reset link' : isSignUp ? 'Create account' : 'Sign in'}
-              </span>
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              {loading ? (
+                <span className="eyebrow">Please wait...</span>
+              ) : (
+                <>
+                  <Rocket className="h-4 w-4" />
+                  <span className="eyebrow">
+                    {isResetPassword ? 'Send reset link' : isSignUp ? 'Create account' : 'Sign in'}
+                  </span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
             </Button>
 
             {!isSignUp && !isResetPassword && (
@@ -234,7 +263,7 @@ export default function Login() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full rounded-none border-border py-6 hover:bg-foreground hover:text-background hover:border-foreground"
+                  className="w-full rounded-full glass border-border h-12 hover:bg-foreground hover:text-background hover:border-foreground transition-all"
                   disabled={loading}
                   onClick={async () => {
                     setLoading(true);
@@ -273,7 +302,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setIsResetPassword(true)}
-                className="link-underline text-left text-muted-foreground hover:text-accent"
+                className="link-underline text-left text-muted-foreground hover:text-accent self-start"
               >
                 Forgot your password?
               </button>
@@ -283,22 +312,16 @@ export default function Login() {
               {isResetPassword ? (
                 <>
                   Remember it?{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsResetPassword(false)}
-                    className="link-underline font-medium text-foreground hover:text-accent"
-                  >
+                  <button type="button" onClick={() => setIsResetPassword(false)}
+                    className="link-underline font-semibold text-foreground hover:text-accent">
                     Sign in
                   </button>
                 </>
               ) : (
                 <>
                   {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsSignUp(!isSignUp)}
-                    className="link-underline font-medium text-foreground hover:text-accent"
-                  >
+                  <button type="button" onClick={() => setIsSignUp(!isSignUp)}
+                    className="link-underline font-semibold text-foreground hover:text-accent">
                     {isSignUp ? 'Sign in' : 'Sign up'}
                   </button>
                 </>
