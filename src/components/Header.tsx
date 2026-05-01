@@ -1,9 +1,9 @@
-// Editorial sticky header — paper background with ink type and a single coral accent.
+// Playful sticky header — gradient logo halo, animated underlines, glass blur on scroll.
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import universityLogo from '@/assets/university-logo.png';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -39,23 +39,26 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-500 ${
         scrolled
-          ? 'border-b border-border/60 bg-background/80 backdrop-blur-xl'
-          : 'border-b border-transparent bg-background/0'
+          ? 'border-b border-border/60 glass-strong'
+          : 'border-b border-transparent bg-transparent'
       }`}
     >
       <div className="container mx-auto flex items-center justify-between gap-6 px-6 py-4">
         <Link to="/" className="group flex items-center gap-3">
           <div className="relative">
-            <img
-              src={universityLogo}
-              alt="Sharnbasva University"
-              className="h-10 w-10 object-contain transition-transform duration-500 group-hover:rotate-[8deg]"
-            />
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-accent" aria-hidden />
+            {/* Gradient halo behind logo */}
+            <span className="absolute inset-0 rounded-2xl bg-gradient-candy opacity-60 blur-md transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl glass-strong p-1.5">
+              <img
+                src={universityLogo}
+                alt="Sharnbasva University"
+                className="h-full w-full object-contain transition-transform duration-500 group-hover:rotate-[12deg] group-hover:scale-110"
+              />
+            </div>
           </div>
           <div className="hidden sm:block leading-tight">
-            <p className="font-heading text-base text-foreground">Sharnbasva</p>
-            <p className="eyebrow text-muted-foreground">CS &amp; Design</p>
+            <p className="font-heading text-base font-bold text-foreground">Sharnbasva</p>
+            <p className="eyebrow text-gradient-aurora">CS &amp; Design</p>
           </div>
         </Link>
 
@@ -68,7 +71,7 @@ export default function Header() {
                   key={item.to}
                   to={item.to}
                   className={`eyebrow link-underline transition-colors ${
-                    active ? 'text-accent' : 'text-foreground/70 hover:text-foreground'
+                    active ? 'text-gradient-candy font-semibold' : 'text-foreground/70 hover:text-foreground'
                   }`}
                 >
                   {item.label}
@@ -86,14 +89,14 @@ export default function Header() {
                 size="sm"
                 variant="ghost"
                 onClick={handleSignOut}
-                className="hidden sm:inline-flex gap-2 rounded-none text-foreground/80 hover:bg-transparent hover:text-accent"
+                className="hidden sm:inline-flex gap-2 rounded-full text-foreground/80 hover:bg-accent/10 hover:text-accent"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="eyebrow">Sign Out</span>
               </Button>
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="md:hidden rounded-none border border-border p-2 text-foreground"
+                className="md:hidden rounded-full glass p-2 text-foreground"
                 aria-label="Menu"
               >
                 {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -103,8 +106,9 @@ export default function Header() {
             <Link to="/login">
               <Button
                 size="sm"
-                className="rounded-none bg-foreground text-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="btn-candy gap-2 rounded-full px-5 text-white"
               >
+                <Sparkles className="h-3.5 w-3.5" />
                 <span className="eyebrow">Sign In</span>
               </Button>
             </Link>
@@ -114,7 +118,7 @@ export default function Header() {
 
       {/* Mobile nav */}
       {user && mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div className="md:hidden glass-strong border-t border-border bounce-in">
           <nav className="container mx-auto flex flex-col px-6 py-4">
             {navItems.map((item) => (
               <Link
