@@ -14,8 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['DM Serif Display', 'Georgia', 'serif'],
-        body: ['Space Grotesk', 'Segoe UI', 'sans-serif'],
+        heading: ['Sora', 'Inter', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        hand: ['Caveat', 'cursive'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -58,6 +60,18 @@ export default {
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
+        },
+        lime: {
+          DEFAULT: "hsl(var(--lime))",
+          foreground: "hsl(var(--lime-foreground))",
+        },
+        cyan: {
+          DEFAULT: "hsl(var(--cyan))",
+          foreground: "hsl(var(--cyan-foreground))",
+        },
+        tangerine: {
+          DEFAULT: "hsl(var(--tangerine))",
+          foreground: "hsl(var(--tangerine-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

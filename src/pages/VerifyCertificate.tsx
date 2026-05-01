@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { CheckCircle, XCircle, Award } from 'lucide-react';
+import { CheckCircle2, XCircle, Award, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Certificate {
@@ -30,84 +29,90 @@ export default function VerifyCertificate() {
       setLoading(false);
       return;
     }
-
     supabase
       .from('certificates')
       .select('id, student_name, quiz_title, score, total_marks, percentage, issued_at')
       .eq('id', certificateId)
       .maybeSingle()
       .then(({ data, error }) => {
-        if (error || !data) {
-          setNotFound(true);
-        } else {
-          setCertificate(data);
-        }
+        if (error || !data) setNotFound(true);
+        else setCertificate(data);
         setLoading(false);
       });
   }, [certificateId]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
+      <main className="relative flex-1 flex items-center justify-center px-4 py-12 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="blob"
+            style={{ width: 460, height: 460, top: '-10%', right: '-10%',
+              background: 'radial-gradient(circle, hsl(var(--accent) / 0.45), transparent 60%)' }} />
+          <div className="blob"
+            style={{ width: 380, height: 380, bottom: '-15%', left: '-5%',
+              background: 'radial-gradient(circle, hsl(var(--primary) / 0.45), transparent 60%)',
+              animationDelay: '-7s' }} />
+        </div>
+
+        <div className="relative w-full max-w-md bounce-in">
           {loading ? (
-            <p className="text-center text-muted-foreground">Verifying certificate...</p>
+            <p className="text-center eyebrow text-gradient-candy">Verifying certificate…</p>
           ) : notFound ? (
-            <Card className="border-destructive">
-              <CardHeader className="text-center">
-                <XCircle className="mx-auto h-16 w-16 text-destructive" />
-                <CardTitle className="mt-4 text-2xl text-destructive">Invalid Certificate</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
-                  This certificate ID is not valid or does not exist in our records.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="glass-strong rounded-3xl p-10 text-center">
+              <div className="mx-auto inline-flex h-20 w-20 items-center justify-center rounded-full bg-destructive/15 mb-4">
+                <XCircle className="h-10 w-10 text-destructive" />
+              </div>
+              <h2 className="font-heading text-2xl font-bold text-destructive">Invalid Certificate</h2>
+              <p className="mt-3 text-muted-foreground">
+                This certificate ID is not valid or does not exist in our records.
+              </p>
+            </div>
           ) : certificate ? (
-            <Card className="border-primary">
-              <CardHeader className="text-center">
-              <CheckCircle className="mx-auto h-16 w-16 text-primary" />
-                <CardTitle className="mt-4 text-2xl text-primary">Certificate Verified</CardTitle>
-                <Badge variant="secondary" className="mx-auto mt-2">
-                  <Award className="mr-1 h-3 w-3" /> Authentic
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-lg bg-muted p-4 space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Student Name</span>
-                    <span className="font-semibold">{certificate.student_name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Quiz</span>
-                    <span className="font-semibold">{certificate.quiz_title}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Score</span>
-                    <span className="font-semibold">{certificate.score} / {certificate.total_marks}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Percentage</span>
-                    <span className="font-semibold">{certificate.percentage}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Issued On</span>
-                    <span className="font-semibold">
-                      {format(new Date(certificate.issued_at), 'MMMM do, yyyy')}
-                    </span>
+            <div className="relative glass-strong rounded-3xl p-10 overflow-hidden">
+              <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-candy opacity-30 blur-3xl" />
+              <div className="text-center relative">
+                <div className="relative mx-auto inline-flex float-y mb-4">
+                  <span className="absolute inset-0 rounded-full bg-gradient-candy opacity-60 blur-xl" />
+                  <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-candy shadow-pop">
+                    <CheckCircle2 className="h-10 w-10 text-white" strokeWidth={2.2} />
                   </div>
                 </div>
-                <p className="text-center text-xs text-muted-foreground">
-                  Certificate ID: {certificate.id}
-                </p>
-              </CardContent>
-            </Card>
+                <span className="pill glass eyebrow text-success inline-flex">
+                  <Sparkles className="h-3 w-3" /> Verified
+                </span>
+                <h2 className="mt-4 font-heading text-3xl font-bold">
+                  <span className="text-foreground">Certificate </span>
+                  <span className="text-gradient-candy">Verified</span>
+                </h2>
+                <Badge variant="default" className="mx-auto mt-3 inline-flex">
+                  <Award className="mr-1 h-3 w-3" /> Authentic
+                </Badge>
+              </div>
+              <div className="mt-6 rounded-2xl glass p-5 space-y-3 relative">
+                <Row label="Student Name" value={certificate.student_name} />
+                <Row label="Quiz" value={certificate.quiz_title} />
+                <Row label="Score" value={`${certificate.score} / ${certificate.total_marks}`} />
+                <Row label="Percentage" value={`${certificate.percentage}%`} />
+                <Row label="Issued On" value={format(new Date(certificate.issued_at), 'MMMM do, yyyy')} />
+              </div>
+              <p className="mt-4 text-center font-mono text-[11px] text-muted-foreground">
+                Certificate ID: {certificate.id}
+              </p>
+            </div>
           ) : null}
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="eyebrow text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground text-right">{value}</span>
     </div>
   );
 }
