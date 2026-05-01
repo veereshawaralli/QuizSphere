@@ -57,8 +57,8 @@ export default function Header() {
             </div>
           </div>
           <div className="hidden sm:block leading-tight">
-            <p className="font-heading text-base font-bold text-foreground">Sharnbasva</p>
-            <p className="eyebrow text-gradient-aurora">CS &amp; Design</p>
+            <p className="font-heading text-base font-bold text-foreground">Sharnbasva University</p>
+            <p className="eyebrow text-gradient-aurora"> DEPT CS &amp; Design</p>
           </div>
         </Link>
 
