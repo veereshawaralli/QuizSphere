@@ -333,4 +333,132 @@
     -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
     mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
   }
+
+  /* ──────────────────────────────────────────────
+   * Glass-morphism + modern motion utilities
+   * ────────────────────────────────────────────── */
+
+  /* Frosted glass card — works on light & dark */
+  .glass {
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
+    box-shadow:
+      0 1px 0 hsl(var(--background) / 0.6) inset,
+      0 20px 50px -20px hsl(var(--foreground) / 0.18);
+  }
+  .glass-strong {
+    background: hsl(var(--card) / 0.72);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid hsl(var(--foreground) / 0.1);
+  }
+  .glass-dark {
+    background: hsl(var(--foreground) / 0.06);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid hsl(var(--foreground) / 0.1);
+  }
+
+  /* Aurora — slow drifting color blobs behind hero */
+  @keyframes aurora-drift {
+    0%   { transform: translate3d(-6%, -4%, 0) scale(1); }
+    50%  { transform: translate3d(6%, 4%, 0) scale(1.15); }
+    100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.55;
+    will-change: transform;
+    animation: aurora-drift 18s ease-in-out infinite;
+  }
+
+  /* Floating element — subtle Y bob */
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  .float-y { animation: float-y 6s ease-in-out infinite; }
+
+  /* Conic shimmer border — for premium cards */
+  .shimmer-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .shimmer-border::before {
+    content: "";
+    position: absolute; inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      hsl(var(--accent) / 0.7) 60deg,
+      transparent 120deg,
+      transparent 240deg,
+      hsl(var(--accent) / 0.4) 300deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: spin-slow 9s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+
+  /* Tilt-on-hover — used on glass capability cards */
+  .tilt {
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+    transform-style: preserve-3d;
+  }
+  .tilt:hover {
+    transform: translateY(-6px) rotateX(2deg) rotateY(-2deg);
+    box-shadow: 0 30px 60px -20px hsl(var(--foreground) / 0.25);
+  }
+
+  /* Gradient text — accent → foreground */
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--foreground)) 40%,
+      hsl(var(--accent)) 100%
+    );
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+
+  /* Animated noise overlay for hero — reuses .grain */
+  .vignette::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      hsl(var(--background) / 0.6) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Magnetic spotlight that follows pointer (uses --mx, --my) */
+  .spotlight {
+    background-image:
+      radial-gradient(
+        500px circle at var(--mx, 50%) var(--my, 30%),
+        hsl(var(--accent) / 0.18),
+        transparent 55%
+      );
+  }
+
+  /* Pill */
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-border px-3 py-1;
+  }
 }
