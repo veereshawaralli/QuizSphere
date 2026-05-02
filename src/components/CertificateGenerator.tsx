@@ -324,7 +324,7 @@ export function CertificateGenerator({
               margin: '12px 0 0',
               fontFamily: "'Sora', 'Inter', sans-serif",
               fontWeight: 800,
-              fontSize: '78px',
+              fontSize: '70px',
               lineHeight: 0.95,
               color: ink,
               letterSpacing: '-0.035em',
@@ -332,14 +332,14 @@ export function CertificateGenerator({
               Awarded,<br />
               with{' '}
               <span style={{
-                background: candyGradient,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: pink,
                 fontStyle: 'italic',
                 fontFamily: "'Caveat', cursive",
                 fontWeight: 700,
-                fontSize: '92px',
+                fontSize: '82px',
+                lineHeight: 1,
+                display: 'inline-block',
+                verticalAlign: 'baseline',
               }}>brilliance</span>
               <span style={{ color: pink }}>.</span>
             </h1>
@@ -350,13 +350,10 @@ export function CertificateGenerator({
               margin: 0,
               fontFamily: "'Sora', 'Inter', sans-serif",
               fontWeight: 800,
-              fontSize: '96px',
+              fontSize: '92px',
               lineHeight: 0.9,
               letterSpacing: '-0.05em',
-              background: auroraGradient,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              color: violet,
             }}>
               {yearMark}
             </p>
