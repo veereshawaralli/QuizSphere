@@ -400,14 +400,12 @@ export function CertificateGenerator({
                 lineHeight: 1.05,
                 color: ink,
                 letterSpacing: '-0.025em',
+                display: 'inline-block',
+                paddingBottom: '6px',
+                borderBottom: `4px solid ${pink}`,
               }}>
                 {studentName}
               </h2>
-              {/* gradient underline */}
-              <div style={{
-                marginTop: '10px', height: '4px', width: '120px',
-                borderRadius: '999px', background: candyGradient,
-              }} />
               {studentUsn && (
                 <p style={{
                   margin: '14px 0 0',
@@ -580,6 +578,7 @@ export function CertificateGenerator({
           gap: '32px',
         }}>
           <div>
+            <div style={{ height: '3px', width: '40px', background: pink, borderRadius: '999px', marginBottom: '10px' }} />
             <p style={{
               margin: 0,
               fontFamily: "'Sora', 'Inter', sans-serif",
@@ -590,9 +589,9 @@ export function CertificateGenerator({
             }}>
               {format(date, 'MMMM d, yyyy')}
             </p>
-            <div style={{ height: '2px', width: '50px', background: candyGradient, borderRadius: '999px', margin: '8px 0' }} />
             <p style={{
               margin: 0,
+              marginTop: '6px',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               fontSize: '9px',
               letterSpacing: '0.24em',
@@ -604,6 +603,7 @@ export function CertificateGenerator({
           </div>
 
           <div>
+            <div style={{ height: '3px', width: '40px', background: violet, borderRadius: '999px', marginBottom: '10px' }} />
             <p style={{
               margin: 0,
               fontFamily: "'Sora', 'Inter', sans-serif",
@@ -614,9 +614,9 @@ export function CertificateGenerator({
             }}>
               CSD Portal
             </p>
-            <div style={{ height: '2px', width: '50px', background: auroraGradient, borderRadius: '999px', margin: '8px 0' }} />
             <p style={{
               margin: 0,
+              marginTop: '6px',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               fontSize: '9px',
               letterSpacing: '0.24em',
