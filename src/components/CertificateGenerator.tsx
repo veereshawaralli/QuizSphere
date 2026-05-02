@@ -143,18 +143,24 @@ export function CertificateGenerator({
     }
   };
 
-  // Editorial palette — mirrors the site's warm paper / deep ink / electric coral system.
-  const paper = '#F4EEE3';        // warm paper background
-  const paperDeep = '#EDE5D5';    // subtle paper shadow tone
-  const ink = '#10131F';          // deep ink (near-black indigo)
-  const inkSoft = '#2A2E3D';      // softer ink for secondary text
-  const muted = '#6B6B72';        // muted body text
-  const hairline = '#1A1D2A';     // dark hairline rules
-  const coral = '#EF4D2C';        // single bold accent
+  // Candy Cosmos palette — premium, vibrant, print-safe.
+  const canvas = '#FBF7FF';       // soft lilac-white base (prints clean)
+  const ink = '#1A0B2E';          // deep plum ink
+  const inkSoft = '#3B2A5A';      // softer plum
+  const muted = '#7B6B96';        // muted lavender body
+  const hairline = '#E5DCF5';     // soft hairline
+  const violet = '#7C3AED';       // electric violet (primary)
+  const pink = '#FF006E';         // hot pink (accent)
+  const cyan = '#06B6D4';         // cyan extra
+  const lime = '#A3E635';         // lime extra
+  const tangerine = '#FB923C';    // tangerine extra
+  const candyGradient = `linear-gradient(135deg, ${violet} 0%, ${pink} 55%, ${tangerine} 100%)`;
+  const auroraGradient = `linear-gradient(120deg, ${cyan} 0%, ${violet} 50%, ${pink} 100%)`;
 
   const issueNo = (submissionId || '').replace(/-/g, '').slice(0, 6).toUpperCase() || '——————';
   const dateLine = format(date, 'dd MMM yyyy').toUpperCase();
   const yearMark = format(date, 'yyyy');
+  const standing = percentage >= 90 ? 'Distinction' : percentage >= 80 ? 'First Class' : 'Pass with Merit';
 
   return (
     <>
@@ -173,32 +179,57 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          backgroundColor: paper,
+          backgroundColor: canvas,
           boxSizing: 'border-box',
           flexDirection: 'column',
-          fontFamily: "'Space Grotesk', 'Segoe UI', Arial, sans-serif",
+          fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
           color: ink,
           zIndex: -1,
           overflow: 'hidden',
-          padding: '56px 64px',
+          padding: '52px 60px',
         }}
       >
-        {/* Outer editorial frame — single hairline */}
+        {/* Aurora blobs — soft, abstract, brand-defining */}
         <div style={{
-          position: 'absolute',
-          inset: '32px',
-          border: `1px solid ${hairline}`,
+          position: 'absolute', top: '-180px', right: '-160px',
+          width: '520px', height: '520px', borderRadius: '50%',
+          background: `radial-gradient(circle, ${pink}55 0%, ${violet}22 45%, transparent 70%)`,
+          filter: 'blur(2px)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-200px', left: '-180px',
+          width: '560px', height: '560px', borderRadius: '50%',
+          background: `radial-gradient(circle, ${cyan}44 0%, ${violet}33 45%, transparent 70%)`,
+          filter: 'blur(2px)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', top: '40%', left: '45%',
+          width: '320px', height: '320px', borderRadius: '50%',
+          background: `radial-gradient(circle, ${lime}22 0%, transparent 70%)`,
+          filter: 'blur(2px)', pointerEvents: 'none',
+        }} />
+
+        {/* Outer gradient frame */}
+        <div style={{
+          position: 'absolute', inset: '24px', borderRadius: '28px',
+          padding: '2px', background: candyGradient,
           pointerEvents: 'none',
-        }} />
-        {/* Coral seal mark — top-right corner of the frame */}
-        <div style={{
-          position: 'absolute',
-          top: '24px',
-          right: '24px',
-          width: '16px',
-          height: '16px',
-          backgroundColor: coral,
-        }} />
+        }}>
+          <div style={{
+            width: '100%', height: '100%', borderRadius: '26px',
+            backgroundColor: canvas,
+          }} />
+        </div>
+
+        {/* Corner candy dots */}
+        <div style={{ position: 'absolute', top: '48px', right: '48px', display: 'flex', gap: '6px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: pink }} />
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: violet }} />
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: cyan }} />
+        </div>
+
+        {/* Content wrapper above decorations */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, zIndex: 2 }}>
 
         {/* TOP META ROW */}
         <div style={{
@@ -209,18 +240,32 @@ export function CertificateGenerator({
           borderBottom: `1px solid ${hairline}`,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <img
-              src={logoDataUrl || universityLogo}
-              alt="Sharnbasva University"
-              style={{ height: '40px', width: '40px', objectFit: 'contain' }}
-            />
+            <div style={{
+              position: 'relative', height: '52px', width: '52px',
+              borderRadius: '14px', padding: '2px',
+              background: candyGradient,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <div style={{
+                height: '100%', width: '100%', borderRadius: '12px',
+                background: canvas,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <img
+                  src={logoDataUrl || universityLogo}
+                  alt="Sharnbasva University"
+                  style={{ height: '36px', width: '36px', objectFit: 'contain' }}
+                />
+              </div>
+            </div>
             <div style={{ lineHeight: 1.2 }}>
               <p style={{
                 margin: 0,
-                fontSize: '15px',
-                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontSize: '17px',
+                fontFamily: "'Sora', 'Inter', sans-serif",
+                fontWeight: 700,
                 color: ink,
-                letterSpacing: '-0.01em',
+                letterSpacing: '-0.02em',
               }}>
                 Sharnbasva University
               </p>
@@ -248,7 +293,10 @@ export function CertificateGenerator({
             color: muted,
           }}>
             <span>№ {issueNo}</span>
-            <span style={{ color: coral }}>●</span>
+            <span style={{
+              width: '8px', height: '8px', borderRadius: '50%',
+              background: candyGradient, display: 'inline-block',
+            }} />
             <span>Issued · {dateLine}</span>
           </div>
         </div>
@@ -258,40 +306,57 @@ export function CertificateGenerator({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginTop: '24px',
+          marginTop: '28px',
         }}>
           <div>
             <p style={{
               margin: 0,
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               fontSize: '10px',
-              letterSpacing: '0.28em',
+              letterSpacing: '0.32em',
               textTransform: 'uppercase',
-              color: coral,
+              color: violet,
+              fontWeight: 700,
             }}>
-              § Certificate of Achievement
+              ✦ Certificate of Achievement
             </p>
             <h1 style={{
-              margin: '10px 0 0',
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: '76px',
+              margin: '12px 0 0',
+              fontFamily: "'Sora', 'Inter', sans-serif",
+              fontWeight: 800,
+              fontSize: '78px',
               lineHeight: 0.95,
               color: ink,
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.035em',
             }}>
-              Awarded, <br />
-              with distinction<span style={{ color: coral }}>.</span>
+              Awarded,<br />
+              with{' '}
+              <span style={{
+                background: candyGradient,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                fontStyle: 'italic',
+                fontFamily: "'Caveat', cursive",
+                fontWeight: 700,
+                fontSize: '92px',
+              }}>brilliance</span>
+              <span style={{ color: pink }}>.</span>
             </h1>
           </div>
 
           <div style={{ textAlign: 'right' }}>
             <p style={{
               margin: 0,
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: '88px',
+              fontFamily: "'Sora', 'Inter', sans-serif",
+              fontWeight: 800,
+              fontSize: '96px',
               lineHeight: 0.9,
-              color: ink,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.05em',
+              background: auroraGradient,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
             }}>
               {yearMark}
             </p>
@@ -310,10 +375,10 @@ export function CertificateGenerator({
 
         {/* MAIN GRID — name & quiz on left, meta column on right */}
         <div style={{
-          marginTop: '36px',
+          marginTop: '32px',
           display: 'grid',
           gridTemplateColumns: '1.55fr 1fr',
-          gap: '40px',
+          gap: '36px',
           alignItems: 'flex-start',
           flex: 1,
         }}>
@@ -331,18 +396,24 @@ export function CertificateGenerator({
                 Presented to
               </p>
               <h2 style={{
-                margin: '12px 0 0',
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '54px',
+                margin: '10px 0 0',
+                fontFamily: "'Sora', 'Inter', sans-serif",
+                fontWeight: 700,
+                fontSize: '52px',
                 lineHeight: 1.05,
                 color: ink,
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.025em',
               }}>
                 {studentName}
               </h2>
+              {/* gradient underline */}
+              <div style={{
+                marginTop: '10px', height: '4px', width: '120px',
+                borderRadius: '999px', background: candyGradient,
+              }} />
               {studentUsn && (
                 <p style={{
-                  margin: '10px 0 0',
+                  margin: '14px 0 0',
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
                   fontSize: '11px',
                   letterSpacing: '0.18em',
@@ -351,16 +422,6 @@ export function CertificateGenerator({
                   USN · <span style={{ color: ink, fontWeight: 600 }}>{studentUsn}</span>
                 </p>
               )}
-            </div>
-
-            {/* hairline with coral seed */}
-            <div style={{ position: 'relative', height: '1px', backgroundColor: hairline, width: '70%' }}>
-              <span style={{
-                position: 'absolute',
-                left: 0, top: '-2px',
-                width: '40px', height: '3px',
-                backgroundColor: coral,
-              }} />
             </div>
 
             <div>
@@ -375,28 +436,59 @@ export function CertificateGenerator({
                 meeting the standards set by the Department of Computer Science
                 &amp; Design.
               </p>
-              <p style={{
-                margin: '14px 0 0',
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '26px',
-                lineHeight: 1.15,
-                color: ink,
-                letterSpacing: '-0.01em',
-                fontStyle: 'italic',
+              <div style={{
+                marginTop: '16px',
+                padding: '16px 20px',
+                borderRadius: '18px',
+                border: `1.5px solid ${hairline}`,
+                background: `linear-gradient(135deg, ${violet}0D 0%, ${pink}0D 100%)`,
+                position: 'relative',
               }}>
-                “{quizTitle}”
-              </p>
+                <span style={{
+                  position: 'absolute', top: '-1px', left: '20px', height: '2px', width: '50px',
+                  background: candyGradient, borderRadius: '999px',
+                }} />
+                <p style={{
+                  margin: 0,
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase',
+                  color: violet, fontWeight: 700,
+                }}>
+                  Assessment
+                </p>
+                <p style={{
+                  margin: '6px 0 0',
+                  fontFamily: "'Sora', 'Inter', sans-serif",
+                  fontWeight: 600,
+                  fontSize: '24px',
+                  lineHeight: 1.2,
+                  color: ink,
+                  letterSpacing: '-0.015em',
+                }}>
+                  {quizTitle}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* RIGHT — score column */}
           <div style={{
-            borderLeft: `1px solid ${hairline}`,
-            paddingLeft: '32px',
+            padding: '24px 26px',
+            borderRadius: '24px',
+            background: `linear-gradient(160deg, ${canvas} 0%, ${violet}0A 100%)`,
+            border: `1.5px solid ${hairline}`,
             display: 'flex',
             flexDirection: 'column',
-            gap: '22px',
+            gap: '18px',
+            position: 'relative',
+            overflow: 'hidden',
           }}>
+            {/* corner accent */}
+            <div style={{
+              position: 'absolute', top: '-40px', right: '-40px',
+              width: '120px', height: '120px', borderRadius: '50%',
+              background: candyGradient, opacity: 0.15, filter: 'blur(8px)',
+            }} />
             <div>
               <p style={{
                 margin: 0,
@@ -404,19 +496,21 @@ export function CertificateGenerator({
                 fontSize: '9px',
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: muted,
+                color: cyan,
+                fontWeight: 700,
               }}>
                 01 — Score
               </p>
               <p style={{
-                margin: '8px 0 0',
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '44px',
+                margin: '6px 0 0',
+                fontFamily: "'Sora', 'Inter', sans-serif",
+                fontWeight: 800,
+                fontSize: '42px',
                 lineHeight: 1,
                 color: ink,
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.03em',
               }}>
-                {score}<span style={{ color: muted, fontSize: '24px' }}> / {totalMarks}</span>
+                {score}<span style={{ color: muted, fontSize: '22px', fontWeight: 500 }}> / {totalMarks}</span>
               </p>
             </div>
 
@@ -427,19 +521,24 @@ export function CertificateGenerator({
                 fontSize: '9px',
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: muted,
+                color: pink,
+                fontWeight: 700,
               }}>
                 02 — Percentage
               </p>
               <p style={{
-                margin: '8px 0 0',
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '76px',
+                margin: '6px 0 0',
+                fontFamily: "'Sora', 'Inter', sans-serif",
+                fontWeight: 800,
+                fontSize: '78px',
                 lineHeight: 0.9,
-                color: coral,
-                letterSpacing: '-0.04em',
+                letterSpacing: '-0.05em',
+                background: candyGradient,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}>
-                {percentage}<span style={{ fontSize: '34px', color: ink }}>%</span>
+                {percentage}<span style={{ fontSize: '34px' }}>%</span>
               </p>
             </div>
 
@@ -450,28 +549,37 @@ export function CertificateGenerator({
                 fontSize: '9px',
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: muted,
+                color: lime === lime ? '#65A30D' : muted,
+                fontWeight: 700,
               }}>
                 03 — Standing
               </p>
-              <p style={{
-                margin: '8px 0 0',
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontSize: '24px',
-                lineHeight: 1.1,
-                color: ink,
+              <span style={{
+                marginTop: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '999px',
+                background: candyGradient,
+                color: '#FFFFFF',
+                fontFamily: "'Sora', 'Inter', sans-serif",
+                fontWeight: 700,
+                fontSize: '15px',
+                letterSpacing: '-0.005em',
+                width: 'fit-content',
               }}>
-                {percentage >= 90 ? 'Distinction' : percentage >= 80 ? 'First Class' : 'Pass with Merit'}
-              </p>
+                ★ {standing}
+              </span>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
         <div style={{
-          marginTop: '20px',
-          paddingTop: '18px',
-          borderTop: `1px solid ${hairline}`,
+          marginTop: '24px',
+          paddingTop: '20px',
+          borderTop: `1px dashed ${hairline}`,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr auto',
           alignItems: 'flex-end',
@@ -480,13 +588,15 @@ export function CertificateGenerator({
           <div>
             <p style={{
               margin: 0,
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: '20px',
+              fontFamily: "'Sora', 'Inter', sans-serif",
+              fontWeight: 700,
+              fontSize: '18px',
               color: ink,
+              letterSpacing: '-0.015em',
             }}>
               {format(date, 'MMMM d, yyyy')}
             </p>
-            <div style={{ height: '1px', width: '60%', backgroundColor: hairline, margin: '8px 0' }} />
+            <div style={{ height: '2px', width: '50px', background: candyGradient, borderRadius: '999px', margin: '8px 0' }} />
             <p style={{
               margin: 0,
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
@@ -502,13 +612,15 @@ export function CertificateGenerator({
           <div>
             <p style={{
               margin: 0,
-              fontFamily: "'DM Serif Display', Georgia, serif",
-              fontSize: '20px',
+              fontFamily: "'Sora', 'Inter', sans-serif",
+              fontWeight: 700,
+              fontSize: '18px',
               color: ink,
+              letterSpacing: '-0.015em',
             }}>
               CSD Portal
             </p>
-            <div style={{ height: '1px', width: '60%', backgroundColor: hairline, margin: '8px 0' }} />
+            <div style={{ height: '2px', width: '50px', background: auroraGradient, borderRadius: '999px', margin: '8px 0' }} />
             <p style={{
               margin: 0,
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
@@ -529,7 +641,8 @@ export function CertificateGenerator({
                 fontSize: '9px',
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: muted,
+                color: violet,
+                fontWeight: 700,
               }}>
                 Scan to verify
               </p>
@@ -539,23 +652,31 @@ export function CertificateGenerator({
                 fontSize: '10px',
                 color: ink,
                 letterSpacing: '0.12em',
+                fontWeight: 600,
               }}>
                 {(certificateId || submissionId || '').slice(0, 8).toUpperCase()}
               </p>
             </div>
             <div style={{
-              padding: '6px',
-              backgroundColor: paperDeep,
-              border: `1px solid ${hairline}`,
+              padding: '3px',
+              borderRadius: '14px',
+              background: candyGradient,
             }}>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '78px', height: '78px', display: 'block' }} />
-              ) : (
-                <div style={{ width: '78px', height: '78px', backgroundColor: paperDeep }} />
-              )}
+              <div style={{
+                padding: '6px',
+                borderRadius: '11px',
+                backgroundColor: '#FFFFFF',
+              }}>
+                {qrDataUrl ? (
+                  <img src={qrDataUrl} alt="Verify QR" style={{ width: '78px', height: '78px', display: 'block' }} />
+                ) : (
+                  <div style={{ width: '78px', height: '78px', backgroundColor: hairline }} />
+                )}
+              </div>
             </div>
           </div>
         </div>
+        </div>{/* /content wrapper */}
       </div>
     </>
   );
