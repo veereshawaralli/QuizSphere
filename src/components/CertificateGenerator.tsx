@@ -530,12 +530,9 @@ export function CertificateGenerator({
                 fontSize: '78px',
                 lineHeight: 0.9,
                 letterSpacing: '-0.05em',
-                background: candyGradient,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                color: pink,
               }}>
-                {percentage}<span style={{ fontSize: '34px' }}>%</span>
+                {percentage}<span style={{ fontSize: '34px', color: violet }}>%</span>
               </p>
             </div>
 
