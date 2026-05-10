@@ -120,6 +120,17 @@ export function CertificateGenerator({
     return newCert.id;
   };
 
+  const waitForCertificateImages = async (root: HTMLElement) => {
+    const images = Array.from(root.querySelectorAll('img'));
+    await Promise.all(images.map((image) => {
+      if (image.complete && image.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => resolve(), { once: true });
+      });
+    }));
+  };
+
   const handleDownload = async () => {
     if (!certificateRef.current || percentage < 70) return;
     setIsGenerating(true);
@@ -129,9 +140,10 @@ export function CertificateGenerator({
       const verifyUrl = `${window.location.origin}/verify/${certId}`;
       const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 });
       setQrDataUrl(qrUrl);
-      // wait for React to commit the QR into the hidden DOM before snapshot
-      await new Promise((r) => setTimeout(r, 200));
       certificateRef.current.style.display = 'flex';
+      // Let React commit the QR image, then wait until every image is decoded before snapshot.
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await waitForCertificateImages(certificateRef.current);
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2,
         useCORS: true,
