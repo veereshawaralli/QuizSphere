@@ -143,26 +143,34 @@ export function CertificateGenerator({
     }
   };
 
-  // Candy Cosmos palette — premium, vibrant, print-safe.
-  const canvas = '#FBF7FF';
-  const ink = '#1A0B2E';
-  const inkSoft = '#3B2A5A';
-  const muted = '#7B6B96';
-  const hairline = '#E5DCF5';
-  const violet = '#7C3AED';
-  const pink = '#FF006E';
-  const cyan = '#06B6D4';
-  const tangerine = '#FB923C';
-  const candyGradient = `linear-gradient(135deg, ${violet} 0%, ${pink} 55%, ${tangerine} 100%)`;
+  // Editorial palette — museum-grade, print-safe, calm with two confident accents.
+  const paper      = '#FAF7F2';   // warm ivory
+  const paperDeep  = '#F1ECE2';   // tonal band
+  const ink        = '#0F1116';   // near-black
+  const inkSoft    = '#3A3D47';
+  const muted      = '#8A8A95';
+  const hairline   = '#D8D2C5';   // warm rule
+  const gold       = '#A07A2C';   // antique gold
+  const goldSoft   = '#C8A85B';
+  const accent     = '#B91C3C';   // editorial crimson (single bold accent)
 
   const issueNo = (submissionId || '').replace(/-/g, '').slice(0, 8).toUpperCase() || '————————';
-  const dateLine = format(date, 'dd MMMM yyyy').toUpperCase();
   const yearMark = format(date, 'yyyy');
   const standing =
     percentage >= 90 ? 'Distinction' :
     percentage >= 80 ? 'First Class' :
     'Pass with Merit';
   const verifyShortId = (certificateId || submissionId || '').slice(0, 8).toUpperCase();
+  const romanYear = (() => {
+    const n = date.getFullYear();
+    const map: [number, string][] = [
+      [1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],
+      [50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I'],
+    ];
+    let v = n, out = '';
+    for (const [num, sym] of map) { while (v >= num) { out += sym; v -= num; } }
+    return out;
+  })();
 
   return (
     <>
@@ -171,7 +179,7 @@ export function CertificateGenerator({
         {isGenerating ? 'Generating...' : 'Download Certificate'}
       </Button>
 
-      {/* Hidden Certificate DOM */}
+      {/* Hidden Certificate DOM — Editorial / Museum-grade redesign */}
       <div
         ref={certificateRef}
         style={{
@@ -181,385 +189,331 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          backgroundColor: canvas,
+          backgroundColor: paper,
           boxSizing: 'border-box',
           flexDirection: 'column',
-          fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+          fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
           color: ink,
           zIndex: -1,
           overflow: 'hidden',
           padding: '0',
         }}
       >
-        {/* === LEFT VERTICAL RAIL === */}
+        {/* Outer ivory canvas with double-rule frame */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, bottom: 0, width: '52px',
-          background: candyGradient,
+          position: 'absolute', inset: '24px',
+          border: `1.5px solid ${ink}`,
+          backgroundColor: paper,
+        }} />
+        <div style={{
+          position: 'absolute', inset: '32px',
+          border: `1px solid ${hairline}`,
+          pointerEvents: 'none',
+        }} />
+
+        {/* Tonal vertical band on the right (asymmetric editorial layout) */}
+        <div style={{
+          position: 'absolute', top: '32px', right: '32px', bottom: '32px',
+          width: '232px',
+          backgroundColor: paperDeep,
+          borderLeft: `1px solid ${hairline}`,
+        }} />
+
+        {/* Corner ornaments — small gold L-marks */}
+        {[
+          { top: '40px', left: '40px',   borders: { borderTop: `2px solid ${gold}`, borderLeft: `2px solid ${gold}` } },
+          { top: '40px', right: '40px',  borders: { borderTop: `2px solid ${gold}`, borderRight: `2px solid ${gold}` } },
+          { bottom: '40px', left: '40px', borders: { borderBottom: `2px solid ${gold}`, borderLeft: `2px solid ${gold}` } },
+          { bottom: '40px', right: '40px', borders: { borderBottom: `2px solid ${gold}`, borderRight: `2px solid ${gold}` } },
+        ].map((c, i) => (
+          <div key={i} style={{ position: 'absolute', width: '18px', height: '18px', ...c.borders, ...c, zIndex: 4 } as React.CSSProperties} />
+        ))}
+
+        {/* === MAIN CONTENT (left column) === */}
+        <div style={{
+          position: 'absolute', top: '32px', left: '32px',
+          right: '264px', bottom: '32px',
+          padding: '46px 56px 40px',
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'space-between',
-          padding: '36px 0',
-          zIndex: 3,
+          zIndex: 2,
         }}>
-          <span style={{
-            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-            fontSize: '9px', letterSpacing: '0.4em', color: '#FFFFFF',
-            writingMode: 'vertical-rl', transform: 'rotate(180deg)',
-            fontWeight: 700, textTransform: 'uppercase',
+          {/* Crest + masthead */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              height: '54px', width: '54px',
+              border: `1.5px solid ${ink}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: paper,
+            }}>
+              <img
+                src={logoDataUrl || universityLogo}
+                alt="Sharnbasva University"
+                style={{ height: '38px', width: '38px', objectFit: 'contain' }}
+              />
+            </div>
+            <div style={{ lineHeight: 1.15 }}>
+              <p style={{
+                margin: 0,
+                fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
+                fontWeight: 700, fontSize: '20px',
+                color: ink, letterSpacing: '-0.005em',
+              }}>
+                Sharnbasva University
+              </p>
+              <p style={{
+                margin: '4px 0 0',
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: '8.5px', letterSpacing: '0.32em',
+                textTransform: 'uppercase', color: muted, fontWeight: 600,
+              }}>
+                Department of Computer Science &amp; Design · Kalaburagi
+              </p>
+            </div>
+          </div>
+
+          {/* Eyebrow rule */}
+          <div style={{ marginTop: '36px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ height: '1px', width: '44px', background: gold }} />
+            <span style={{
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '10px', letterSpacing: '0.42em',
+              textTransform: 'uppercase', color: gold, fontWeight: 700,
+            }}>
+              Certificate of Achievement
+            </span>
+          </div>
+
+          {/* Editorial display headline */}
+          <h1 style={{
+            margin: '14px 0 0',
+            fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
+            fontWeight: 400, fontStyle: 'italic',
+            fontSize: '46px', lineHeight: 1.05,
+            color: ink, letterSpacing: '-0.015em',
           }}>
-            Sharnbasva University · Computer Science &amp; Design
-          </span>
-          <span style={{
-            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-            fontSize: '9px', letterSpacing: '0.4em', color: '#FFFFFF',
-            writingMode: 'vertical-rl', transform: 'rotate(180deg)',
-            fontWeight: 700,
+            This is to certify that
+          </h1>
+
+          {/* Recipient — large serif, single hairline rule beneath */}
+          <div style={{ marginTop: '20px' }}>
+            <h2 style={{
+              margin: 0,
+              fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
+              fontWeight: 700, fontSize: '54px', lineHeight: 1.05,
+              color: ink, letterSpacing: '-0.02em',
+              paddingBottom: '14px',
+              borderBottom: `1px solid ${ink}`,
+            }}>
+              {studentName}
+            </h2>
+            {studentUsn && (
+              <p style={{
+                margin: '12px 0 0',
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: '10px', letterSpacing: '0.28em',
+                color: muted, textTransform: 'uppercase', fontWeight: 600,
+              }}>
+                University Seat № <span style={{ color: ink, fontWeight: 700 }}>{studentUsn}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Citation */}
+          <p style={{
+            margin: '22px 0 0',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: '13.5px', lineHeight: 1.7,
+            color: inkSoft, maxWidth: '560px',
           }}>
-            № {issueNo}
-          </span>
+            has, with diligence and distinction, completed the academic assessment titled
+            <span style={{
+              display: 'inline',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontStyle: 'italic', fontWeight: 700,
+              color: ink, fontSize: '15px',
+            }}> “{quizTitle}” </span>
+            and is hereby recognised by the Department of Computer Science &amp; Design.
+          </p>
+
+          {/* Score ledger — three columns, hairlines only */}
+          <div style={{
+            marginTop: 'auto',
+            paddingTop: '24px',
+            borderTop: `1px solid ${hairline}`,
+            display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+            columnGap: '0',
+          }}>
+            {[
+              { label: 'Score',      value: `${score}`, suffix: ` / ${totalMarks}`, color: ink },
+              { label: 'Percentage', value: `${percentage}`, suffix: '%',             color: accent },
+              { label: 'Standing',   value: standing, suffix: '',                     color: ink, serif: true },
+            ].map((cell, i) => (
+              <div key={cell.label} style={{
+                paddingLeft: i === 0 ? 0 : '24px',
+                paddingRight: i === 2 ? 0 : '24px',
+                borderRight: i < 2 ? `1px solid ${hairline}` : 'none',
+              }}>
+                <p style={{
+                  margin: 0,
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  fontSize: '9px', letterSpacing: '0.34em',
+                  textTransform: 'uppercase', color: muted, fontWeight: 700,
+                }}>{cell.label}</p>
+                <p style={{
+                  margin: '10px 0 0',
+                  fontFamily: cell.serif
+                    ? "'Playfair Display', Georgia, serif"
+                    : "'Playfair Display', Georgia, serif",
+                  fontWeight: 700,
+                  fontSize: cell.serif ? '24px' : '38px',
+                  lineHeight: 1, letterSpacing: '-0.02em',
+                  color: cell.color,
+                }}>
+                  {cell.value}
+                  {cell.suffix && (
+                    <span style={{
+                      color: muted, fontSize: cell.serif ? '14px' : '20px',
+                      fontWeight: 500, fontStyle: 'italic',
+                    }}>{cell.suffix}</span>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* === CONTENT FRAME === */}
+        {/* === RIGHT COLUMN (tonal band) === */}
         <div style={{
-          position: 'absolute', top: '24px', right: '24px', bottom: '24px', left: '76px',
-          border: `1.5px solid ${hairline}`,
-          borderRadius: '20px',
-          backgroundColor: canvas,
-          overflow: 'hidden',
+          position: 'absolute', top: '32px', right: '32px', bottom: '32px',
+          width: '232px',
+          padding: '46px 28px 40px',
           display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'space-between',
+          zIndex: 3,
         }}>
-          {/* Decorative corner orbs (subtle, print-safe) */}
-          <div style={{
-            position: 'absolute', top: '-140px', right: '-140px',
-            width: '380px', height: '380px', borderRadius: '50%',
-            background: `radial-gradient(circle, ${pink}33 0%, ${violet}11 50%, transparent 75%)`,
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: '-160px', left: '-100px',
-            width: '380px', height: '380px', borderRadius: '50%',
-            background: `radial-gradient(circle, ${cyan}22 0%, ${violet}11 50%, transparent 75%)`,
-            pointerEvents: 'none',
-          }} />
-
-          {/* === HEADER === */}
-          <div style={{
-            position: 'relative', zIndex: 2,
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '32px 48px 24px',
-            borderBottom: `1px solid ${hairline}`,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          {/* Top: monogram seal */}
+          <div style={{ textAlign: 'center', width: '100%' }}>
+            <p style={{
+              margin: 0,
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '8.5px', letterSpacing: '0.4em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
+            }}>
+              Anno · {romanYear}
+            </p>
+            <div style={{
+              margin: '18px auto 0',
+              width: '128px', height: '128px',
+              borderRadius: '50%',
+              border: `1.5px solid ${gold}`,
+              position: 'relative',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backgroundColor: paper,
+            }}>
               <div style={{
-                height: '48px', width: '48px',
-                borderRadius: '12px',
-                border: `1.5px solid ${hairline}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: '#FFFFFF',
-              }}>
-                <img
-                  src={logoDataUrl || universityLogo}
-                  alt="Sharnbasva University"
-                  style={{ height: '32px', width: '32px', objectFit: 'contain' }}
-                />
-              </div>
-              <div style={{ lineHeight: 1.2 }}>
+                position: 'absolute', inset: '8px',
+                borderRadius: '50%',
+                border: `1px solid ${goldSoft}`,
+              }} />
+              <div style={{ textAlign: 'center', lineHeight: 1 }}>
                 <p style={{
-                  margin: 0, fontSize: '15px',
-                  fontFamily: "'Sora', 'Inter', sans-serif",
-                  fontWeight: 700, color: ink, letterSpacing: '-0.015em',
+                  margin: 0,
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontStyle: 'italic', fontWeight: 700,
+                  fontSize: '40px', color: gold, letterSpacing: '-0.04em',
                 }}>
-                  Sharnbasva University
+                  CSD
                 </p>
                 <p style={{
-                  margin: '3px 0 0',
+                  margin: '6px 0 0',
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '8px', letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: muted,
+                  fontSize: '7px', letterSpacing: '0.36em',
+                  textTransform: 'uppercase', color: gold, fontWeight: 700,
                 }}>
-                  Department of Computer Science &amp; Design
+                  Seal · {yearMark}
                 </p>
               </div>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: pink }} />
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: violet }} />
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: cyan }} />
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: tangerine }} />
-              <span style={{
-                marginLeft: '12px',
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '9px', letterSpacing: '0.26em',
-                textTransform: 'uppercase', color: muted, fontWeight: 700,
-              }}>
-                Issued · {dateLine}
-              </span>
-            </div>
+            <p style={{
+              margin: '18px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '8px', letterSpacing: '0.34em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
+            }}>
+              № {issueNo}
+            </p>
           </div>
 
-          {/* === BODY === */}
-          <div style={{
-            position: 'relative', zIndex: 2, flex: 1,
-            padding: '40px 56px 28px',
-            display: 'flex', flexDirection: 'column',
-          }}>
-            {/* EYEBROW */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <span style={{ height: '1px', width: '36px', background: pink }} />
-              <span style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '10px', letterSpacing: '0.34em',
-                textTransform: 'uppercase', color: violet, fontWeight: 700,
-              }}>
-                Certificate of Achievement · {yearMark}
-              </span>
-              <span style={{ height: '1px', flex: 1, background: hairline }} />
-            </div>
-
-            {/* HEADLINE */}
-            <h1 style={{
-              margin: '20px 0 0',
-              fontFamily: "'Sora', 'Inter', sans-serif",
-              fontWeight: 800, fontSize: '60px', lineHeight: 1.0,
-              color: ink, letterSpacing: '-0.035em',
+          {/* Middle: signature */}
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            <p style={{
+              margin: 0,
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontStyle: 'italic', fontWeight: 700,
+              fontSize: '26px', color: ink, lineHeight: 1,
             }}>
-              This is to certify that
-            </h1>
+              CSD Portal
+            </p>
+            <div style={{
+              margin: '8px auto 0',
+              height: '1px', width: '140px', background: ink,
+            }} />
+            <p style={{
+              margin: '8px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '8px', letterSpacing: '0.3em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
+            }}>
+              Authorised Signatory
+            </p>
+            <p style={{
+              margin: '14px 0 0',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontStyle: 'italic', fontWeight: 600,
+              fontSize: '13px', color: ink,
+            }}>
+              {format(date, 'd MMMM yyyy')}
+            </p>
+            <p style={{
+              margin: '4px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '7.5px', letterSpacing: '0.34em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
+            }}>
+              Date of Issue
+            </p>
+          </div>
 
-            {/* RECIPIENT NAME */}
-            <div style={{ marginTop: '28px' }}>
-              <h2 style={{
-                margin: 0,
-                fontFamily: "'Caveat', cursive",
-                fontWeight: 700, fontSize: '88px', lineHeight: 1,
-                color: pink, letterSpacing: '-0.01em',
-                display: 'inline-block',
-                paddingBottom: '6px',
-                borderBottom: `2px solid ${ink}`,
-              }}>
-                {studentName}
-              </h2>
-              {studentUsn && (
-                <p style={{
-                  margin: '14px 0 0',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '11px', letterSpacing: '0.22em',
-                  color: inkSoft, textTransform: 'uppercase',
-                }}>
-                  University Seat No · <span style={{ color: ink, fontWeight: 700 }}>{studentUsn}</span>
-                </p>
+          {/* Bottom: QR + verify */}
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            <div style={{
+              display: 'inline-block',
+              padding: '6px',
+              border: `1px solid ${ink}`,
+              backgroundColor: paper,
+            }}>
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Verify QR" style={{ width: '78px', height: '78px', display: 'block' }} />
+              ) : (
+                <div style={{ width: '78px', height: '78px', backgroundColor: hairline }} />
               )}
             </div>
-
-            {/* CITATION */}
             <p style={{
-              margin: '24px 0 0',
-              fontSize: '14px', lineHeight: 1.6,
-              color: inkSoft, maxWidth: '620px',
+              margin: '10px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '7.5px', letterSpacing: '0.32em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
             }}>
-              has successfully completed the assessment and demonstrated
-              proficiency in the subject below, in accordance with the academic
-              standards of the Department of Computer Science &amp; Design.
+              Scan to Verify
             </p>
-
-            {/* QUIZ TITLE BAND */}
-            <div style={{
-              marginTop: '20px',
-              padding: '18px 22px',
-              borderRadius: '14px',
-              border: `1.5px solid ${hairline}`,
-              borderLeft: `4px solid ${violet}`,
-              backgroundColor: '#FFFFFF',
-              maxWidth: '620px',
+            <p style={{
+              margin: '4px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '9px', letterSpacing: '0.14em',
+              color: ink, fontWeight: 700,
             }}>
-              <p style={{
-                margin: 0,
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '9px', letterSpacing: '0.3em',
-                textTransform: 'uppercase', color: violet, fontWeight: 700,
-              }}>
-                Assessment Title
-              </p>
-              <p style={{
-                margin: '6px 0 0',
-                fontFamily: "'Sora', 'Inter', sans-serif",
-                fontWeight: 700, fontSize: '22px', lineHeight: 1.25,
-                color: ink, letterSpacing: '-0.015em',
-              }}>
-                {quizTitle}
-              </p>
-            </div>
-
-            {/* SCORE STRIP */}
-            <div style={{
-              marginTop: 'auto',
-              paddingTop: '24px',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              borderTop: `1px solid ${hairline}`,
-            }}>
-              {/* Score */}
-              <div style={{ borderRight: `1px solid ${hairline}`, paddingRight: '20px' }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '9px', letterSpacing: '0.3em',
-                  textTransform: 'uppercase', color: muted, fontWeight: 700,
-                }}>
-                  Score
-                </p>
-                <p style={{
-                  margin: '8px 0 0',
-                  fontFamily: "'Sora', 'Inter', sans-serif",
-                  fontWeight: 800, fontSize: '40px', lineHeight: 1,
-                  color: ink, letterSpacing: '-0.03em',
-                }}>
-                  {score}
-                  <span style={{ color: muted, fontSize: '20px', fontWeight: 500 }}>
-                    {' '}/ {totalMarks}
-                  </span>
-                </p>
-              </div>
-              {/* Percentage */}
-              <div style={{ borderRight: `1px solid ${hairline}`, paddingLeft: '24px', paddingRight: '20px' }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '9px', letterSpacing: '0.3em',
-                  textTransform: 'uppercase', color: muted, fontWeight: 700,
-                }}>
-                  Percentage
-                </p>
-                <p style={{
-                  margin: '8px 0 0',
-                  fontFamily: "'Sora', 'Inter', sans-serif",
-                  fontWeight: 800, fontSize: '40px', lineHeight: 1,
-                  color: pink, letterSpacing: '-0.03em',
-                }}>
-                  {percentage}
-                  <span style={{ color: violet, fontSize: '24px' }}>%</span>
-                </p>
-              </div>
-              {/* Standing */}
-              <div style={{ paddingLeft: '24px' }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '9px', letterSpacing: '0.3em',
-                  textTransform: 'uppercase', color: muted, fontWeight: 700,
-                }}>
-                  Standing
-                </p>
-                <span style={{
-                  marginTop: '8px',
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '8px 16px', borderRadius: '999px',
-                  background: candyGradient, color: '#FFFFFF',
-                  fontFamily: "'Sora', 'Inter', sans-serif",
-                  fontWeight: 700, fontSize: '14px',
-                  letterSpacing: '-0.005em',
-                }}>
-                  ★ {standing}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* === FOOTER === */}
-          <div style={{
-            position: 'relative', zIndex: 2,
-            padding: '20px 48px 28px',
-            borderTop: `1px solid ${hairline}`,
-            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
-            backgroundColor: '#FFFFFF',
-          }}>
-            {/* Signature block */}
-            <div>
-              <div style={{
-                fontFamily: "'Caveat', cursive",
-                fontWeight: 700, fontSize: '32px', color: violet,
-                lineHeight: 1, marginBottom: '4px',
-              }}>
-                CSD Portal
-              </div>
-              <div style={{
-                height: '1px', width: '180px', background: ink, marginBottom: '8px',
-              }} />
-              <p style={{
-                margin: 0,
-                fontFamily: "'Sora', 'Inter', sans-serif",
-                fontWeight: 700, fontSize: '12px', color: ink,
-                letterSpacing: '-0.01em',
-              }}>
-                Department of Computer Science &amp; Design
-              </p>
-              <p style={{
-                margin: '2px 0 0',
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '8px', letterSpacing: '0.24em',
-                textTransform: 'uppercase', color: muted,
-              }}>
-                Sharnbasva University · Kalaburagi
-              </p>
-            </div>
-
-            {/* Date column */}
-            <div style={{ textAlign: 'center' }}>
-              <p style={{
-                margin: 0,
-                fontFamily: "'Sora', 'Inter', sans-serif",
-                fontWeight: 700, fontSize: '14px', color: ink,
-              }}>
-                {format(date, 'MMMM d, yyyy')}
-              </p>
-              <div style={{
-                margin: '6px auto 0',
-                height: '1px', width: '140px', background: ink,
-              }} />
-              <p style={{
-                margin: '8px 0 0',
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '8px', letterSpacing: '0.28em',
-                textTransform: 'uppercase', color: muted, fontWeight: 700,
-              }}>
-                Date of Issue
-              </p>
-            </div>
-
-            {/* QR + verify ID */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '8px', letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: violet, fontWeight: 700,
-                }}>
-                  Scan to verify
-                </p>
-                <p style={{
-                  margin: '4px 0 0',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '10px', letterSpacing: '0.14em',
-                  color: ink, fontWeight: 700,
-                }}>
-                  ID · {verifyShortId}
-                </p>
-              </div>
-              <div style={{
-                padding: '3px', borderRadius: '12px', background: candyGradient,
-              }}>
-                <div style={{
-                  padding: '6px', borderRadius: '9px', backgroundColor: '#FFFFFF',
-                }}>
-                  {qrDataUrl ? (
-                    <img src={qrDataUrl} alt="Verify QR" style={{ width: '76px', height: '76px', display: 'block' }} />
-                  ) : (
-                    <div style={{ width: '76px', height: '76px', backgroundColor: hairline }} />
-                  )}
-                </div>
-              </div>
-            </div>
+              ID · {verifyShortId}
+            </p>
           </div>
         </div>
       </div>
