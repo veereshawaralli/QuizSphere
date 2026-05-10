@@ -124,10 +124,9 @@ export function CertificateGenerator({
     const images = Array.from(root.querySelectorAll('img'));
     await Promise.all(images.map((image) => {
       if (image.complete && image.naturalWidth > 0) return Promise.resolve();
-      if ('decode' in image) return image.decode().catch(() => undefined);
       return new Promise<void>((resolve) => {
-        image.onload = () => resolve();
-        image.onerror = () => resolve();
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => resolve(), { once: true });
       });
     }));
   };
