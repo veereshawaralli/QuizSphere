@@ -78,6 +78,16 @@ export function CertificateGenerator({
       });
   }, [submissionId]);
 
+  // Pre-generate the verification QR so it's embedded on first render/download.
+  useEffect(() => {
+    const idForQr = certificateId || submissionId;
+    if (!idForQr) return;
+    const verifyUrl = `${window.location.origin}/verify/${idForQr}`;
+    QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 })
+      .then(setQrDataUrl)
+      .catch(console.error);
+  }, [certificateId, submissionId]);
+
   if (!eligible) return null;
 
   const getOrCreateCertificate = async (): Promise<string> => {
@@ -117,9 +127,10 @@ export function CertificateGenerator({
       await ensureLogoDataUrl();
       const certId = await getOrCreateCertificate();
       const verifyUrl = `${window.location.origin}/verify/${certId}`;
-      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 140, margin: 1 });
+      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 });
       setQrDataUrl(qrUrl);
-      await new Promise((r) => setTimeout(r, 100));
+      // wait for React to commit the QR into the hidden DOM before snapshot
+      await new Promise((r) => setTimeout(r, 200));
       certificateRef.current.style.display = 'flex';
       const canvas = await html2canvas(certificateRef.current, {
         scale: 2,
