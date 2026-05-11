@@ -50,6 +50,7 @@ export function CertificateGenerator({
     detail: string;
   }>(null);
   const pendingCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const eligible = percentage >= 70;
 
@@ -100,6 +101,24 @@ export function CertificateGenerator({
     [buildVerificationUrl]
   );
 
+  const paintQrCanvasElement = useCallback(
+    async (id: string, size = 156) => {
+      if (!qrCanvasRef.current) return;
+      qrCanvasRef.current.width = size;
+      qrCanvasRef.current.height = size;
+      await QRCode.toCanvas(qrCanvasRef.current, buildVerificationUrl(id), {
+        width: size,
+        margin: 1,
+        errorCorrectionLevel: 'H',
+        color: {
+          dark: '#0F1116',
+          light: '#FAF7F2',
+        },
+      });
+    },
+    [buildVerificationUrl]
+  );
+
   // Pre-generate the verification QR so it's embedded on first render/download.
   useEffect(() => {
     const idForQr = certificateId || submissionId;
@@ -107,7 +126,8 @@ export function CertificateGenerator({
     buildQrDataUrl(idForQr)
       .then(setQrDataUrl)
       .catch(console.error);
-  }, [buildQrDataUrl, certificateId, submissionId]);
+    paintQrCanvasElement(idForQr).catch(console.error);
+  }, [buildQrDataUrl, certificateId, submissionId, paintQrCanvasElement]);
 
   if (!eligible) return null;
 
@@ -164,7 +184,7 @@ export function CertificateGenerator({
   const getQrRegionInCanvas = useCallback((canvas: HTMLCanvasElement) => {
     const root = certificateRef.current;
     const qrContainer = root?.querySelector<HTMLElement>('[data-qr-anchor]');
-    const qrTarget = qrContainer?.querySelector<HTMLElement>('img, div') ?? qrContainer;
+    const qrTarget = qrContainer?.querySelector<HTMLElement>('canvas, img, div') ?? qrContainer;
 
     if (!root || !qrContainer || !qrTarget) {
       throw new Error('QR element not found in DOM.');
@@ -189,6 +209,7 @@ export function CertificateGenerator({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable.');
 
+      await paintQrCanvasElement(certId, sw);
       const qrCanvas = document.createElement('canvas');
       await QRCode.toCanvas(qrCanvas, buildVerificationUrl(certId), {
         width: sw,
@@ -774,11 +795,11 @@ export function CertificateGenerator({
               border: `1px solid ${ink}`,
               backgroundColor: paper,
             }}>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '78px', height: '78px', display: 'block' }} />
-              ) : (
-                <div style={{ width: '78px', height: '78px', backgroundColor: hairline }} />
-              )}
+              <canvas
+                ref={qrCanvasRef}
+                aria-label="Verify QR"
+                style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
+              />
             </div>
             <p style={{
               margin: '10px 0 0',
