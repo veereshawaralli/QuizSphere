@@ -4,9 +4,10 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { Button } from './ui/button';
-import { Download, Award } from 'lucide-react';
+import { Download, Award, ShieldCheck, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 import universityLogo from '../assets/university-logo.png';
 
 interface CertificateProps {
@@ -39,6 +40,16 @@ export function CertificateGenerator({
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<null | {
+    previewUrl: string;
+    qrPassed: boolean;
+    qrCropUrl: string | null;
+    canvasWidth: number;
+    canvasHeight: number;
+    detail: string;
+  }>(null);
+  const pendingCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const eligible = percentage >= 70;
 
@@ -150,35 +161,129 @@ export function CertificateGenerator({
     }));
   };
 
+  /**
+   * Render the off-screen certificate to a canvas, ensuring the verification QR
+   * is committed to the DOM and fully decoded before the snapshot is taken.
+   * Shared by both the real download and the "Test Certificate Export" flow.
+   */
+  const renderCertificateCanvas = async (): Promise<{ canvas: HTMLCanvasElement; certId: string }> => {
+    if (!certificateRef.current) throw new Error('Certificate not mounted');
+    await ensureLogoDataUrl();
+    const certId = await getOrCreateCertificate();
+    const qrUrl = await buildQrDataUrl(certId);
+    flushSync(() => { setQrDataUrl(qrUrl); });
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await waitForCertificateImages(certificateRef.current);
+    const canvas = await html2canvas(certificateRef.current, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+    });
+    return { canvas, certId };
+  };
+
+  /**
+   * Visually inspect the rendered canvas to confirm the QR code was painted.
+   * We crop the QR region and verify the pattern has both dark and light
+   * pixels at roughly the proportions a real QR exhibits.
+   */
+  const verifyQrInCanvas = (canvas: HTMLCanvasElement): {
+    passed: boolean;
+    cropUrl: string | null;
+    detail: string;
+  } => {
+    const root = certificateRef.current;
+    const qrEl = root?.querySelector<HTMLImageElement>('[data-qr-anchor] img');
+    if (!root || !qrEl) {
+      return { passed: false, cropUrl: null, detail: 'QR element not found in DOM.' };
+    }
+    const rootRect = root.getBoundingClientRect();
+    const qrRect = qrEl.getBoundingClientRect();
+    const scaleX = canvas.width / rootRect.width;
+    const scaleY = canvas.height / rootRect.height;
+    const sx = Math.max(0, Math.floor((qrRect.left - rootRect.left) * scaleX));
+    const sy = Math.max(0, Math.floor((qrRect.top - rootRect.top) * scaleY));
+    const sw = Math.max(1, Math.floor(qrRect.width * scaleX));
+    const sh = Math.max(1, Math.floor(qrRect.height * scaleY));
+
+    const crop = document.createElement('canvas');
+    crop.width = sw;
+    crop.height = sh;
+    const cctx = crop.getContext('2d');
+    if (!cctx) return { passed: false, cropUrl: null, detail: 'Canvas context unavailable.' };
+    cctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+
+    const { data } = cctx.getImageData(0, 0, sw, sh);
+    let dark = 0;
+    let light = 0;
+    const total = sw * sh;
+    for (let i = 0; i < data.length; i += 4) {
+      const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      if (luminance < 80) dark++;
+      else if (luminance > 200) light++;
+    }
+    const darkRatio = dark / total;
+    const lightRatio = light / total;
+    // A real QR is roughly 30–55% dark modules with the rest light.
+    const passed = darkRatio > 0.12 && darkRatio < 0.7 && lightRatio > 0.2;
+    const detail = `QR region ${sw}×${sh}px · dark ${(darkRatio * 100).toFixed(1)}% · light ${(lightRatio * 100).toFixed(1)}%`;
+    return { passed, cropUrl: crop.toDataURL('image/png'), detail };
+  };
+
+  const savePdfFromCanvas = (canvas: HTMLCanvasElement) => {
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: [canvas.width, canvas.height],
+    });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`${studentName.replace(/\s+/g, '_')}_${quizTitle.replace(/\s+/g, '_')}_Certificate.pdf`);
+  };
+
+  const handleTestExport = async () => {
+    if (!certificateRef.current || percentage < 70) return;
+    setIsTesting(true);
+    try {
+      const { canvas } = await renderCertificateCanvas();
+      const { passed, cropUrl, detail } = verifyQrInCanvas(canvas);
+      pendingCanvasRef.current = canvas;
+      setTestResult({
+        previewUrl: canvas.toDataURL('image/png'),
+        qrPassed: passed,
+        qrCropUrl: cropUrl,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        detail,
+      });
+      if (passed) toast.success('QR detected in certificate preview');
+      else toast.error('QR check failed — review preview before downloading');
+    } catch (error) {
+      console.error('Test export failed:', error);
+      toast.error('Test export failed. See console for details.');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const handleConfirmDownloadFromTest = () => {
+    if (!pendingCanvasRef.current) return;
+    savePdfFromCanvas(pendingCanvasRef.current);
+    pendingCanvasRef.current = null;
+    setTestResult(null);
+  };
+
+  const closeTestPreview = () => {
+    pendingCanvasRef.current = null;
+    setTestResult(null);
+  };
+
   const handleDownload = async () => {
     if (!certificateRef.current || percentage < 70) return;
     setIsGenerating(true);
     try {
-      await ensureLogoDataUrl();
-      const certId = await getOrCreateCertificate();
-      const qrUrl = await buildQrDataUrl(certId);
-
-      flushSync(() => {
-        setQrDataUrl(qrUrl);
-      });
-
-      // Let React commit the QR image, then wait until every image is decoded before snapshot.
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      await waitForCertificateImages(certificateRef.current);
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height],
-      });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`${studentName.replace(/\s+/g, '_')}_${quizTitle.replace(/\s+/g, '_')}_Certificate.pdf`);
+      const { canvas } = await renderCertificateCanvas();
+      savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
     } finally {
@@ -217,10 +322,94 @@ export function CertificateGenerator({
 
   return (
     <>
-      <Button onClick={handleDownload} disabled={isGenerating} className="gap-2 w-full sm:w-auto">
-        {isGenerating ? <Award className="h-4 w-4 animate-pulse" /> : <Download className="h-4 w-4" />}
-        {isGenerating ? 'Generating...' : 'Download Certificate'}
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <Button onClick={handleDownload} disabled={isGenerating || isTesting} className="gap-2 w-full sm:w-auto">
+          {isGenerating ? <Award className="h-4 w-4 animate-pulse" /> : <Download className="h-4 w-4" />}
+          {isGenerating ? 'Generating...' : 'Download Certificate'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleTestExport}
+          disabled={isGenerating || isTesting}
+          className="gap-2 w-full sm:w-auto"
+        >
+          {isTesting ? <Award className="h-4 w-4 animate-pulse" /> : <ShieldCheck className="h-4 w-4" />}
+          {isTesting ? 'Testing...' : 'Test Certificate Export'}
+        </Button>
+      </div>
+
+      {testResult && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Certificate export preview"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={closeTestPreview}
+        >
+          <div
+            className="bg-background text-foreground rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 p-5 border-b">
+              <div className="flex items-start gap-3">
+                {testResult.qrPassed ? (
+                  <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5 shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
+                )}
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {testResult.qrPassed ? 'QR verified — preview looks good' : 'QR check failed'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">{testResult.detail}</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={closeTestPreview} aria-label="Close preview">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-5 grid gap-5 md:grid-cols-[1fr_220px]">
+              <div className="border rounded-lg overflow-hidden bg-muted/30">
+                <img
+                  src={testResult.previewUrl}
+                  alt="Certificate preview"
+                  className="w-full h-auto block"
+                />
+              </div>
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+                  QR region snapshot
+                </p>
+                {testResult.qrCropUrl ? (
+                  <div className="border rounded-lg p-2 bg-white inline-block">
+                    <img
+                      src={testResult.qrCropUrl}
+                      alt="Cropped QR from rendered certificate"
+                      className="w-[180px] h-[180px] object-contain"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No QR region captured.</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Pixels above were sampled directly from the PDF source canvas. If the QR
+                  looks correct here, it will be correct in the downloaded file.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 justify-end p-5 border-t">
+              <Button variant="outline" onClick={closeTestPreview}>Close</Button>
+              <Button onClick={handleConfirmDownloadFromTest} className="gap-2" disabled={!testResult.qrPassed}>
+                <Download className="h-4 w-4" />
+                {testResult.qrPassed ? 'Looks good — Download PDF' : 'QR missing — cannot download'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Off-screen Certificate DOM — kept rendered so export assets are ready */}
       <div
@@ -530,7 +719,7 @@ export function CertificateGenerator({
 
           {/* Bottom: QR + verify */}
           <div style={{ width: '100%', textAlign: 'center' }}>
-            <div style={{
+            <div data-qr-anchor style={{
               display: 'inline-block',
               padding: '6px',
               border: `1px solid ${ink}`,
