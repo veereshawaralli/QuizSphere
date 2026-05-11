@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -78,15 +79,24 @@ export function CertificateGenerator({
       });
   }, [submissionId]);
 
+  const buildVerificationUrl = useCallback(
+    (id: string) => `${window.location.origin}/verify/${id}`,
+    []
+  );
+
+  const buildQrDataUrl = useCallback(
+    (id: string) => QRCode.toDataURL(buildVerificationUrl(id), { width: 160, margin: 1 }),
+    [buildVerificationUrl]
+  );
+
   // Pre-generate the verification QR so it's embedded on first render/download.
   useEffect(() => {
     const idForQr = certificateId || submissionId;
     if (!idForQr) return;
-    const verifyUrl = `${window.location.origin}/verify/${idForQr}`;
-    QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 })
+    buildQrDataUrl(idForQr)
       .then(setQrDataUrl)
       .catch(console.error);
-  }, [certificateId, submissionId]);
+  }, [buildQrDataUrl, certificateId, submissionId]);
 
   if (!eligible) return null;
 
@@ -122,12 +132,21 @@ export function CertificateGenerator({
 
   const waitForCertificateImages = async (root: HTMLElement) => {
     const images = Array.from(root.querySelectorAll('img'));
-    await Promise.all(images.map((image) => {
-      if (image.complete && image.naturalWidth > 0) return Promise.resolve();
-      return new Promise<void>((resolve) => {
-        image.addEventListener('load', () => resolve(), { once: true });
-        image.addEventListener('error', () => resolve(), { once: true });
-      });
+    await Promise.all(images.map(async (image) => {
+      if (!image.complete || image.naturalWidth === 0) {
+        await new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        });
+      }
+
+      if ('decode' in image) {
+        try {
+          await image.decode();
+        } catch {
+          // Ignore decode failures and let html2canvas capture the best available state.
+        }
+      }
     }));
   };
 
@@ -137,10 +156,12 @@ export function CertificateGenerator({
     try {
       await ensureLogoDataUrl();
       const certId = await getOrCreateCertificate();
-      const verifyUrl = `${window.location.origin}/verify/${certId}`;
-      const qrUrl = await QRCode.toDataURL(verifyUrl, { width: 160, margin: 1 });
-      setQrDataUrl(qrUrl);
-      certificateRef.current.style.display = 'flex';
+      const qrUrl = await buildQrDataUrl(certId);
+
+      flushSync(() => {
+        setQrDataUrl(qrUrl);
+      });
+
       // Let React commit the QR image, then wait until every image is decoded before snapshot.
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       await waitForCertificateImages(certificateRef.current);
@@ -150,7 +171,6 @@ export function CertificateGenerator({
         allowTaint: true,
         logging: false,
       });
-      certificateRef.current.style.display = 'none';
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'landscape',
@@ -202,11 +222,11 @@ export function CertificateGenerator({
         {isGenerating ? 'Generating...' : 'Download Certificate'}
       </Button>
 
-      {/* Hidden Certificate DOM — Editorial / Museum-grade redesign */}
+      {/* Off-screen Certificate DOM — kept rendered so export assets are ready */}
       <div
         ref={certificateRef}
         style={{
-          display: 'none',
+          display: 'flex',
           position: 'fixed',
           top: '-9999px',
           left: '-9999px',
@@ -219,6 +239,7 @@ export function CertificateGenerator({
           color: ink,
           zIndex: -1,
           overflow: 'hidden',
+          pointerEvents: 'none',
           padding: '0',
         }}
       >
