@@ -50,6 +50,7 @@ export function CertificateGenerator({
     detail: string;
   }>(null);
   const pendingCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const eligible = percentage >= 70;
 
@@ -100,6 +101,24 @@ export function CertificateGenerator({
     [buildVerificationUrl]
   );
 
+  const paintQrCanvasElement = useCallback(
+    async (id: string, size = 156) => {
+      if (!qrCanvasRef.current) return;
+      qrCanvasRef.current.width = size;
+      qrCanvasRef.current.height = size;
+      await QRCode.toCanvas(qrCanvasRef.current, buildVerificationUrl(id), {
+        width: size,
+        margin: 1,
+        errorCorrectionLevel: 'H',
+        color: {
+          dark: '#0F1116',
+          light: '#FAF7F2',
+        },
+      });
+    },
+    [buildVerificationUrl]
+  );
+
   // Pre-generate the verification QR so it's embedded on first render/download.
   useEffect(() => {
     const idForQr = certificateId || submissionId;
@@ -107,7 +126,8 @@ export function CertificateGenerator({
     buildQrDataUrl(idForQr)
       .then(setQrDataUrl)
       .catch(console.error);
-  }, [buildQrDataUrl, certificateId, submissionId]);
+    paintQrCanvasElement(idForQr).catch(console.error);
+  }, [buildQrDataUrl, certificateId, submissionId, paintQrCanvasElement]);
 
   if (!eligible) return null;
 
@@ -161,6 +181,54 @@ export function CertificateGenerator({
     }));
   };
 
+  const getQrRegionInCanvas = useCallback((canvas: HTMLCanvasElement) => {
+    const root = certificateRef.current;
+    const qrContainer = root?.querySelector<HTMLElement>('[data-qr-anchor]');
+    const qrTarget = qrContainer?.querySelector<HTMLElement>('canvas, img, div') ?? qrContainer;
+
+    if (!root || !qrContainer || !qrTarget) {
+      throw new Error('QR element not found in DOM.');
+    }
+
+    const rootRect = root.getBoundingClientRect();
+    const qrRect = qrTarget.getBoundingClientRect();
+    const scaleX = canvas.width / rootRect.width;
+    const scaleY = canvas.height / rootRect.height;
+
+    return {
+      sx: Math.max(0, Math.floor((qrRect.left - rootRect.left) * scaleX)),
+      sy: Math.max(0, Math.floor((qrRect.top - rootRect.top) * scaleY)),
+      sw: Math.max(1, Math.floor(qrRect.width * scaleX)),
+      sh: Math.max(1, Math.floor(qrRect.height * scaleY)),
+    };
+  }, []);
+
+  const paintQrOntoCanvas = useCallback(
+    async (canvas: HTMLCanvasElement, certId: string) => {
+      const { sx, sy, sw, sh } = getQrRegionInCanvas(canvas);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable.');
+
+      await paintQrCanvasElement(certId, sw);
+      const qrCanvas = document.createElement('canvas');
+      await QRCode.toCanvas(qrCanvas, buildVerificationUrl(certId), {
+        width: sw,
+        margin: 1,
+        errorCorrectionLevel: 'H',
+        color: {
+          dark: '#0F1116',
+          light: '#FAF7F2',
+        },
+      });
+
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(qrCanvas, sx, sy, sw, sh);
+      ctx.restore();
+    },
+    [buildVerificationUrl, getQrRegionInCanvas]
+  );
+
   /**
    * Render the off-screen certificate to a canvas, ensuring the verification QR
    * is committed to the DOM and fully decoded before the snapshot is taken.
@@ -180,6 +248,7 @@ export function CertificateGenerator({
       allowTaint: true,
       logging: false,
     });
+    await paintQrOntoCanvas(canvas, certId);
     return { canvas, certId };
   };
 
@@ -193,19 +262,20 @@ export function CertificateGenerator({
     cropUrl: string | null;
     detail: string;
   } => {
-    const root = certificateRef.current;
-    const qrEl = root?.querySelector<HTMLImageElement>('[data-qr-anchor] img');
-    if (!root || !qrEl) {
-      return { passed: false, cropUrl: null, detail: 'QR element not found in DOM.' };
+    let sx = 0;
+    let sy = 0;
+    let sw = 0;
+    let sh = 0;
+
+    try {
+      ({ sx, sy, sw, sh } = getQrRegionInCanvas(canvas));
+    } catch (error) {
+      return {
+        passed: false,
+        cropUrl: null,
+        detail: error instanceof Error ? error.message : 'QR element not found in DOM.',
+      };
     }
-    const rootRect = root.getBoundingClientRect();
-    const qrRect = qrEl.getBoundingClientRect();
-    const scaleX = canvas.width / rootRect.width;
-    const scaleY = canvas.height / rootRect.height;
-    const sx = Math.max(0, Math.floor((qrRect.left - rootRect.left) * scaleX));
-    const sy = Math.max(0, Math.floor((qrRect.top - rootRect.top) * scaleY));
-    const sw = Math.max(1, Math.floor(qrRect.width * scaleX));
-    const sh = Math.max(1, Math.floor(qrRect.height * scaleY));
 
     const crop = document.createElement('canvas');
     crop.width = sw;
@@ -725,11 +795,11 @@ export function CertificateGenerator({
               border: `1px solid ${ink}`,
               backgroundColor: paper,
             }}>
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '78px', height: '78px', display: 'block' }} />
-              ) : (
-                <div style={{ width: '78px', height: '78px', backgroundColor: hairline }} />
-              )}
+              <canvas
+                ref={qrCanvasRef}
+                aria-label="Verify QR"
+                style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
+              />
             </div>
             <p style={{
               margin: '10px 0 0',
