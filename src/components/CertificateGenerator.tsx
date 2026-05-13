@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { flushSync } from 'react-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -38,7 +37,6 @@ export function CertificateGenerator({
   const certificateRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
-  const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<null | {
@@ -96,11 +94,6 @@ export function CertificateGenerator({
     []
   );
 
-  const buildQrDataUrl = useCallback(
-    (id: string) => QRCode.toDataURL(buildVerificationUrl(id), { width: 160, margin: 1 }),
-    [buildVerificationUrl]
-  );
-
   const drawQrOnCanvas = useCallback(
     async (canvas: HTMLCanvasElement, id: string, size = 156) => {
       canvas.width = size;
@@ -130,11 +123,8 @@ export function CertificateGenerator({
   useEffect(() => {
     const idForQr = certificateId || submissionId;
     if (!idForQr) return;
-    buildQrDataUrl(idForQr)
-      .then(setQrDataUrl)
-      .catch(console.error);
     paintQrCanvasElement(idForQr).catch(console.error);
-  }, [buildQrDataUrl, certificateId, submissionId, paintQrCanvasElement]);
+  }, [certificateId, submissionId, paintQrCanvasElement]);
 
   if (!eligible) return null;
 
@@ -236,8 +226,7 @@ export function CertificateGenerator({
     if (!certificateRef.current) throw new Error('Certificate not mounted');
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
-    const qrUrl = await buildQrDataUrl(certId);
-    flushSync(() => { setQrDataUrl(qrUrl); });
+    await paintQrCanvasElement(certId);
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await waitForCertificateImages(certificateRef.current);
     const canvas = await html2canvas(certificateRef.current, {
