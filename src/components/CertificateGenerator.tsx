@@ -101,12 +101,11 @@ export function CertificateGenerator({
     [buildVerificationUrl]
   );
 
-  const paintQrCanvasElement = useCallback(
-    async (id: string, size = 156) => {
-      if (!qrCanvasRef.current) return;
-      qrCanvasRef.current.width = size;
-      qrCanvasRef.current.height = size;
-      await QRCode.toCanvas(qrCanvasRef.current, buildVerificationUrl(id), {
+  const drawQrOnCanvas = useCallback(
+    async (canvas: HTMLCanvasElement, id: string, size = 156) => {
+      canvas.width = size;
+      canvas.height = size;
+      await QRCode.toCanvas(canvas, buildVerificationUrl(id), {
         width: size,
         margin: 1,
         errorCorrectionLevel: 'H',
@@ -117,6 +116,14 @@ export function CertificateGenerator({
       });
     },
     [buildVerificationUrl]
+  );
+
+  const paintQrCanvasElement = useCallback(
+    async (id: string, size = 156) => {
+      if (!qrCanvasRef.current) return;
+      await drawQrOnCanvas(qrCanvasRef.current, id, size);
+    },
+    [drawQrOnCanvas]
   );
 
   // Pre-generate the verification QR so it's embedded on first render/download.
@@ -184,7 +191,7 @@ export function CertificateGenerator({
   const getQrRegionInCanvas = useCallback((canvas: HTMLCanvasElement) => {
     const root = certificateRef.current;
     const qrContainer = root?.querySelector<HTMLElement>('[data-qr-anchor]');
-    const qrTarget = qrContainer?.querySelector<HTMLElement>('canvas, img, div') ?? qrContainer;
+    const qrTarget = qrContainer?.querySelector<HTMLElement>('[data-qr-target]') ?? qrContainer;
 
     if (!root || !qrContainer || !qrTarget) {
       throw new Error('QR element not found in DOM.');
@@ -209,24 +216,15 @@ export function CertificateGenerator({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable.');
 
-      await paintQrCanvasElement(certId, sw);
       const qrCanvas = document.createElement('canvas');
-      await QRCode.toCanvas(qrCanvas, buildVerificationUrl(certId), {
-        width: sw,
-        margin: 1,
-        errorCorrectionLevel: 'H',
-        color: {
-          dark: '#0F1116',
-          light: '#FAF7F2',
-        },
-      });
+      await drawQrOnCanvas(qrCanvas, certId, sw);
 
       ctx.save();
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(qrCanvas, sx, sy, sw, sh);
       ctx.restore();
     },
-    [buildVerificationUrl, getQrRegionInCanvas]
+    [drawQrOnCanvas, getQrRegionInCanvas]
   );
 
   /**
