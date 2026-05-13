@@ -223,17 +223,33 @@ export function CertificateGenerator({
       const { sx, sy, sw, sh } = getQrRegionInCanvas(canvas);
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable.');
-
-      const qrCanvas = document.createElement('canvas');
-      await drawQrOnCanvas(qrCanvas, certId, sw);
+      const qr = (QRCode as unknown as {
+        create: (text: string, options?: Record<string, unknown>) => {
+          modules: { size: number; data: ArrayLike<number | boolean> };
+        };
+      }).create(buildVerificationUrl(certId), { errorCorrectionLevel: 'H' });
+      const quietZone = 1;
+      const moduleCount = qr.modules.size + quietZone * 2;
+      const moduleSize = Math.min(sw, sh) / moduleCount;
 
       ctx.save();
       ctx.imageSmoothingEnabled = false;
-      ctx.clearRect(sx, sy, sw, sh);
-      ctx.drawImage(qrCanvas, sx, sy, sw, sh);
+      ctx.fillStyle = '#FAF7F2';
+      ctx.fillRect(sx, sy, sw, sh);
+      ctx.fillStyle = '#0F1116';
+      for (let row = 0; row < qr.modules.size; row += 1) {
+        for (let col = 0; col < qr.modules.size; col += 1) {
+          if (!qr.modules.data[row * qr.modules.size + col]) continue;
+          const x = sx + Math.round((col + quietZone) * moduleSize);
+          const y = sy + Math.round((row + quietZone) * moduleSize);
+          const nextX = sx + Math.round((col + quietZone + 1) * moduleSize);
+          const nextY = sy + Math.round((row + quietZone + 1) * moduleSize);
+          ctx.fillRect(x, y, Math.max(1, nextX - x), Math.max(1, nextY - y));
+        }
+      }
       ctx.restore();
     },
-    [drawQrOnCanvas, getQrRegionInCanvas]
+    [buildVerificationUrl, getQrRegionInCanvas]
   );
 
   /**
