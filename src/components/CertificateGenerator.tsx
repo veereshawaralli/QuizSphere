@@ -198,7 +198,7 @@ export function CertificateGenerator({
   const getQrRegionInCanvas = useCallback((canvas: HTMLCanvasElement) => {
     const root = certificateRef.current;
     const qrContainer = root?.querySelector<HTMLElement>('[data-qr-anchor]');
-    const qrTarget = qrContainer?.querySelector<HTMLElement>('[data-qr-target]') ?? qrContainer;
+      const qrTarget = qrContainer?.querySelector<HTMLElement>('[data-qr-target]') ?? qrContainer;
 
     if (!root || !qrContainer || !qrTarget) {
       throw new Error('QR element not found in DOM.');
@@ -212,8 +212,8 @@ export function CertificateGenerator({
     return {
       sx: Math.max(0, Math.floor((qrRect.left - rootRect.left) * scaleX)),
       sy: Math.max(0, Math.floor((qrRect.top - rootRect.top) * scaleY)),
-      sw: Math.max(1, Math.floor(qrRect.width * scaleX)),
-      sh: Math.max(1, Math.floor(qrRect.height * scaleY)),
+      sw: Math.max(1, Math.floor(Math.min(qrRect.width, qrRect.height) * scaleX)),
+      sh: Math.max(1, Math.floor(Math.min(qrRect.width, qrRect.height) * scaleY)),
     };
   }, []);
 
@@ -228,6 +228,7 @@ export function CertificateGenerator({
 
       ctx.save();
       ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(sx, sy, sw, sh);
       ctx.drawImage(qrCanvas, sx, sy, sw, sh);
       ctx.restore();
     },
