@@ -353,9 +353,17 @@ export function CertificateGenerator({
     setIsGenerating(true);
     try {
       const { canvas } = await renderCertificateCanvas();
+      const { passed, detail } = verifyQrInCanvas(canvas);
+      if (!passed) {
+        console.warn('QR verification failed before download:', detail);
+        toast.error('QR code missing from certificate. Please use "Test Certificate Export" to inspect.');
+        return;
+      }
+      toast.success('QR verified — downloading certificate');
       savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
+      toast.error('Could not generate certificate. See console for details.');
     } finally {
       setIsGenerating(false);
     }
