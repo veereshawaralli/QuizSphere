@@ -96,17 +96,34 @@ export function CertificateGenerator({
 
   const drawQrOnCanvas = useCallback(
     async (canvas: HTMLCanvasElement, id: string, size = 156) => {
+      const qr = (QRCode as unknown as {
+        create: (text: string, options?: Record<string, unknown>) => {
+          modules: { size: number; data: boolean[] };
+        };
+      }).create(buildVerificationUrl(id), { errorCorrectionLevel: 'H' });
+      const quietZone = 1;
+      const moduleCount = qr.modules.size + quietZone * 2;
+      const moduleSize = size / moduleCount;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable.');
+
       canvas.width = size;
       canvas.height = size;
-      await QRCode.toCanvas(canvas, buildVerificationUrl(id), {
-        width: size,
-        margin: 1,
-        errorCorrectionLevel: 'H',
-        color: {
-          dark: '#0F1116',
-          light: '#FAF7F2',
-        },
-      });
+      ctx.imageSmoothingEnabled = false;
+      ctx.fillStyle = '#FAF7F2';
+      ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#0F1116';
+
+      for (let row = 0; row < qr.modules.size; row += 1) {
+        for (let col = 0; col < qr.modules.size; col += 1) {
+          if (!qr.modules.data[row * qr.modules.size + col]) continue;
+          const x = Math.round((col + quietZone) * moduleSize);
+          const y = Math.round((row + quietZone) * moduleSize);
+          const nextX = Math.round((col + quietZone + 1) * moduleSize);
+          const nextY = Math.round((row + quietZone + 1) * moduleSize);
+          ctx.fillRect(x, y, Math.max(1, nextX - x), Math.max(1, nextY - y));
+        }
+      }
     },
     [buildVerificationUrl]
   );
