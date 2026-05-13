@@ -96,6 +96,10 @@ export function CertificateGenerator({
 
   const drawQrOnCanvas = useCallback(
     async (canvas: HTMLCanvasElement, id: string, size = 156) => {
+      canvas.width = size;
+      canvas.height = size;
+      canvas.style.width = '78px';
+      canvas.style.height = '78px';
       const qr = (QRCode as unknown as {
         create: (text: string, options?: Record<string, unknown>) => {
           modules: { size: number; data: boolean[] };
@@ -106,9 +110,6 @@ export function CertificateGenerator({
       const moduleSize = size / moduleCount;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable.');
-
-      canvas.width = size;
-      canvas.height = size;
       ctx.imageSmoothingEnabled = false;
       ctx.fillStyle = '#FAF7F2';
       ctx.fillRect(0, 0, size, size);
