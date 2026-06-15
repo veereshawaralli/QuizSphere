@@ -90,7 +90,7 @@ export default function Index() {
 
           {/* Hero grid */}
           <div className="grid gap-12 pt-14 md:grid-cols-12 md:gap-10">
-            <div className="md:col-span-3 reveal">
+            <div className="md:col-span-3">
               <p className="section-num">§ 01 — The portal</p>
               <p className="mt-6 max-w-[18rem] text-sm leading-relaxed text-foreground/75">
                 A learning instrument for the Department of
@@ -113,7 +113,7 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="md:col-span-9 reveal reveal-delay-1">
+            <div className="md:col-span-9">
               <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.88]
                               text-[14vw] md:text-[10.5vw] lg:text-[9.5rem]">
                 Learn deeply.<br />
@@ -164,12 +164,12 @@ export default function Index() {
           <div className="grid gap-12 md:grid-cols-12">
             <div className="md:col-span-4">
               <div className="md:sticky md:top-32">
-                <p className="section-num reveal">§ 02 — Instruments</p>
-                <h2 className="mt-6 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-6xl reveal reveal-delay-1">
+                <p className="section-num">§ 02 — Instruments</p>
+                <h2 className="mt-6 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-6xl">
                   Four tools.<br />
                   No <span className="display-serif">decoration</span>.
                 </h2>
-                <p className="mt-6 max-w-sm text-sm leading-relaxed text-foreground/70 reveal reveal-delay-2">
+                <p className="mt-6 max-w-sm text-sm leading-relaxed text-foreground/70">
                   Each instrument does one thing brilliantly so the work itself
                   stays in the foreground. The portal recedes; the learning leads.
                 </p>
@@ -181,7 +181,7 @@ export default function Index() {
               {capabilities.map((c, i) => (
                 <li
                   key={c.no}
-                  className={`group reveal reveal-delay-${Math.min(i + 1, 3)} grid grid-cols-12 gap-6 border-t border-foreground/15 py-10 transition-colors first:border-t-0 hover:bg-foreground/[0.02]`}
+                  className={`group-delay-${Math.min(i + 1, 3)} grid grid-cols-12 gap-6 border-t border-foreground/15 py-10 transition-colors first:border-t-0 hover:bg-foreground/[0.02]`}
                 >
                   <span className="col-span-2 font-mono text-xs text-foreground/55 md:col-span-1">
                     {c.no}
@@ -235,7 +235,7 @@ export default function Index() {
       {/* ── 04. BEGIN — CTA ──────────────────────────────────────── */}
       <section id="begin" className="border-b border-foreground/15">
         <div className="mx-auto max-w-[1440px] px-6 py-24 md:py-32">
-          <div className="grid items-end gap-10 md:grid-cols-12 reveal">
+          <div className="grid items-end gap-10 md:grid-cols-12">
             <div className="md:col-span-8">
               <p className="section-num">§ 04 — Begin</p>
               <h2 className="mt-6 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
