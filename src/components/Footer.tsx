@@ -1,96 +1,103 @@
-// Playful footer — gradient orb, animated marquee tagline, confetti dot grid.
+// Editorial footer — colophon, sitemap, hairline rules, ink on paper.
 
 import { Link } from 'react-router-dom';
-import { Heart, Sparkles, Zap } from 'lucide-react';
 
-const tagline = ['Learn', 'Build', 'Question', 'Iterate', 'Ship'];
+const sitemap = [
+  {
+    label: 'Portal',
+    items: [
+      { label: 'Quizzes', to: '/quizzes' },
+      { label: 'Study Materials', to: '/materials' },
+      { label: 'Results', to: '/results' },
+    ],
+  },
+  {
+    label: 'Department',
+    items: [
+      { label: 'About CSD', to: '/' },
+      { label: 'Faculty', to: '/login?role=faculty' },
+      { label: 'Programs', to: '/' },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { label: 'Sign In', to: '/login' },
+      { label: 'Verify Certificate', to: '/verify' },
+      { label: 'Reset Password', to: '/login' },
+    ],
+  },
+];
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="relative border-t border-border bg-background overflow-hidden">
-      {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute -top-32 -left-20 h-80 w-80 rounded-full bg-gradient-candy opacity-20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 right-0 h-72 w-72 rounded-full bg-gradient-aurora opacity-20 blur-3xl" />
-
-      {/* Banner with playful tagline */}
-      <div className="relative border-b border-border/60">
-        <div className="container mx-auto flex flex-col gap-6 px-6 py-12 md:flex-row md:items-end md:justify-between">
-          <h3 className="font-heading text-4xl md:text-6xl font-bold leading-[1] max-w-2xl">
-            <span className="text-foreground">A quiet place </span>
-            <br className="hidden md:block" />
-            <span className="text-foreground">for </span>
-            <span className="text-gradient-candy italic">serious</span>
-            <span className="text-foreground"> work</span>
-            <span className="text-accent">.</span>
+    <footer className="border-t border-foreground/15 bg-background text-foreground">
+      {/* Closing statement band */}
+      <section className="border-b border-foreground/15">
+        <div className="mx-auto max-w-[1440px] px-6 py-20 md:py-28">
+          <p className="eyebrow text-foreground/55">§ Closing</p>
+          <h3 className="mt-4 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
+            A quiet place<br />
+            for <span className="display-serif">serious</span> work.
           </h3>
-          <ul className="flex flex-wrap items-center gap-2">
-            {tagline.map((w, i) => {
-              const colors = [
-                'bg-accent text-accent-foreground',
-                'bg-primary text-primary-foreground',
-                'bg-cyan-brand',
-                'bg-lime',
-                'bg-tangerine',
-              ];
-              return (
-                <li key={w}>
-                  <span className={`pill ${colors[i]} eyebrow font-semibold rounded-full px-4 py-1.5 shadow-soft`}>
-                    {w}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
         </div>
-      </div>
+      </section>
 
-      <div className="relative container mx-auto grid gap-10 px-6 py-14 md:grid-cols-3">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <p className="eyebrow text-muted-foreground">Department</p>
+      {/* Sitemap */}
+      <section className="border-b border-foreground/15">
+        <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <p className="eyebrow text-foreground/55">Colophon</p>
+            <p className="mt-4 font-heading text-2xl leading-tight tracking-tight">
+              The CSD <span className="display-serif">Portal</span>
+            </p>
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-foreground/70">
+              Set in Space Grotesk &amp; DM Sans. A learning instrument for the
+              Department of Computer Science &amp; Design.
+            </p>
+            <div className="mt-6 h-px w-12 bg-foreground" />
+            <p className="mt-3 eyebrow text-foreground/55">Version 4.0 · {year}</p>
           </div>
-          <p className="font-heading text-2xl font-bold text-foreground">
-            Computer Science <br /> &amp; Design
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">Sharnbasva University · Kalaburagi</p>
-        </div>
 
-        <div className="md:justify-self-center">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="h-4 w-4 text-primary" />
-            <p className="eyebrow text-muted-foreground">Explore</p>
+          {sitemap.map((col) => (
+            <div key={col.label} className="md:col-span-2">
+              <p className="eyebrow text-foreground/55">{col.label}</p>
+              <ul className="mt-4 space-y-2">
+                {col.items.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      to={item.to}
+                      className="link-underline text-sm text-foreground/80 hover:text-foreground"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <div className="md:col-span-2">
+            <p className="eyebrow text-foreground/55">Location</p>
+            <p className="mt-4 text-sm leading-relaxed text-foreground/80">
+              Sharnbasva University<br />
+              Kalaburagi, Karnataka<br />
+              India · 585 102
+            </p>
           </div>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/quizzes" className="link-underline text-foreground/80">Quizzes</Link></li>
-            <li><Link to="/materials" className="link-underline text-foreground/80">Study Materials</Link></li>
-            <li><Link to="/results" className="link-underline text-foreground/80">Results</Link></li>
-          </ul>
         </div>
+      </section>
 
-        <div className="md:justify-self-end md:text-right">
-          <div className="flex items-center gap-2 mb-3 md:justify-end">
-            <Heart className="h-4 w-4 text-accent fill-accent" />
-            <p className="eyebrow text-muted-foreground">Made with care</p>
-          </div>
-          <p className="font-mono text-xs text-foreground/70">
-            v 3.0 — {new Date().getFullYear()}
-          </p>
-          <p className="mt-1 font-hand text-xl text-gradient-candy">
-            by humans, for students
-          </p>
-        </div>
-      </div>
-
-      <div className="relative border-t border-border/60">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-2 px-6 py-5 md:flex-row">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-            © {new Date().getFullYear()} Sharnbasva University
-          </p>
-          <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-            Bengaluru · Karnataka · India
-          </p>
-        </div>
+      {/* Legal strip */}
+      <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-2 px-6 py-5 md:flex-row md:items-center">
+        <p className="eyebrow text-foreground/55">
+          © {year} Sharnbasva University. All rights reserved.
+        </p>
+        <p className="eyebrow text-foreground/55">
+          Issue №24 · AY 2025—26
+        </p>
       </div>
     </footer>
   );
