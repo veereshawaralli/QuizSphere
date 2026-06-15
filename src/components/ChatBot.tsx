@@ -244,7 +244,7 @@ export default function ChatBot() {
                       onClick={() => send(s)}
                       className="group rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5 text-left text-sm transition-all hover:border-foreground hover:bg-white/90 hover:shadow-md hover:shadow-none"
                     >
-                      <span className="mr-2 text-[#FF006E]">›</span>
+                      <span className="mr-2 text-foreground">›</span>
                       {s}
                     </button>
                   ))}
@@ -280,21 +280,21 @@ export default function ChatBot() {
                           'prose prose-sm max-w-none dark:prose-invert',
                           'prose-p:my-1.5 prose-p:leading-relaxed',
                           'prose-headings:mt-3 prose-headings:mb-1.5 prose-headings:font-bold',
-                          'prose-h3:text-[15px] prose-h3:text-[#7C3AED] dark:prose-h3:text-[#A78BFA]',
-                          'prose-strong:text-[#1A0B2E] dark:prose-strong:text-white',
+                          'prose-h3:text-[15px] prose-h3:text-foreground dark:prose-h3:text-foreground',
+                          'prose-strong:text-foreground dark:prose-strong:text-white',
                           'prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5',
                           'prose-code:rounded prose-code:bg-foreground/10 prose-code:px-1.5 prose-code:py-0.5',
-                          'prose-code:text-[#FF006E] prose-code:font-mono prose-code:text-[12.5px]',
+                          'prose-code:text-foreground prose-code:font-mono prose-code:text-[12.5px]',
                           'prose-code:before:content-none prose-code:after:content-none',
                           'prose-pre:my-2 prose-pre:rounded-xl prose-pre:bg-foreground prose-pre:text-background',
                           'prose-pre:p-3 prose-pre:text-[12px]',
-                          'prose-blockquote:border-l-4 prose-blockquote:border-[#FF006E]',
+                          'prose-blockquote:border-l-4 prose-blockquote:border-foreground',
                           'prose-blockquote:bg-foreground/5 prose-blockquote:py-1 prose-blockquote:px-3',
                           'prose-blockquote:rounded-r-lg prose-blockquote:not-italic',
                           'prose-blockquote:text-foreground',
-                          'prose-a:text-[#7C3AED] prose-a:no-underline hover:prose-a:underline',
+                          'prose-a:text-foreground prose-a:no-underline hover:prose-a:underline',
                           'prose-table:text-[12.5px] prose-th:bg-foreground/10 prose-th:p-1.5',
-                          'prose-td:p-1.5 prose-td:border-[#E5DCF5]',
+                          'prose-td:p-1.5 prose-td:border-foreground/20',
                           '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
                         )}
                       >
@@ -309,7 +309,7 @@ export default function ChatBot() {
                   {m.role === 'assistant' && m.content && (
                     <button
                       onClick={() => copyMessage(i, m.content)}
-                      className="flex items-center gap-1 px-1 text-[10px] uppercase tracking-wider text-muted-foreground transition hover:text-[#FF006E]"
+                      className="flex items-center gap-1 px-1 text-[10px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground"
                       style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
                       {copiedIdx === i ? (
