@@ -1,9 +1,9 @@
-// Playful sticky header — gradient logo halo, animated underlines, glass blur on scroll.
+// Editorial sticky header — hairline rule under, monospaced nav, ink-on-paper.
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Menu, X, Sparkles } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import universityLogo from '@/assets/university-logo.png';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -37,28 +37,32 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-500 ${
+      className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
         scrolled
-          ? 'border-b border-border/60 glass-strong'
-          : 'border-b border-transparent bg-transparent'
+          ? 'border-foreground/15 bg-background/95 backdrop-blur-sm'
+          : 'border-transparent bg-background'
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between gap-6 px-6 py-4">
+      {/* Top meta strip */}
+      <div className="hidden md:flex items-center justify-between border-b border-foreground/10 px-6 py-1.5 text-foreground/60">
+        <span className="eyebrow">Sharnbasva University · Kalaburagi</span>
+        <span className="eyebrow">CSD Department · Est. 2023</span>
+      </div>
+
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-6 px-6 py-4">
         <Link to="/" className="group flex items-center gap-3">
-          <div className="relative">
-            {/* Gradient halo behind logo */}
-            <span className="absolute inset-0 rounded-2xl bg-gradient-candy opacity-60 blur-md transition-opacity duration-500 group-hover:opacity-100" />
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl glass-strong p-1.5">
-              <img
-                src={universityLogo}
-                alt="Sharnbasva University"
-                className="h-full w-full object-contain transition-transform duration-500 group-hover:rotate-[12deg] group-hover:scale-110"
-              />
-            </div>
+          <div className="flex h-10 w-10 items-center justify-center border border-foreground/15 p-1">
+            <img
+              src={universityLogo}
+              alt="Sharnbasva University"
+              className="h-full w-full object-contain"
+            />
           </div>
-          <div className="hidden sm:block leading-tight">
-            <p className="font-heading text-base font-bold text-foreground">Sharnbasva University</p>
-            <p className="eyebrow text-gradient-aurora"> DEPT CS &amp; Design</p>
+          <div className="leading-tight">
+            <p className="font-heading text-[15px] font-medium tracking-tight text-foreground">
+              Sharnbasva <span className="display-serif">University</span>
+            </p>
+            <p className="eyebrow text-foreground/55">Dept. of CS &amp; Design</p>
           </div>
         </Link>
 
@@ -71,7 +75,7 @@ export default function Header() {
                   key={item.to}
                   to={item.to}
                   className={`eyebrow link-underline transition-colors ${
-                    active ? 'text-gradient-candy font-semibold' : 'text-foreground/70 hover:text-foreground'
+                    active ? 'text-foreground' : 'text-foreground/55 hover:text-foreground'
                   }`}
                 >
                   {item.label}
@@ -89,28 +93,22 @@ export default function Header() {
                 size="sm"
                 variant="ghost"
                 onClick={handleSignOut}
-                className="hidden sm:inline-flex gap-2 rounded-full text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                className="hidden sm:inline-flex gap-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="eyebrow">Sign Out</span>
+                Sign Out
               </Button>
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="md:hidden rounded-full glass p-2 text-foreground"
+                className="md:hidden border border-foreground/20 p-2 text-foreground"
                 aria-label="Menu"
               >
                 {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             </>
           ) : (
-            <Link to="/login">
-              <Button
-                size="sm"
-                className="btn-candy gap-2 rounded-full px-5 text-white"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span className="eyebrow">Sign In</span>
-              </Button>
+            <Link to="/login" className="btn-ink">
+              Sign In
             </Link>
           )}
         </div>
@@ -118,20 +116,20 @@ export default function Header() {
 
       {/* Mobile nav */}
       {user && mobileOpen && (
-        <div className="md:hidden glass-strong border-t border-border bounce-in">
-          <nav className="container mx-auto flex flex-col px-6 py-4">
+        <div className="md:hidden border-t border-foreground/15 bg-background">
+          <nav className="mx-auto flex max-w-[1440px] flex-col px-6 py-4">
             {navItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="eyebrow border-b border-border/50 py-3 text-foreground/80 hover:text-accent"
+                className="eyebrow border-b border-foreground/10 py-3 text-foreground/75 hover:text-foreground"
               >
                 {item.label}
               </Link>
             ))}
             <button
               onClick={handleSignOut}
-              className="eyebrow flex items-center gap-2 py-3 text-left text-foreground/80 hover:text-accent"
+              className="eyebrow flex items-center gap-2 py-3 text-left text-foreground/75 hover:text-foreground"
             >
               <LogOut className="h-4 w-4" /> Sign Out
             </button>
