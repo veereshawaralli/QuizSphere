@@ -1,188 +1,193 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
- * CSD Quiz & Learning Portal — "Candy Cosmos" design system
- * Playful, vibrant, animation-rich. Deep plum canvas with electric
- * violet, hot pink, lime and cyan accents. Big rounded shapes.
+ * CSD Quiz & Learning Portal — "Paper & Ink" design system (v4.0).
+ * Editorial. Uncoated-paper background, deliberate ink, hairline rules,
+ * generous vertical rhythm. No gradients, no glass, no aurora. The look
+ * of a well-bound monograph on a clean studio desk.
+ *
+ * Legacy utility class names from v3 ("Candy Cosmos") are intentionally
+ * preserved here but redefined to flat ink-on-paper styling, so the rest
+ * of the app inherits the new aesthetic without per-file rewrites.
  */
 
 @layer base {
   :root {
-    /* Light mode — soft cream with vibrant accents */
-    --background: 280 60% 98%;
-    --foreground: 270 50% 12%;
+    /* Paper & Ink — light */
+    --background: 43 22% 95%;        /* #f5f3ee — uncoated paper */
+    --foreground: 0 0% 5%;           /* #0d0d0d — deep ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 270 50% 12%;
+    --card-foreground: 0 0% 5%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 50% 12%;
+    --popover-foreground: 0 0% 5%;
 
-    /* Electric violet */
-    --primary: 271 76% 53%;
-    --primary-foreground: 0 0% 100%;
+    /* Ink = primary. Editorial: there is no second hue. */
+    --primary: 0 0% 5%;
+    --primary-foreground: 43 22% 95%;
 
-    --secondary: 280 60% 95%;
-    --secondary-foreground: 270 50% 12%;
+    --secondary: 40 18% 89%;         /* #e8e4dd — secondary paper surface */
+    --secondary-foreground: 0 0% 5%;
 
-    --muted: 280 30% 94%;
-    --muted-foreground: 270 15% 45%;
+    --muted: 40 14% 91%;
+    --muted-foreground: 0 0% 35%;    /* graphite */
 
-    /* Hot pink — main bold accent */
-    --accent: 339 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent is just deeper ink — no neon. */
+    --accent: 0 0% 5%;
+    --accent-foreground: 43 22% 95%;
 
-    /* Extra playful tokens */
-    --lime: 73 100% 48%;
-    --lime-foreground: 270 50% 12%;
-    --cyan: 189 100% 50%;
-    --cyan-foreground: 270 50% 12%;
-    --tangerine: 22 100% 60%;
-    --tangerine-foreground: 0 0% 100%;
+    /* Legacy named hues, neutralised to graphite so existing class
+       references stop screaming color. */
+    --lime: 0 0% 18%;
+    --lime-foreground: 43 22% 95%;
+    --cyan: 0 0% 18%;
+    --cyan-foreground: 43 22% 95%;
+    --tangerine: 0 0% 18%;
+    --tangerine-foreground: 43 22% 95%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 152 70% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 95% 55%;
-    --warning-foreground: 270 50% 12%;
+    --destructive: 0 60% 42%;
+    --destructive-foreground: 43 22% 95%;
+    --success: 150 30% 30%;
+    --success-foreground: 43 22% 95%;
+    --warning: 35 60% 40%;
+    --warning-foreground: 43 22% 95%;
 
-    --border: 280 30% 90%;
-    --input: 280 30% 88%;
-    --ring: 339 100% 50%;
+    --border: 0 0% 5% / 0.12;        /* hairline ink */
+    --input: 0 0% 5% / 0.18;
+    --ring: 0 0% 5%;
 
-    --radius: 1rem;
+    --radius: 0.25rem;               /* almost-square, editorial */
 
-    /* Vibrant gradients */
-    --gradient-candy: linear-gradient(135deg, hsl(339 100% 60%) 0%, hsl(271 76% 60%) 50%, hsl(189 100% 55%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(339 100% 60%) 0%, hsl(22 100% 60%) 100%);
-    --gradient-aurora: linear-gradient(135deg, hsl(271 76% 60%) 0%, hsl(189 100% 55%) 100%);
-    --gradient-lime: linear-gradient(135deg, hsl(73 100% 55%) 0%, hsl(152 70% 50%) 100%);
-    --gradient-cosmic: linear-gradient(180deg, hsl(280 60% 98%) 0%, hsl(280 50% 95%) 100%);
+    /* Gradients flattened to solid ink / paper ramps. Class names
+       remain compatible; the visual result is now flat. */
+    --gradient-candy:  linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 5%));
+    --gradient-sunset: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 18%));
+    --gradient-aurora: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 18%));
+    --gradient-lime:   linear-gradient(135deg, hsl(0 0% 18%), hsl(0 0% 5%));
+    --gradient-cosmic: linear-gradient(180deg, hsl(43 22% 95%), hsl(40 18% 89%));
 
-    /* Shadows */
-    --shadow-soft: 0 4px 16px -4px hsl(271 76% 53% / 0.15);
-    --shadow-pop: 0 12px 32px -8px hsl(339 100% 50% / 0.35);
-    --shadow-glow: 0 0 40px hsl(271 76% 53% / 0.3);
-    --shadow-card: 0 8px 24px -8px hsl(270 50% 12% / 0.1);
+    /* Shadows — minimal, paper-on-paper depth only. */
+    --shadow-soft: 0 1px 0 0 hsl(0 0% 5% / 0.06);
+    --shadow-pop:  0 1px 0 0 hsl(0 0% 5% / 0.08), 0 12px 28px -18px hsl(0 0% 5% / 0.18);
+    --shadow-glow: 0 0 0 1px hsl(0 0% 5% / 0.08);
+    --shadow-card: 0 1px 0 0 hsl(0 0% 5% / 0.05);
 
-    --sidebar-background: 270 50% 12%;
-    --sidebar-foreground: 280 30% 95%;
-    --sidebar-primary: 339 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 40% 18%;
-    --sidebar-accent-foreground: 280 30% 95%;
-    --sidebar-border: 270 30% 22%;
-    --sidebar-ring: 339 100% 50%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 43 22% 95%;
+    --sidebar-primary: 43 22% 95%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 43 22% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 43 22% 95%;
 
-    --font-heading: 'Sora', 'Inter', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-    --font-hand: 'Caveat', cursive;
+    --font-heading: '"Space Grotesk"', 'system-ui', sans-serif;
+    --font-body: '"DM Sans"', 'system-ui', sans-serif;
+    --font-mono: '"JetBrains Mono"', ui-monospace, monospace;
+    --font-hand: '"Space Grotesk"', 'system-ui', sans-serif;
   }
 
   .dark {
-    /* Deep plum cosmos */
-    --background: 270 50% 6%;
-    --foreground: 280 30% 96%;
+    /* Paper & Ink — dark (inverted: ink paper, paper ink). */
+    --background: 0 0% 5%;
+    --foreground: 43 22% 95%;
 
-    --card: 270 45% 10%;
-    --card-foreground: 280 30% 96%;
+    --card: 0 0% 9%;
+    --card-foreground: 43 22% 95%;
 
-    --popover: 270 45% 10%;
-    --popover-foreground: 280 30% 96%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 43 22% 95%;
 
-    --primary: 271 80% 65%;
-    --primary-foreground: 270 50% 6%;
+    --primary: 43 22% 95%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 270 40% 14%;
-    --secondary-foreground: 280 30% 96%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 43 22% 95%;
 
-    --muted: 270 35% 14%;
-    --muted-foreground: 280 15% 65%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 40 10% 65%;
 
-    --accent: 339 100% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 43 22% 95%;
+    --accent-foreground: 0 0% 5%;
 
-    --lime: 73 100% 55%;
-    --lime-foreground: 270 50% 6%;
-    --cyan: 189 100% 55%;
-    --cyan-foreground: 270 50% 6%;
-    --tangerine: 22 100% 65%;
-    --tangerine-foreground: 270 50% 6%;
+    --lime: 40 10% 82%;
+    --lime-foreground: 0 0% 5%;
+    --cyan: 40 10% 82%;
+    --cyan-foreground: 0 0% 5%;
+    --tangerine: 40 10% 82%;
+    --tangerine-foreground: 0 0% 5%;
 
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 152 70% 50%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 95% 60%;
-    --warning-foreground: 270 50% 6%;
+    --destructive: 0 60% 55%;
+    --destructive-foreground: 0 0% 5%;
+    --success: 150 35% 55%;
+    --success-foreground: 0 0% 5%;
+    --warning: 35 70% 60%;
+    --warning-foreground: 0 0% 5%;
 
-    --border: 270 30% 20%;
-    --input: 270 30% 18%;
-    --ring: 339 100% 60%;
+    --border: 43 22% 95% / 0.14;
+    --input: 43 22% 95% / 0.2;
+    --ring: 43 22% 95%;
 
-    --gradient-candy: linear-gradient(135deg, hsl(339 100% 65%) 0%, hsl(271 80% 65%) 50%, hsl(189 100% 60%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(339 100% 65%) 0%, hsl(22 100% 65%) 100%);
-    --gradient-aurora: linear-gradient(135deg, hsl(271 80% 65%) 0%, hsl(189 100% 60%) 100%);
-    --gradient-lime: linear-gradient(135deg, hsl(73 100% 60%) 0%, hsl(152 70% 55%) 100%);
-    --gradient-cosmic: linear-gradient(180deg, hsl(270 50% 6%) 0%, hsl(270 55% 4%) 100%);
+    --gradient-candy:  linear-gradient(135deg, hsl(43 22% 95%), hsl(43 22% 95%));
+    --gradient-sunset: linear-gradient(135deg, hsl(43 22% 95%), hsl(40 10% 82%));
+    --gradient-aurora: linear-gradient(135deg, hsl(43 22% 95%), hsl(40 10% 82%));
+    --gradient-lime:   linear-gradient(135deg, hsl(40 10% 82%), hsl(43 22% 95%));
+    --gradient-cosmic: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 9%));
 
-    --shadow-soft: 0 4px 16px -4px hsl(271 80% 50% / 0.4);
-    --shadow-pop: 0 12px 32px -8px hsl(339 100% 60% / 0.5);
-    --shadow-glow: 0 0 60px hsl(271 80% 65% / 0.4);
-    --shadow-card: 0 8px 24px -8px hsl(0 0% 0% / 0.4);
+    --shadow-soft: 0 1px 0 0 hsl(43 22% 95% / 0.06);
+    --shadow-pop:  0 1px 0 0 hsl(43 22% 95% / 0.08), 0 12px 28px -18px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 0 1px hsl(43 22% 95% / 0.1);
+    --shadow-card: 0 1px 0 0 hsl(43 22% 95% / 0.05);
 
-    --sidebar-background: 270 55% 4%;
-    --sidebar-foreground: 280 30% 95%;
-    --sidebar-primary: 339 100% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 40% 12%;
-    --sidebar-accent-foreground: 280 30% 95%;
-    --sidebar-border: 270 30% 16%;
-    --sidebar-ring: 339 100% 60%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 43 22% 95%;
+    --sidebar-primary: 43 22% 95%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 43 22% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 43 22% 95%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * { border-color: hsl(var(--border)); }
 
   html { scroll-behavior: smooth; }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
-    font-feature-settings: "ss01", "cv11";
+    font-feature-settings: "ss01", "ss02", "kern";
     text-rendering: optimizeLegibility;
-    background-image:
-      radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.06), transparent 40%),
-      radial-gradient(circle at 100% 100%, hsl(var(--accent) / 0.06), transparent 40%);
-    background-attachment: fixed;
+    /* Paper grain — extremely subtle, no gradients. */
+    background-color: hsl(var(--background));
   }
 
-  h1, h2, h3, h4 {
+  h1, h2, h3, h4, h5 {
     font-family: var(--font-heading);
-    letter-spacing: -0.02em;
-    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+    font-feature-settings: "ss01", "ss02";
   }
 
-  /* Custom selection */
   ::selection {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
   }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
-    border-radius: 999px;
+    background: hsl(var(--foreground) / 0.25);
+    border-radius: 0;
   }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--foreground) / 0.45); }
 }
 
 @layer utilities {
