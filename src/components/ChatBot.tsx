@@ -151,7 +151,7 @@ export default function ChatBot() {
         onClick={() => setOpen(o => !o)}
         className={cn(
           'fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full',
-          'bg-gradient-to-br from-[#7C3AED] via-[#FF006E] to-[#FB923C]',
+          'bg-foreground',
           'text-white shadow-[0_12px_40px_-8px_rgba(255,0,110,0.55)]',
           'transition-all duration-300 hover:scale-110 active:scale-95',
           open && 'rotate-90',
@@ -164,8 +164,8 @@ export default function ChatBot() {
           <>
             <MessageCircle className="h-6 w-6" />
             <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#A3E635] opacity-75" />
-              <span className="relative inline-flex h-4 w-4 rounded-full bg-[#A3E635] ring-2 ring-white" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-foreground opacity-75" />
+              <span className="relative inline-flex h-4 w-4 rounded-full bg-foreground ring-2 ring-white" />
             </span>
           </>
         )}
@@ -177,22 +177,22 @@ export default function ChatBot() {
           className={cn(
             'fixed bottom-24 right-4 z-50 flex h-[600px] w-[calc(100vw-2rem)] max-w-[420px] flex-col',
             'overflow-hidden rounded-3xl border border-white/40 dark:border-white/10',
-            'bg-white/85 dark:bg-[#1A0B2E]/90 backdrop-blur-xl',
+            'bg-white/85 dark:bg-foreground/90 backdrop-blur-xl',
             'shadow-[0_30px_80px_-20px_rgba(124,58,237,0.45)]',
             'animate-in slide-in-from-bottom-4 fade-in duration-300',
           )}
         >
           {/* Aurora background blobs */}
-          <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-[#FF006E]/30 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-32 -left-20 h-64 w-64 rounded-full bg-[#7C3AED]/30 blur-3xl" />
-          <div className="pointer-events-none absolute top-1/3 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#06B6D4]/20 blur-3xl" />
+          <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-transparent blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-32 -left-20 h-64 w-64 rounded-full bg-transparent blur-3xl" />
+          <div className="pointer-events-none absolute top-1/3 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-transparent blur-3xl" />
 
           {/* Header */}
-          <div className="relative z-10 flex items-center justify-between border-b border-white/30 dark:border-white/10 bg-gradient-to-r from-[#7C3AED] via-[#FF006E] to-[#FB923C] px-5 py-3.5 text-white">
+          <div className="relative z-10 flex items-center justify-between border-b border-white/30 dark:border-white/10 bg-foreground px-5 py-3.5 text-white">
             <div className="flex items-center gap-3">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-1 ring-white/40">
                 <Sparkles className="h-5 w-5" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#A3E635] ring-2 ring-white" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-foreground ring-2 ring-white" />
               </div>
               <div className="leading-tight">
                 <p className="font-bold tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
@@ -228,7 +228,7 @@ export default function ChatBot() {
           <ScrollArea className="relative z-10 flex-1 px-4 py-4">
             {messages.length === 0 && (
               <div className="flex flex-col items-center text-center mt-6 px-2">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#7C3AED] to-[#FF006E] shadow-lg shadow-[#FF006E]/30">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-foreground shadow-lg shadow-none">
                   <Sparkles className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
@@ -242,7 +242,7 @@ export default function ChatBot() {
                     <button
                       key={s}
                       onClick={() => send(s)}
-                      className="group rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5 text-left text-sm transition-all hover:border-[#FF006E]/50 hover:bg-white/90 hover:shadow-md hover:shadow-[#FF006E]/10"
+                      className="group rounded-2xl border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2.5 text-left text-sm transition-all hover:border-foreground hover:bg-white/90 hover:shadow-md hover:shadow-none"
                     >
                       <span className="mr-2 text-[#FF006E]">›</span>
                       {s}
@@ -261,7 +261,7 @@ export default function ChatBot() {
                 )}
               >
                 {m.role === 'assistant' && (
-                  <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#7C3AED] to-[#FF006E] shadow-sm">
+                  <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground shadow-sm">
                     <Sparkles className="h-3.5 w-3.5 text-white" />
                   </div>
                 )}
@@ -270,7 +270,7 @@ export default function ChatBot() {
                     className={cn(
                       'rounded-2xl px-4 py-2.5 text-sm shadow-sm',
                       m.role === 'user'
-                        ? 'rounded-br-md bg-gradient-to-br from-[#7C3AED] to-[#FF006E] text-white'
+                        ? 'rounded-br-md bg-foreground text-white'
                         : 'rounded-bl-md border border-white/50 dark:border-white/10 bg-white/90 dark:bg-white/5 text-foreground backdrop-blur-sm',
                     )}
                   >
@@ -283,17 +283,17 @@ export default function ChatBot() {
                           'prose-h3:text-[15px] prose-h3:text-[#7C3AED] dark:prose-h3:text-[#A78BFA]',
                           'prose-strong:text-[#1A0B2E] dark:prose-strong:text-white',
                           'prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5',
-                          'prose-code:rounded prose-code:bg-[#FF006E]/10 prose-code:px-1.5 prose-code:py-0.5',
+                          'prose-code:rounded prose-code:bg-foreground/10 prose-code:px-1.5 prose-code:py-0.5',
                           'prose-code:text-[#FF006E] prose-code:font-mono prose-code:text-[12.5px]',
                           'prose-code:before:content-none prose-code:after:content-none',
-                          'prose-pre:my-2 prose-pre:rounded-xl prose-pre:bg-[#1A0B2E] prose-pre:text-[#E5DCF5]',
+                          'prose-pre:my-2 prose-pre:rounded-xl prose-pre:bg-foreground prose-pre:text-background',
                           'prose-pre:p-3 prose-pre:text-[12px]',
                           'prose-blockquote:border-l-4 prose-blockquote:border-[#FF006E]',
-                          'prose-blockquote:bg-[#FF006E]/5 prose-blockquote:py-1 prose-blockquote:px-3',
+                          'prose-blockquote:bg-foreground/5 prose-blockquote:py-1 prose-blockquote:px-3',
                           'prose-blockquote:rounded-r-lg prose-blockquote:not-italic',
                           'prose-blockquote:text-foreground',
                           'prose-a:text-[#7C3AED] prose-a:no-underline hover:prose-a:underline',
-                          'prose-table:text-[12.5px] prose-th:bg-[#7C3AED]/10 prose-th:p-1.5',
+                          'prose-table:text-[12.5px] prose-th:bg-foreground/10 prose-th:p-1.5',
                           'prose-td:p-1.5 prose-td:border-[#E5DCF5]',
                           '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
                         )}
@@ -325,13 +325,13 @@ export default function ChatBot() {
 
             {loading && messages[messages.length - 1]?.role !== 'assistant' && (
               <div className="mb-4 flex gap-2">
-                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#7C3AED] to-[#FF006E]">
+                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground">
                   <Sparkles className="h-3.5 w-3.5 text-white animate-pulse" />
                 </div>
                 <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-white/50 dark:border-white/10 bg-white/90 dark:bg-white/5 px-4 py-3 backdrop-blur-sm">
-                  <span className="h-2 w-2 rounded-full bg-[#7C3AED] animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="h-2 w-2 rounded-full bg-[#FF006E] animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="h-2 w-2 rounded-full bg-[#FB923C] animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="h-2 w-2 rounded-full bg-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="h-2 w-2 rounded-full bg-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="h-2 w-2 rounded-full bg-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
@@ -341,9 +341,9 @@ export default function ChatBot() {
           {/* Input */}
           <form
             onSubmit={(e) => { e.preventDefault(); send(); }}
-            className="relative z-10 border-t border-white/30 dark:border-white/10 bg-white/60 dark:bg-[#1A0B2E]/60 backdrop-blur-md p-3"
+            className="relative z-10 border-t border-white/30 dark:border-white/10 bg-white/60 dark:bg-foreground/60 backdrop-blur-md p-3"
           >
-            <div className="flex items-end gap-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white dark:bg-white/5 p-2 shadow-sm focus-within:ring-2 focus-within:ring-[#FF006E]/40 transition">
+            <div className="flex items-end gap-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white dark:bg-white/5 p-2 shadow-sm focus-within:ring-2 focus-within:ring-foreground/40 transition">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -365,8 +365,8 @@ export default function ChatBot() {
                 disabled={loading || !input.trim()}
                 className={cn(
                   'h-9 w-9 shrink-0 rounded-xl shadow-md transition-all',
-                  'bg-gradient-to-br from-[#7C3AED] to-[#FF006E] text-white',
-                  'hover:shadow-lg hover:shadow-[#FF006E]/30 hover:scale-105',
+                  'bg-foreground text-white',
+                  'hover:shadow-lg hover:shadow-none hover:scale-105',
                   'disabled:opacity-40 disabled:hover:scale-100',
                 )}
               >
