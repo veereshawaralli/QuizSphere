@@ -150,10 +150,9 @@ export default function ChatBot() {
       <button
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full',
-          'bg-foreground',
-          'text-white shadow-[0_12px_40px_-8px_rgba(255,0,110,0.55)]',
-          'transition-all duration-300 hover:scale-110 active:scale-95',
+          'fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-none',
+          'bg-foreground text-background border border-foreground',
+          'transition-colors duration-200 hover:bg-background hover:text-foreground',
           open && 'rotate-90',
         )}
         aria-label="Toggle chat"
