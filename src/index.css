@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,141 +17,98 @@
 
 @layer base {
   :root {
-    /* Paper & Ink — light */
-    --background: 43 22% 95%;        /* #f5f3ee — uncoated paper */
-    --foreground: 0 0% 5%;           /* #0d0d0d — deep ink */
+    /* Obsidian Neural — v5.0. Deep black canvas, electric violet + cyan,
+       glass surfaces, soft neon glows. Frontier AI-lab feel. Default is dark. */
+    --background: 230 25% 4%;          /* #07080d */
+    --foreground: 220 30% 96%;         /* #f1f3f8 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    --card: 232 22% 8%;                /* #0e1018 */
+    --card-foreground: 220 30% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover: 232 22% 7%;
+    --popover-foreground: 220 30% 96%;
 
-    /* Ink = primary. Editorial: there is no second hue. */
-    --primary: 0 0% 5%;
-    --primary-foreground: 43 22% 95%;
+    --primary: 258 90% 66%;            /* electric violet #7c3aed-ish */
+    --primary-foreground: 230 30% 6%;
 
-    --secondary: 40 18% 89%;         /* #e8e4dd — secondary paper surface */
-    --secondary-foreground: 0 0% 5%;
+    --secondary: 232 18% 12%;
+    --secondary-foreground: 220 30% 96%;
 
-    --muted: 40 14% 91%;
-    --muted-foreground: 0 0% 35%;    /* graphite */
+    --muted: 232 16% 14%;
+    --muted-foreground: 230 12% 62%;
 
-    /* Accent is just deeper ink — no neon. */
-    --accent: 0 0% 5%;
-    --accent-foreground: 43 22% 95%;
+    --accent: 187 96% 60%;             /* cyan #22d3ee-ish */
+    --accent-foreground: 230 30% 6%;
 
-    /* Legacy named hues, neutralised to graphite so existing class
-       references stop screaming color. */
-    --lime: 0 0% 18%;
-    --lime-foreground: 43 22% 95%;
-    --cyan: 0 0% 18%;
-    --cyan-foreground: 43 22% 95%;
-    --tangerine: 0 0% 18%;
-    --tangerine-foreground: 43 22% 95%;
+    --neural-violet: 258 90% 66%;
+    --neural-cyan: 187 96% 60%;
+    --neural-magenta: 300 85% 65%;
 
-    --destructive: 0 60% 42%;
-    --destructive-foreground: 43 22% 95%;
-    --success: 150 30% 30%;
-    --success-foreground: 43 22% 95%;
-    --warning: 35 60% 40%;
-    --warning-foreground: 43 22% 95%;
+    --lime: 187 96% 60%;
+    --lime-foreground: 230 30% 6%;
+    --cyan: 187 96% 60%;
+    --cyan-foreground: 230 30% 6%;
+    --tangerine: 258 90% 66%;
+    --tangerine-foreground: 230 30% 6%;
 
-    --border: 0 0% 5% / 0.12;        /* hairline ink */
-    --input: 0 0% 5% / 0.18;
-    --ring: 0 0% 5%;
+    --destructive: 0 80% 62%;
+    --destructive-foreground: 220 30% 96%;
+    --success: 152 70% 50%;
+    --success-foreground: 230 30% 6%;
+    --warning: 38 95% 60%;
+    --warning-foreground: 230 30% 6%;
 
-    --radius: 0.25rem;               /* almost-square, editorial */
+    --border: 220 30% 96% / 0.08;
+    --input: 220 30% 96% / 0.12;
+    --ring: 258 90% 66%;
 
-    /* Gradients flattened to solid ink / paper ramps. Class names
-       remain compatible; the visual result is now flat. */
-    --gradient-candy:  linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 5%));
-    --gradient-sunset: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 18%));
-    --gradient-aurora: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 18%));
-    --gradient-lime:   linear-gradient(135deg, hsl(0 0% 18%), hsl(0 0% 5%));
-    --gradient-cosmic: linear-gradient(180deg, hsl(43 22% 95%), hsl(40 18% 89%));
+    --radius: 1rem;
 
-    /* Shadows — minimal, paper-on-paper depth only. */
-    --shadow-soft: 0 1px 0 0 hsl(0 0% 5% / 0.06);
-    --shadow-pop:  0 1px 0 0 hsl(0 0% 5% / 0.08), 0 12px 28px -18px hsl(0 0% 5% / 0.18);
-    --shadow-glow: 0 0 0 1px hsl(0 0% 5% / 0.08);
-    --shadow-card: 0 1px 0 0 hsl(0 0% 5% / 0.05);
+    --gradient-candy:  linear-gradient(135deg, hsl(258 90% 66%), hsl(187 96% 60%));
+    --gradient-sunset: linear-gradient(135deg, hsl(258 90% 66%), hsl(300 85% 65%));
+    --gradient-aurora: linear-gradient(135deg, hsl(258 90% 66%) 0%, hsl(300 85% 65%) 45%, hsl(187 96% 60%) 100%);
+    --gradient-lime:   linear-gradient(135deg, hsl(187 96% 60%), hsl(258 90% 66%));
+    --gradient-cosmic: radial-gradient(1200px 600px at 10% -10%, hsl(258 90% 66% / 0.18), transparent 60%),
+                       radial-gradient(900px 500px at 110% 20%, hsl(187 96% 60% / 0.14), transparent 60%),
+                       linear-gradient(180deg, hsl(230 25% 4%), hsl(232 22% 6%));
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 43 22% 95%;
-    --sidebar-primary: 43 22% 95%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 43 22% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 43 22% 95%;
+    --shadow-soft: 0 1px 0 0 hsl(220 30% 96% / 0.06);
+    --shadow-pop:  0 30px 80px -30px hsl(258 90% 66% / 0.45), 0 0 0 1px hsl(220 30% 96% / 0.06);
+    --shadow-glow: 0 0 0 1px hsl(258 90% 66% / 0.35), 0 0 40px -6px hsl(258 90% 66% / 0.45);
+    --shadow-card: 0 1px 0 0 hsl(220 30% 96% / 0.05), 0 20px 60px -30px hsl(0 0% 0% / 0.6);
 
-    --font-heading: '"Space Grotesk"', 'system-ui', sans-serif;
-    --font-body: '"DM Sans"', 'system-ui', sans-serif;
+    --sidebar-background: 232 22% 6%;
+    --sidebar-foreground: 220 30% 96%;
+    --sidebar-primary: 258 90% 66%;
+    --sidebar-primary-foreground: 230 30% 6%;
+    --sidebar-accent: 232 18% 12%;
+    --sidebar-accent-foreground: 220 30% 96%;
+    --sidebar-border: 220 30% 96% / 0.08;
+    --sidebar-ring: 258 90% 66%;
+
+    --font-heading: '"Sora"', 'system-ui', sans-serif;
+    --font-body: '"Manrope"', 'system-ui', sans-serif;
     --font-mono: '"JetBrains Mono"', ui-monospace, monospace;
-    --font-hand: '"Space Grotesk"', 'system-ui', sans-serif;
+    --font-hand: '"Sora"', 'system-ui', sans-serif;
   }
 
-  .dark {
-    /* Paper & Ink — dark (inverted: ink paper, paper ink). */
-    --background: 0 0% 5%;
-    --foreground: 43 22% 95%;
-
-    --card: 0 0% 9%;
-    --card-foreground: 43 22% 95%;
-
-    --popover: 0 0% 9%;
-    --popover-foreground: 43 22% 95%;
-
-    --primary: 43 22% 95%;
-    --primary-foreground: 0 0% 5%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 43 22% 95%;
-
-    --muted: 0 0% 12%;
-    --muted-foreground: 40 10% 65%;
-
-    --accent: 43 22% 95%;
-    --accent-foreground: 0 0% 5%;
-
-    --lime: 40 10% 82%;
-    --lime-foreground: 0 0% 5%;
-    --cyan: 40 10% 82%;
-    --cyan-foreground: 0 0% 5%;
-    --tangerine: 40 10% 82%;
-    --tangerine-foreground: 0 0% 5%;
-
-    --destructive: 0 60% 55%;
-    --destructive-foreground: 0 0% 5%;
-    --success: 150 35% 55%;
-    --success-foreground: 0 0% 5%;
-    --warning: 35 70% 60%;
-    --warning-foreground: 0 0% 5%;
-
-    --border: 43 22% 95% / 0.14;
-    --input: 43 22% 95% / 0.2;
-    --ring: 43 22% 95%;
-
-    --gradient-candy:  linear-gradient(135deg, hsl(43 22% 95%), hsl(43 22% 95%));
-    --gradient-sunset: linear-gradient(135deg, hsl(43 22% 95%), hsl(40 10% 82%));
-    --gradient-aurora: linear-gradient(135deg, hsl(43 22% 95%), hsl(40 10% 82%));
-    --gradient-lime:   linear-gradient(135deg, hsl(40 10% 82%), hsl(43 22% 95%));
-    --gradient-cosmic: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 9%));
-
-    --shadow-soft: 0 1px 0 0 hsl(43 22% 95% / 0.06);
-    --shadow-pop:  0 1px 0 0 hsl(43 22% 95% / 0.08), 0 12px 28px -18px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 0 1px hsl(43 22% 95% / 0.1);
-    --shadow-card: 0 1px 0 0 hsl(43 22% 95% / 0.05);
-
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 43 22% 95%;
-    --sidebar-primary: 43 22% 95%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 43 22% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 43 22% 95%;
+  /* Light alt — keeps the same neural palette but on a pale canvas. */
+  .light {
+    --background: 220 30% 97%;
+    --foreground: 230 25% 6%;
+    --card: 220 30% 100%;
+    --card-foreground: 230 25% 6%;
+    --popover: 220 30% 100%;
+    --popover-foreground: 230 25% 6%;
+    --secondary: 220 20% 92%;
+    --secondary-foreground: 230 25% 6%;
+    --muted: 220 20% 92%;
+    --muted-foreground: 230 12% 38%;
+    --border: 230 25% 6% / 0.1;
+    --input: 230 25% 6% / 0.14;
+    --gradient-cosmic: radial-gradient(1000px 500px at 10% -10%, hsl(258 90% 66% / 0.16), transparent 60%),
+                       radial-gradient(800px 400px at 110% 20%, hsl(187 96% 60% / 0.12), transparent 60%),
+                       linear-gradient(180deg, hsl(220 30% 97%), hsl(220 30% 100%));
   }
 }
 
@@ -165,122 +122,142 @@
     font-family: var(--font-body);
     font-feature-settings: "ss01", "ss02", "kern";
     text-rendering: optimizeLegibility;
-    /* Paper grain — extremely subtle, no gradients. */
     background-color: hsl(var(--background));
+    background-image: var(--gradient-cosmic);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5 {
     font-family: var(--font-heading);
-    letter-spacing: -0.025em;
-    font-weight: 500;
+    letter-spacing: -0.035em;
+    font-weight: 600;
     font-feature-settings: "ss01", "ss02";
   }
 
   ::selection {
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
+    background: hsl(var(--primary) / 0.4);
+    color: hsl(var(--foreground));
   }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--foreground) / 0.25);
-    border-radius: 0;
+    background: hsl(var(--primary) / 0.35);
+    border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--foreground) / 0.45); }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.6); }
 }
 
 @layer utilities {
   .font-mono { font-family: var(--font-mono); }
-  .font-hand { font-family: var(--font-hand); font-style: italic; font-weight: 400; }
+  .font-hand { font-family: var(--font-hand); font-weight: 300; font-style: italic; }
   .font-heading { font-family: var(--font-heading); }
 
-  /* Legacy brand color helpers — now resolve to ink-on-paper. */
-  .bg-lime,
-  .bg-cyan-brand,
-  .bg-tangerine { background-color: hsl(var(--foreground)); color: hsl(var(--background)); }
-  .text-lime,
-  .text-cyan-brand,
-  .text-tangerine { color: hsl(var(--foreground)); }
-  .border-lime,
-  .border-cyan-brand { border-color: hsl(var(--foreground)); }
+  .bg-lime { background-color: hsl(var(--neural-cyan)); color: hsl(var(--background)); }
+  .bg-cyan-brand { background-color: hsl(var(--neural-cyan)); color: hsl(var(--background)); }
+  .bg-tangerine { background-color: hsl(var(--neural-violet)); color: hsl(var(--background)); }
+  .text-lime { color: hsl(var(--neural-cyan)); }
+  .text-cyan-brand { color: hsl(var(--neural-cyan)); }
+  .text-tangerine { color: hsl(var(--neural-violet)); }
+  .border-lime { border-color: hsl(var(--neural-cyan)); }
+  .border-cyan-brand { border-color: hsl(var(--neural-cyan)); }
 
-  /* Eyebrow / monospaced metadata label — editorial cap. */
   .eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 500;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
   }
 
-  /* Legacy gradient backgrounds — now flat ink (or paper ramp). */
-  .bg-gradient-candy,
-  .bg-gradient-sunset,
-  .bg-gradient-aurora,
-  .bg-gradient-lime { background-image: none; background-color: hsl(var(--foreground)); color: hsl(var(--background)); }
+  .bg-gradient-candy  { background-image: var(--gradient-candy);  color: hsl(var(--background)); }
+  .bg-gradient-sunset { background-image: var(--gradient-sunset); color: hsl(var(--background)); }
+  .bg-gradient-aurora { background-image: var(--gradient-aurora); color: hsl(var(--background)); }
+  .bg-gradient-lime   { background-image: var(--gradient-lime);   color: hsl(var(--background)); }
   .bg-gradient-cosmic { background-image: var(--gradient-cosmic); }
 
-  /* Legacy "gradient text" — now solid ink, optionally italic for emphasis. */
   .text-gradient-candy,
   .text-gradient-sunset,
-  .text-gradient-aurora { color: hsl(var(--foreground)); background: none; -webkit-text-fill-color: currentColor; }
+  .text-gradient-aurora,
+  .text-gradient-animated {
+    background-image: var(--gradient-aurora);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 8s ease-in-out infinite;
+  }
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
 
-  .text-gradient-animated { color: hsl(var(--foreground)); }
-
-  /* Legacy glass surfaces — now flat paper cards w/ hairline ink rule. */
+  /* Glassmorphism — real frosted panels. */
   .glass {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--foreground) / 0.1);
-    box-shadow: none;
+    background: hsl(var(--card) / 0.55);
+    border: 1px solid hsl(var(--foreground) / 0.08);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: var(--shadow-card);
   }
   .glass-strong {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--foreground) / 0.14);
-    box-shadow: none;
+    background: hsl(var(--card) / 0.78);
+    border: 1px solid hsl(var(--foreground) / 0.12);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    box-shadow: var(--shadow-card);
   }
   .glass-dark {
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
-    border: 1px solid hsl(var(--foreground));
+    background: hsl(230 25% 3% / 0.7);
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--foreground) / 0.1);
+    backdrop-filter: blur(20px);
   }
   .glass-vibrant {
-    background: hsl(var(--secondary));
+    background: linear-gradient(135deg, hsl(var(--neural-violet) / 0.18), hsl(var(--neural-cyan) / 0.12));
     border: 1px solid hsl(var(--foreground) / 0.1);
+    backdrop-filter: blur(20px);
   }
 
-  /* Aurora blobs — fully suppressed in v4. Kept as no-op for layout safety. */
-  .blob { display: none !important; }
+  /* Aurora orb — soft radial glow blob, used decoratively. */
+  .blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .blob-violet { background: hsl(var(--neural-violet) / 0.7); }
+  .blob-cyan { background: hsl(var(--neural-cyan) / 0.6); }
+  .blob-magenta { background: hsl(var(--neural-magenta) / 0.55); }
 
-  /* ── Float / bob ──────────────────────────────────── */
   @keyframes float-y {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-4px); }
+    0%, 100% { transform: translateY(0px); }
+    50%      { transform: translateY(-14px); }
   }
-  .float-y { animation: float-y 8s ease-in-out infinite; }
+  .float-y { animation: float-y 7s ease-in-out infinite; }
 
   @keyframes float-x {
     0%, 100% { transform: translateX(0); }
-    50%      { transform: translateX(10px); }
+    50%      { transform: translateX(20px); }
   }
   .float-x { animation: float-x 7s ease-in-out infinite; }
 
-  /* ── Spin ─────────────────────────────────────────── */
   @keyframes spin-slow { to { transform: rotate(360deg); } }
   .spin-slow { animation: spin-slow 14s linear infinite; }
   @keyframes spin-reverse { to { transform: rotate(-360deg); } }
   .spin-reverse { animation: spin-reverse 18s linear infinite; }
 
   @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--foreground) / 0.25); }
-    50%      { box-shadow: 0 0 0 6px hsl(var(--foreground) / 0); }
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+    50%      { box-shadow: 0 0 0 14px hsl(var(--primary) / 0); }
   }
   .glow-pulse { animation: glow-pulse 2.5s ease-out infinite; }
 
-  /* Wiggle retired in editorial system. */
-  .wiggle:hover { transform: none; }
+  .wiggle:hover { transform: translateY(-2px) rotate(-1deg); transition: transform 0.3s ease; }
 
-  /* ── Bounce in ────────────────────────────────────── */
   @keyframes bounce-in {
     0%   { opacity: 0; transform: scale(0.6) translateY(20px); }
     60%  { opacity: 1; transform: scale(1.05) translateY(-4px); }
@@ -288,7 +265,6 @@
   }
   .bounce-in { animation: bounce-in 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55) both; }
 
-  /* ── Slide up ─────────────────────────────────────── */
   @keyframes rise {
     from { opacity: 0; transform: translateY(28px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -300,7 +276,6 @@
   .rise-4 { animation-delay: 0.42s; }
   .rise-5 { animation-delay: 0.55s; }
 
-  /* ── Marquee ──────────────────────────────────────── */
   @keyframes ticker {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
@@ -312,7 +287,6 @@
     will-change: transform;
   }
 
-  /* ── Reveal on scroll ─────────────────────────────── */
   .reveal {
     opacity: 0;
     transform: translateY(32px);
@@ -328,41 +302,41 @@
   .reveal-delay-4 { transition-delay: 0.42s; }
 
   .lift {
-    transition: transform 0.35s ease, border-color 0.35s ease;
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
   }
   .lift:hover {
-    transform: translateY(-2px);
-    border-color: hsl(var(--foreground));
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 30px 60px -20px hsl(var(--primary) / 0.35);
   }
 
   .tilt {
-    transition: transform 0.4s ease, border-color 0.4s ease;
+    transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
   }
   .tilt:hover {
-    transform: translateY(-2px);
-    border-color: hsl(var(--foreground));
+    transform: translateY(-3px) rotate(-0.5deg);
+    border-color: hsl(var(--accent) / 0.5);
+    box-shadow: 0 24px 48px -18px hsl(var(--accent) / 0.35);
   }
 
-  /* Sticker — flat ink-block shadow, single layer. */
   .sticker {
-    box-shadow: 3px 3px 0 0 hsl(var(--foreground));
+    box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.12), 0 20px 40px -20px hsl(var(--primary) / 0.6);
     transition: all 0.25s ease;
   }
   .sticker:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 28px 60px -20px hsl(var(--primary) / 0.8);
   }
 
-  /* ── Animated link underline ──────────────────────── */
   .link-underline {
     @apply relative inline-block;
   }
   .link-underline::after {
     content: "";
     position: absolute;
-    left: 0; bottom: -3px;
+    left: 0; bottom: -4px;
     width: 100%; height: 1px;
-    background: hsl(var(--foreground));
+    background: linear-gradient(90deg, hsl(var(--neural-violet)), hsl(var(--neural-cyan)));
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
@@ -372,40 +346,52 @@
     transform-origin: left;
   }
 
-  /* Legacy primary CTA — now a flat ink slab w/ paper hover. */
   .btn-candy {
     position: relative;
-    background: hsl(var(--foreground));
+    background-image: var(--gradient-aurora);
+    background-size: 200% auto;
     color: hsl(var(--background));
-    border: 1px solid hsl(var(--foreground));
-    border-radius: 0;
-    box-shadow: none;
-    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.55);
+    transition: background-position 0.6s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
   .btn-candy:hover {
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
-    transform: none;
+    background-position: 100% 50%;
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px -10px hsl(var(--primary) / 0.7);
   }
 
-  /* Pill — squared editorial chip, hairline-bordered. */
   .pill {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.25rem 0.625rem;
-    border-radius: 0;
-    border: 1px solid hsl(var(--foreground) / 0.18);
-    background: transparent;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--foreground) / 0.12);
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
   }
 
-  /* Dot grid — extremely subtle paper texture. */
   .dot-grid {
-    background-image: radial-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px);
-    background-size: 28px 28px;
+    background-image: radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  /* ── Grain ────────────────────────────────────────── */
+  .neural-grid {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 80%);
+  }
+
   .grain {
     position: relative;
   }
@@ -413,21 +399,20 @@
     content: "";
     position: absolute; inset: 0;
     pointer-events: none;
-    opacity: 0.25;
+    opacity: 0.18;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
 
-  /* Spotlight retired — flat paper. */
-  .spotlight { background-image: none; }
+  .spotlight {
+    background-image: radial-gradient(600px 300px at var(--mx, 50%) var(--my, 0%), hsl(var(--primary) / 0.15), transparent 70%);
+  }
 
-  /* ── Shadow utilities ─────────────────────────────── */
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-pop  { box-shadow: var(--shadow-pop); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-card { box-shadow: var(--shadow-card); }
 
-  /* ── Sliding fill button (legacy) ─────────────────── */
   .btn-wipe {
     position: relative;
     overflow: hidden;
@@ -436,113 +421,168 @@
   .btn-wipe::before {
     content: "";
     position: absolute; inset: 0;
-    background: hsl(var(--foreground));
+    background-image: var(--gradient-aurora);
     transform: translateY(101%);
     transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
     z-index: -1;
   }
   .btn-wipe:hover::before { transform: translateY(0); }
 
-  /* ── Caret ────────────────────────────────────────── */
   @keyframes blink {
     0%, 60% { opacity: 1; }
     61%, 100% { opacity: 0; }
   }
   .caret { animation: blink 1.1s steps(1) infinite; }
 
-  /* Hairline accent — pure ink underline. */
   .hairline-coral {
     position: relative;
     height: 1px;
-    background: hsl(var(--foreground) / 0.18);
+    background: hsl(var(--foreground) / 0.12);
   }
   .hairline-coral::before {
     content: "";
     position: absolute;
     left: 0; top: 0;
-    width: 3rem; height: 1px;
-    background: hsl(var(--foreground));
+    width: 4rem; height: 1px;
+    background: linear-gradient(90deg, hsl(var(--neural-violet)), hsl(var(--neural-cyan)));
   }
 
-  /* Accent glow retired in editorial system. */
-  .accent-glow { position: relative; }
-  .accent-glow::before { content: none; }
+  .accent-glow {
+    position: relative;
+  }
+  .accent-glow::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10%;
+    background: radial-gradient(closest-side, hsl(var(--primary) / 0.45), transparent 70%);
+    z-index: -1;
+    filter: blur(40px);
+  }
 
-  /* ── Numbered list nudge ──────────────────────────── */
   .num-row { transition: padding 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
   .num-row:hover { padding-left: 1rem; }
 
-  /* ── Focus ring ───────────────────────────────────── */
   .focus-ink:focus-visible {
-    outline: 2px solid hsl(var(--foreground));
+    outline: 2px solid hsl(var(--primary));
     outline-offset: 3px;
   }
 
-  /* ── Mask fade ────────────────────────────────────── */
   .mask-fade-b {
     -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
     mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
   }
 
-  /* Ink slab background (editorial dark section). */
-  .ink-gradient { background: hsl(var(--foreground)); color: hsl(var(--background)); }
-  .coral-gradient { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+  .ink-gradient {
+    background: linear-gradient(180deg, hsl(232 22% 8%), hsl(230 25% 4%));
+    color: hsl(var(--foreground));
+  }
+  .coral-gradient {
+    background-image: var(--gradient-aurora);
+    color: hsl(var(--background));
+  }
 
-  /* ── Slow zoom ────────────────────────────────────── */
   @keyframes slow-zoom {
     from { transform: scale(1); }
     to   { transform: scale(1.06); }
   }
   .slow-zoom { animation: slow-zoom 18s ease-in-out infinite alternate; }
 
-  /* Shimmer retired — replaced with static hairline. */
-  .shimmer-border { position: relative; border: 1px solid hsl(var(--foreground) / 0.18); }
-  .shimmer-border::before { content: none; }
+  .shimmer-border {
+    position: relative;
+    background: hsl(var(--card));
+    isolation: isolate;
+  }
+  .shimmer-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--angle, 0deg),
+      hsl(var(--neural-violet)),
+      hsl(var(--neural-cyan)),
+      hsl(var(--neural-magenta)),
+      hsl(var(--neural-violet)));
+    z-index: -1;
+    animation: spin-border 6s linear infinite;
+    opacity: 0.6;
+  }
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes spin-border {
+    to { --angle: 360deg; }
+  }
 
-  /* ── New editorial primitives ─────────────────────── */
-  .rule { display: block; height: 1px; background: hsl(var(--foreground) / 0.18); }
-  .rule-ink { display: block; height: 1px; background: hsl(var(--foreground)); }
+  .rule { display: block; height: 1px; background: hsl(var(--foreground) / 0.1); }
+  .rule-ink { display: block; height: 1px; background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6), transparent); }
 
   .section-num {
     font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
+    font-size: 0.68rem;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
+    color: hsl(var(--neural-cyan));
   }
 
-  .display-serif { font-family: var(--font-heading); font-style: italic; font-weight: 400; }
+  .display-serif {
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-weight: 300;
+    background-image: var(--gradient-aurora);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 8s ease-in-out infinite;
+  }
 
-  /* Editorial CTA — squared, ink. */
   .btn-ink {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.875rem 1.5rem;
-    background: hsl(var(--foreground));
+    padding: 0.9rem 1.6rem;
+    background-image: var(--gradient-aurora);
+    background-size: 200% auto;
     color: hsl(var(--background));
-    border: 1px solid hsl(var(--foreground));
+    border: none;
+    border-radius: 9999px;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    transition: background 0.25s ease, color 0.25s ease;
+    font-weight: 600;
+    box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.55);
+    transition: background-position 0.6s ease, transform 0.25s ease, box-shadow 0.25s ease;
   }
-  .btn-ink:hover { background: transparent; color: hsl(var(--foreground)); }
+  .btn-ink:hover {
+    background-position: 100% 50%;
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px -10px hsl(var(--primary) / 0.75);
+  }
 
   .btn-paper {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.875rem 1.5rem;
-    background: transparent;
+    padding: 0.9rem 1.6rem;
+    background: hsl(var(--card) / 0.5);
     color: hsl(var(--foreground));
-    border: 1px solid hsl(var(--foreground));
+    border: 1px solid hsl(var(--foreground) / 0.18);
+    border-radius: 9999px;
+    backdrop-filter: blur(14px);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    transition: background 0.25s ease, color 0.25s ease;
+    font-weight: 500;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   }
-  .btn-paper:hover { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+  .btn-paper:hover {
+    background: hsl(var(--card) / 0.85);
+    border-color: hsl(var(--primary) / 0.5);
+    color: hsl(var(--primary));
+  }
 }
