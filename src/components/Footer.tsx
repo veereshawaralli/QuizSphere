@@ -1,6 +1,7 @@
-// Editorial footer — colophon, sitemap, hairline rules, ink on paper.
+// Neural Obsidian footer — glassy panels, gradient rule, calm closing band.
 
 import { Link } from 'react-router-dom';
+import { Github, Mail, MapPin } from 'lucide-react';
 
 const sitemap = [
   {
@@ -15,7 +16,7 @@ const sitemap = [
     label: 'Department',
     items: [
       { label: 'About CSD', to: '/' },
-      { label: 'Faculty', to: '/login?role=faculty' },
+      { label: 'Faculty Access', to: '/login?role=faculty' },
       { label: 'Programs', to: '/' },
     ],
   },
@@ -33,38 +34,47 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-foreground/15 bg-background text-foreground">
-      {/* Closing statement band */}
-      <section className="border-b border-foreground/15">
-        <div className="mx-auto max-w-[1440px] px-6 py-20 md:py-28">
-          <p className="eyebrow text-foreground/55">§ Closing</p>
-          <h3 className="mt-4 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
-            A quiet place<br />
-            for <span className="display-serif">serious</span> work.
+    <footer className="relative mt-20 border-t border-foreground/10">
+      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
+      {/* Closing band */}
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 neural-grid opacity-50" />
+        <div className="blob blob-violet h-72 w-72 -top-20 -left-20" />
+        <div className="blob blob-cyan h-80 w-80 -bottom-32 right-0" />
+
+        <div className="relative mx-auto max-w-[1440px] px-6 py-24 md:py-32">
+          <p className="eyebrow">§ End of transmission</p>
+          <h3 className="mt-4 font-heading text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl lg:text-[7.5rem]">
+            Trained for <span className="display-serif">curiosity</span>.<br />
+            Built for <span className="display-serif">rigor</span>.
           </h3>
         </div>
       </section>
 
       {/* Sitemap */}
-      <section className="border-b border-foreground/15">
+      <section className="border-t border-foreground/8 bg-background/40">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-16 md:grid-cols-12">
           <div className="md:col-span-4">
-            <p className="eyebrow text-foreground/55">Colophon</p>
-            <p className="mt-4 font-heading text-2xl leading-tight tracking-tight">
-              The CSD <span className="display-serif">Portal</span>
+            <p className="eyebrow">Colophon</p>
+            <p className="mt-4 font-heading text-2xl font-semibold leading-tight tracking-tight">
+              The CSD <span className="display-serif font-normal">Portal</span>
             </p>
-            <p className="mt-2 max-w-xs text-sm leading-relaxed text-foreground/70">
-              Set in Space Grotesk &amp; DM Sans. A learning instrument for the
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              Set in Sora &amp; Manrope. A neural-learning instrument for the
               Department of Computer Science &amp; Design.
             </p>
-            <div className="mt-6 h-px w-12 bg-foreground" />
-            <p className="mt-3 eyebrow text-foreground/55">Version 4.0 · {year}</p>
+            <div className="mt-6 flex items-center gap-3">
+              <a href="#" className="rounded-full border border-foreground/12 p-2 text-foreground/60 transition hover:border-primary/50 hover:text-primary"><Github className="h-4 w-4" /></a>
+              <a href="#" className="rounded-full border border-foreground/12 p-2 text-foreground/60 transition hover:border-primary/50 hover:text-primary"><Mail className="h-4 w-4" /></a>
+              <a href="#" className="rounded-full border border-foreground/12 p-2 text-foreground/60 transition hover:border-primary/50 hover:text-primary"><MapPin className="h-4 w-4" /></a>
+            </div>
           </div>
 
           {sitemap.map((col) => (
             <div key={col.label} className="md:col-span-2">
-              <p className="eyebrow text-foreground/55">{col.label}</p>
-              <ul className="mt-4 space-y-2">
+              <p className="eyebrow">{col.label}</p>
+              <ul className="mt-4 space-y-2.5">
                 {col.items.map((item) => (
                   <li key={item.label}>
                     <Link
@@ -80,7 +90,7 @@ export default function Footer() {
           ))}
 
           <div className="md:col-span-2">
-            <p className="eyebrow text-foreground/55">Location</p>
+            <p className="eyebrow">Location</p>
             <p className="mt-4 text-sm leading-relaxed text-foreground/80">
               Sharnbasva University<br />
               Kalaburagi, Karnataka<br />
@@ -90,14 +100,11 @@ export default function Footer() {
         </div>
       </section>
 
-      {/* Legal strip */}
-      <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-2 px-6 py-5 md:flex-row md:items-center">
-        <p className="eyebrow text-foreground/55">
-          © {year} Sharnbasva University. All rights reserved.
-        </p>
-        <p className="eyebrow text-foreground/55">
-          Issue №24 · AY 2025—26
-        </p>
+      <div className="border-t border-foreground/8">
+        <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-2 px-6 py-5 md:flex-row md:items-center">
+          <p className="eyebrow">© {year} Sharnbasva University. All rights reserved.</p>
+          <p className="eyebrow">v5.0 · Obsidian Neural · AY 2025—26</p>
+        </div>
       </div>
     </footer>
   );

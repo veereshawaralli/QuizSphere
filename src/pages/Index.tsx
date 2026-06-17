@@ -1,52 +1,37 @@
-// Paper & Ink landing — editorial stacked sections, oversized display type,
-// hairline rules, monospaced metadata. Built for the CSD Department.
+// Obsidian Neural landing — bento hero, aurora orbs, animated metrics,
+// glass capability tiles, scrolling marquee, neural-grid footing.
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import {
+  ArrowUpRight, ArrowRight, Sparkles, Brain, Zap, ShieldCheck,
+  Library, GraduationCap, BarChart3, Cpu,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReveal } from '@/hooks/use-reveal';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-// Capabilities — four primary instruments of the portal.
-const capabilities = [
-  {
-    no: '01',
-    title: 'Live quizzes',
-    body: 'Timed, multiple-choice assessments authored by faculty with instant, transparent grading at submission.',
-  },
-  {
-    no: '02',
-    title: 'Time-bound rigor',
-    body: 'Every attempt runs on a countdown. Auto-submit on time-up and full-screen blur keeps the work honest.',
-  },
-  {
-    no: '03',
-    title: 'Verified certificates',
-    body: 'Cross 70% and receive a department-issued PDF, QR-verifiable against the portal’s public record.',
-  },
-  {
-    no: '04',
-    title: 'Faculty materials',
-    body: 'Lecture notes, references and reading lists curated by faculty, organised by course and semester.',
-  },
-];
-
-// Numbers — restrained metadata.
 const figures = [
-  { k: 'Department', v: 'CS & Design' },
-  { k: 'Established', v: '2023' },
-  { k: 'Programs', v: 'BTech · MTech · PhD' },
-  { k: 'Campus', v: 'Kalaburagi' },
+  { k: 'Active learners', v: '1,240+' },
+  { k: 'Quizzes hosted', v: '320' },
+  { k: 'Certificates issued', v: '880' },
+  { k: 'Avg. pass rate', v: '78%' },
 ];
 
-// Index — the table of contents for the page itself.
-const contents = [
-  { no: '01', label: 'The portal', href: '#portal' },
-  { no: '02', label: 'Instruments', href: '#instruments' },
-  { no: '03', label: 'Manifesto', href: '#manifesto' },
-  { no: '04', label: 'Begin', href: '#begin' },
+const tickerItems = [
+  'Neural-grade assessments', 'Real-time grading', 'QR-verified certificates',
+  'Adaptive difficulty', 'Faculty-authored', 'Anti-cheat protection',
+  'Lecture materials', 'Performance analytics',
+];
+
+const capabilities = [
+  { icon: Brain, title: 'Adaptive quizzes', body: 'Timed, faculty-authored assessments with instant transparent grading.' },
+  { icon: Zap, title: 'Real-time grading', body: 'Auto-submit on time-up. Live feedback the moment you submit.' },
+  { icon: ShieldCheck, title: 'Verified certificates', body: 'Cross 70% and earn a QR-verifiable PDF certificate.' },
+  { icon: Library, title: 'Curated materials', body: 'Lecture notes, references, reading lists by course & semester.' },
+  { icon: BarChart3, title: 'Progress analytics', body: 'Track attempts, scores and growth across the semester.' },
+  { icon: Cpu, title: 'AI study buddy', body: 'Cosmo — your in-portal assistant powered by Gemini.' },
 ];
 
 export default function Index() {
@@ -56,148 +41,167 @@ export default function Index() {
 
   useReveal();
 
-  // Authenticated users go straight to their dashboard.
   useEffect(() => {
     if (!loading && user) navigate('/dashboard');
   }, [user, loading, navigate]);
 
-  // Live clock for the masthead — small editorial flourish.
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const time = now.toLocaleTimeString('en-IN', {
-    hour: '2-digit', minute: '2-digit', hour12: false,
-  });
-  const today = now.toLocaleDateString('en-IN', {
-    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
-  });
+  const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground overflow-x-clip">
+      {/* Ambient orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="blob blob-violet h-[36rem] w-[36rem] -top-40 -left-40 float-y" />
+        <div className="blob blob-cyan h-[32rem] w-[32rem] -top-20 right-[-10rem] float-x" />
+        <div className="blob blob-magenta h-[24rem] w-[24rem] top-[80vh] left-1/3 opacity-40" />
+      </div>
+
       <Header />
 
-      {/* ── 01. MASTHEAD / HERO ───────────────────────────────────── */}
-      <section id="portal" className="border-b border-foreground/15">
-        <div className="mx-auto max-w-[1440px] px-6 pt-10 pb-24 md:pt-16 md:pb-32">
-          {/* Top metadata row — issue, date, live time */}
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-foreground/15 pb-6">
-            <p className="eyebrow text-foreground/55">Issue №24 · Volume IV</p>
-            <p className="eyebrow text-foreground/55 hidden md:block">{today}</p>
-            <p className="eyebrow text-foreground/55">IST {time}</p>
+      {/* ── HERO ─────────────────────────────────────────────────── */}
+      <section className="relative">
+        <div className="pointer-events-none absolute inset-0 neural-grid opacity-60" />
+
+        <div className="relative mx-auto max-w-[1440px] px-6 pt-14 pb-24 md:pt-20 md:pb-32">
+          {/* Status row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 reveal">
+            <span className="pill"><Sparkles className="h-3 w-3 text-primary" /> Obsidian Neural · v5.0 release</span>
+            <span className="eyebrow font-mono">IST {time}</span>
           </div>
 
-          {/* Hero grid */}
-          <div className="grid gap-12 pt-14 md:grid-cols-12 md:gap-10">
-            <div className="md:col-span-3">
-              <p className="section-num">§ 01 — The portal</p>
-              <p className="mt-6 max-w-[18rem] text-sm leading-relaxed text-foreground/75">
-                A learning instrument for the Department of
-                <span className="text-foreground"> Computer Science &amp; Design</span>,
-                Sharnbasva University. Built for students who take the work
-                seriously and faculty who teach it honestly.
+          {/* Headline */}
+          <h1 className="reveal reveal-delay-1 mt-12 font-heading font-semibold tracking-[-0.05em] leading-[0.86] text-[14vw] md:text-[10.2vw] lg:text-[9.5rem]">
+            Learn like a<br />
+            <span className="display-serif">neural</span> network.
+          </h1>
+
+          <div className="mt-10 grid gap-10 md:grid-cols-12 md:items-end reveal reveal-delay-2">
+            <p className="md:col-span-7 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+              The official quiz &amp; learning portal of the <span className="text-foreground">CSD Department</span>,
+              Sharnbasva University. A focused operating system for assessments,
+              study and the slow compounding of understanding.
+            </p>
+
+            <div className="md:col-span-5 flex flex-wrap items-center gap-3 md:justify-end">
+              <Link to="/login" className="btn-ink">
+                Enter portal <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/verify" className="btn-paper">
+                Verify certificate
+              </Link>
+            </div>
+          </div>
+
+          {/* Bento grid */}
+          <div className="mt-20 grid auto-rows-[minmax(0,_1fr)] gap-4 md:grid-cols-6 md:gap-5 reveal reveal-delay-3">
+            {/* Featured tile */}
+            <div className="md:col-span-4 md:row-span-2 relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/60 backdrop-blur-xl p-8 md:p-10 lift">
+              <div className="absolute inset-0 bg-gradient-aurora opacity-[0.08]" />
+              <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
+              <div className="relative">
+                <p className="eyebrow text-primary">§ Flagship</p>
+                <h3 className="mt-4 font-heading text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
+                  Quizzes that<br />actually <span className="display-serif">teach</span>.
+                </h3>
+                <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
+                  Time-bound, full-screen, auto-submit on blur. Built so the questions
+                  do the teaching — not the proctor.
+                </p>
+                <Link to="/quizzes" className="mt-8 inline-flex items-center gap-2 text-sm text-foreground link-underline">
+                  Browse quizzes <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Metric tiles */}
+            {figures.slice(0, 2).map((f) => (
+              <div key={f.k} className="md:col-span-2 relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/40 backdrop-blur-xl p-6 lift">
+                <p className="eyebrow">{f.k}</p>
+                <p className="mt-6 font-heading text-5xl font-semibold tracking-tight text-gradient-animated">{f.v}</p>
+              </div>
+            ))}
+
+            {/* AI tile */}
+            <div className="md:col-span-2 relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-aurora p-6 text-background lift">
+              <Sparkles className="h-6 w-6" />
+              <p className="mt-6 font-heading text-2xl font-semibold leading-tight tracking-tight">
+                Cosmo · your AI study buddy
               </p>
-
-              <div className="mt-12 hidden md:block">
-                <p className="eyebrow text-foreground/55">Contents</p>
-                <ul className="mt-3 space-y-1 font-mono text-[11px] text-foreground/70">
-                  {contents.map((c) => (
-                    <li key={c.no}>
-                      <a href={c.href} className="link-underline">
-                        {c.no} &nbsp;{c.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <p className="mt-2 text-sm opacity-90">Streaming answers, 24/7. Powered by Gemini.</p>
             </div>
 
-            <div className="md:col-span-9">
-              <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.88]
-                              text-[14vw] md:text-[10.5vw] lg:text-[9.5rem]">
-                Learn deeply.<br />
-                Test <span className="display-serif">honestly</span>.<br />
-                Ship often<span className="caret">.</span>
-              </h1>
+            <div className="md:col-span-2 relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/40 backdrop-blur-xl p-6 lift">
+              <GraduationCap className="h-6 w-6 text-primary" />
+              <p className="mt-6 font-heading text-2xl font-semibold leading-tight tracking-tight">
+                Verified certificates
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">QR-verifiable. PDF or DOCX. Cross 70% to qualify.</p>
+            </div>
 
-              <div className="mt-12 grid gap-10 md:grid-cols-12 md:items-end">
-                <p className="md:col-span-7 max-w-xl text-lg leading-relaxed text-foreground/80 md:text-xl">
-                  The official quiz and learning portal of the CSD Department —
-                  a quiet, focused environment for assessments, study, and the
-                  slow accumulation of understanding.
-                </p>
-
-                <div className="md:col-span-5 flex flex-wrap items-center gap-3 md:justify-end">
-                  <Link to="/login" className="btn-ink">
-                    Enter portal
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link to="/login?role=faculty" className="btn-paper">
-                    Faculty access
-                  </Link>
-                </div>
-              </div>
+            <div className="md:col-span-2 relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/40 backdrop-blur-xl p-6 lift">
+              <Library className="h-6 w-6 text-accent" />
+              <p className="mt-6 font-heading text-2xl font-semibold leading-tight tracking-tight">
+                Faculty materials
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">Notes, references, reading by course &amp; semester.</p>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Figures table — restrained metadata grid */}
-          <div className="mt-24 grid grid-cols-2 border-t border-foreground/15 md:grid-cols-4">
-            {figures.map((f, i) => (
-              <div
-                key={f.k}
-                className={`flex flex-col gap-3 py-8 ${i > 0 ? 'md:border-l border-foreground/15 md:pl-8' : ''}`}
-              >
-                <p className="eyebrow text-foreground/55">{f.k}</p>
-                <p className="font-heading text-2xl font-medium leading-tight tracking-tight md:text-3xl">
-                  {f.v}
-                </p>
-              </div>
+      {/* ── TICKER ───────────────────────────────────────────────── */}
+      <section className="relative border-y border-foreground/8 bg-background/40 backdrop-blur-md overflow-hidden">
+        <div className="py-6">
+          <div className="ticker-track whitespace-nowrap font-heading text-2xl font-semibold tracking-tight text-foreground/80 md:text-4xl">
+            {[...tickerItems, ...tickerItems].map((t, i) => (
+              <span key={i} className="inline-flex items-center gap-8">
+                {t}
+                <span className="text-primary">✦</span>
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 02. INSTRUMENTS ──────────────────────────────────────── */}
-      <section id="instruments" className="border-b border-foreground/15">
+      {/* ── CAPABILITIES ─────────────────────────────────────────── */}
+      <section className="relative">
         <div className="mx-auto max-w-[1440px] px-6 py-24 md:py-32">
           <div className="grid gap-12 md:grid-cols-12">
             <div className="md:col-span-4">
               <div className="md:sticky md:top-32">
-                <p className="section-num">§ 02 — Instruments</p>
-                <h2 className="mt-6 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-6xl">
-                  Four tools.<br />
-                  No <span className="display-serif">decoration</span>.
+                <p className="section-num">§ 02 — Capabilities</p>
+                <h2 className="reveal mt-6 font-heading text-5xl font-semibold leading-[0.95] tracking-tight md:text-6xl">
+                  Six tools.<br />
+                  One <span className="display-serif">brain</span>.
                 </h2>
-                <p className="mt-6 max-w-sm text-sm leading-relaxed text-foreground/70">
-                  Each instrument does one thing brilliantly so the work itself
-                  stays in the foreground. The portal recedes; the learning leads.
+                <p className="reveal reveal-delay-1 mt-6 max-w-sm text-base leading-relaxed text-muted-foreground">
+                  Each module does one thing brilliantly. Together they form a quiet,
+                  serious environment where the learning leads and the portal recedes.
                 </p>
-                <div className="mt-10 hairline-coral max-w-[14rem]" />
+                <div className="mt-10 hairline-coral max-w-[16rem]" />
               </div>
             </div>
 
-            <ul className="md:col-span-8">
+            <ul className="md:col-span-8 grid gap-4 md:grid-cols-2">
               {capabilities.map((c, i) => (
                 <li
-                  key={c.no}
-                  className={`group-delay-${Math.min(i + 1, 3)} grid grid-cols-12 gap-6 border-t border-foreground/15 py-10 transition-colors first:border-t-0 hover:bg-foreground/[0.02]`}
+                  key={c.title}
+                  className={`reveal reveal-delay-${Math.min(i + 1, 4)} group relative overflow-hidden rounded-2xl border border-foreground/10 bg-card/50 p-7 backdrop-blur-xl transition-all hover:border-primary/40 hover:bg-card/70`}
                 >
-                  <span className="col-span-2 font-mono text-xs text-foreground/55 md:col-span-1">
-                    {c.no}
-                  </span>
-                  <div className="col-span-10 md:col-span-11">
-                    <h3 className="font-heading text-3xl font-medium leading-tight tracking-tight md:text-5xl">
-                      {c.title}
-                    </h3>
-                    <p className="mt-4 max-w-xl text-sm leading-relaxed text-foreground/70 md:text-base">
-                      {c.body}
-                    </p>
-                    <div className="mt-6 inline-flex items-center gap-2 text-foreground/55 transition-colors group-hover:text-foreground">
-                      <span className="h-px w-6 bg-current transition-all duration-500 group-hover:w-12" />
-                      <ArrowUpRight className="h-4 w-4" />
-                    </div>
-                  </div>
+                  <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/20 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <c.icon className="relative h-6 w-6 text-primary" />
+                  <h3 className="relative mt-6 font-heading text-2xl font-semibold leading-tight tracking-tight">
+                    {c.title}
+                  </h3>
+                  <p className="relative mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                    {c.body}
+                  </p>
+                  <ArrowUpRight className="absolute right-5 top-5 h-4 w-4 text-foreground/30 transition-all group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </li>
               ))}
             </ul>
@@ -205,53 +209,69 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ── 03. MANIFESTO (ink slab) ─────────────────────────────── */}
-      <section id="manifesto" className="bg-foreground text-background">
-        <div className="mx-auto max-w-[1440px] px-6 py-24 md:py-40">
-          <div className="grid gap-12 md:grid-cols-12">
-            <div className="md:col-span-3">
-              <p className="eyebrow text-background/55">§ 03 — Manifesto</p>
-            </div>
-            <blockquote className="md:col-span-9">
-              <p className="font-heading text-3xl font-medium leading-[1.15] tracking-tight md:text-5xl lg:text-6xl">
-                <span className="text-background/50">"</span>
-                Knowledge is not a checkbox. It compounds quietly, in the
-                <span className="display-serif"> space between attempts</span> —
-                the wrong answers you sit with, the questions you return to.
-                This portal is built for that pace.
-                <span className="text-background/50">"</span>
+      {/* ── METRICS BAND ─────────────────────────────────────────── */}
+      <section className="relative border-y border-foreground/8 bg-background/40">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-2 px-6 md:grid-cols-4">
+          {figures.map((f, i) => (
+            <div key={f.k} className={`py-12 md:py-16 ${i > 0 ? 'md:border-l border-foreground/8 md:pl-8' : ''}`}>
+              <p className="eyebrow">{f.k}</p>
+              <p className="mt-4 font-heading text-4xl font-semibold tracking-tight md:text-5xl text-gradient-animated">
+                {f.v}
               </p>
-              <footer className="mt-12 flex items-center gap-4">
-                <span className="h-px w-12 bg-background" />
-                <span className="eyebrow text-background/70">
-                  Department of Computer Science &amp; Design
-                </span>
-              </footer>
-            </blockquote>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── MANIFESTO ────────────────────────────────────────────── */}
+      <section className="relative">
+        <div className="mx-auto max-w-[1440px] px-6 py-24 md:py-40">
+          <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/40 backdrop-blur-xl p-10 md:p-20">
+            <div className="pointer-events-none absolute inset-0 neural-grid opacity-40" />
+            <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-80 w-[42rem] rounded-full bg-primary/25 blur-3xl" />
+
+            <div className="relative grid gap-10 md:grid-cols-12">
+              <div className="md:col-span-3">
+                <p className="eyebrow">§ 03 — Manifesto</p>
+              </div>
+              <blockquote className="md:col-span-9">
+                <p className="font-heading text-3xl font-semibold leading-[1.15] tracking-tight md:text-5xl lg:text-6xl">
+                  Knowledge is not a checkbox. It compounds quietly, in the
+                  <span className="display-serif"> space between attempts</span> —
+                  the wrong answers you sit with, the questions you return to.
+                  This portal is built for that pace.
+                </p>
+                <footer className="mt-12 flex items-center gap-4">
+                  <span className="h-px w-12 bg-gradient-to-r from-primary to-accent" />
+                  <span className="eyebrow">Department of Computer Science &amp; Design</span>
+                </footer>
+              </blockquote>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── 04. BEGIN — CTA ──────────────────────────────────────── */}
-      <section id="begin" className="border-b border-foreground/15">
+      {/* ── CTA ──────────────────────────────────────────────────── */}
+      <section className="relative">
         <div className="mx-auto max-w-[1440px] px-6 py-24 md:py-32">
-          <div className="grid items-end gap-10 md:grid-cols-12">
-            <div className="md:col-span-8">
-              <p className="section-num">§ 04 — Begin</p>
-              <h2 className="mt-6 font-heading text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
-                Ready when<br />
-                <span className="display-serif">you</span> are.
-              </h2>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-foreground/70">
-                Sign in with your university account to take quizzes, access
-                materials, and track your progress across the semester.
-              </p>
-            </div>
-            <div className="md:col-span-4 flex flex-wrap items-center gap-3 md:justify-end">
-              <Link to="/login" className="btn-ink">
-                Sign in to begin
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-aurora p-12 md:p-20 text-background">
+            <div className="pointer-events-none absolute inset-0 neural-grid opacity-25 mix-blend-overlay" />
+            <div className="relative grid items-end gap-10 md:grid-cols-12">
+              <div className="md:col-span-8">
+                <p className="eyebrow opacity-80" style={{ color: 'inherit' }}>§ 04 — Begin</p>
+                <h2 className="mt-6 font-heading text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
+                  Ready when<br /><em className="font-light">you</em> are.
+                </h2>
+                <p className="mt-6 max-w-md text-base leading-relaxed opacity-90">
+                  Sign in with your university account to take quizzes, access
+                  materials and track your progress across the semester.
+                </p>
+              </div>
+              <div className="md:col-span-4 flex flex-wrap items-center gap-3 md:justify-end">
+                <Link to="/login" className="inline-flex items-center gap-2 rounded-full bg-background px-6 py-3.5 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-foreground transition hover:-translate-y-0.5">
+                  Sign in to begin <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
