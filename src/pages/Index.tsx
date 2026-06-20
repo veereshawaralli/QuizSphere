@@ -11,6 +11,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useReveal } from '@/hooks/use-reveal';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { lazy, Suspense } from 'react';
+
+// Lazy-load the 3D scene so the initial bundle stays light.
+const NeuralScene = lazy(() => import('@/components/NeuralScene'));
 
 const figures = [
   { k: 'Active learners', v: '1,240+' },
@@ -101,9 +105,15 @@ export default function Index() {
           <div className="mt-20 grid auto-rows-[minmax(0,_1fr)] gap-4 md:grid-cols-6 md:gap-5 reveal reveal-delay-3">
             {/* Featured tile */}
             <div className="md:col-span-4 md:row-span-2 relative overflow-hidden rounded-3xl border border-foreground/10 bg-card/60 backdrop-blur-xl p-8 md:p-10 lift">
-              <div className="absolute inset-0 bg-gradient-aurora opacity-[0.08]" />
-              <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
-              <div className="relative">
+              {/* Live 3D neural core sits behind the headline */}
+              <div className="absolute inset-0">
+                <Suspense fallback={<div className="absolute inset-0 bg-gradient-aurora opacity-10" />}>
+                  <NeuralScene />
+                </Suspense>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-background/85 via-background/30 to-transparent pointer-events-none" />
+              <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl pointer-events-none" />
+              <div className="relative pointer-events-none">
                 <p className="eyebrow text-primary">§ Flagship</p>
                 <h3 className="mt-4 font-heading text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
                   Quizzes that<br />actually <span className="display-serif">teach</span>.
@@ -112,7 +122,7 @@ export default function Index() {
                   Time-bound, full-screen, auto-submit on blur. Built so the questions
                   do the teaching — not the proctor.
                 </p>
-                <Link to="/quizzes" className="mt-8 inline-flex items-center gap-2 text-sm text-foreground link-underline">
+                <Link to="/quizzes" className="pointer-events-auto mt-8 inline-flex items-center gap-2 text-sm text-foreground link-underline">
                   Browse quizzes <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
