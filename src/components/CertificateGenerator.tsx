@@ -848,12 +848,22 @@ export function CertificateGenerator({
               border: `1px solid ${ink}`,
               backgroundColor: paper,
             }}>
-              <canvas
-                ref={qrCanvasRef}
-                data-qr-target
-                aria-label="Verify QR"
-                style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
-              />
+              {qrImageUrl ? (
+                <img
+                  src={qrImageUrl}
+                  data-qr-target
+                  alt="Verification QR"
+                  crossOrigin="anonymous"
+                  style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
+                />
+              ) : (
+                <canvas
+                  ref={qrCanvasRef}
+                  data-qr-target
+                  aria-label="Verify QR"
+                  style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
+                />
+              )}
             </div>
             <p style={{
               margin: '10px 0 0',
