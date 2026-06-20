@@ -38,6 +38,7 @@ export function CertificateGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
+  const [qrImageUrl, setQrImageUrl] = useState<string>('');
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<null | {
     previewUrl: string;
@@ -137,12 +138,29 @@ export function CertificateGenerator({
     [drawQrOnCanvas]
   );
 
+  // Generate a QR PNG data URL so html2canvas always captures it reliably
+  // (canvas capture can silently fail; <img src=data:...> never does).
+  const generateQrDataUrl = useCallback(
+    async (id: string) => {
+      const url = await QRCode.toDataURL(buildVerificationUrl(id), {
+        errorCorrectionLevel: 'H',
+        margin: 1,
+        width: 312,
+        color: { dark: '#0F1116', light: '#FAF7F2' },
+      });
+      setQrImageUrl(url);
+      return url;
+    },
+    [buildVerificationUrl],
+  );
+
   // Pre-generate the verification QR so it's embedded on first render/download.
   useEffect(() => {
     const idForQr = certificateId || submissionId;
     if (!idForQr) return;
     paintQrCanvasElement(idForQr).catch(console.error);
-  }, [certificateId, submissionId, paintQrCanvasElement]);
+    generateQrDataUrl(idForQr).catch(console.error);
+  }, [certificateId, submissionId, paintQrCanvasElement, generateQrDataUrl]);
 
   if (!eligible) return null;
 
@@ -266,6 +284,7 @@ export function CertificateGenerator({
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
     await paintQrCanvasElement(certId);
+    await generateQrDataUrl(certId);
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await waitForCertificateImages(certificateRef.current);
     const canvas = await html2canvas(certificateRef.current, {
