@@ -286,55 +286,6 @@ export function CertificateGenerator({
     return { canvas, certId };
   };
 
-  /**
-   * Visually inspect the rendered canvas to confirm the QR code was painted.
-   * We crop the QR region and verify the pattern has both dark and light
-   * pixels at roughly the proportions a real QR exhibits.
-   */
-  const verifyQrInCanvas = (canvas: HTMLCanvasElement): {
-    passed: boolean;
-    cropUrl: string | null;
-    detail: string;
-  } => {
-    let sx = 0;
-    let sy = 0;
-    let sw = 0;
-    let sh = 0;
-
-    try {
-      ({ sx, sy, sw, sh } = getQrRegionInCanvas(canvas));
-    } catch (error) {
-      return {
-        passed: false,
-        cropUrl: null,
-        detail: error instanceof Error ? error.message : 'QR element not found in DOM.',
-      };
-    }
-
-    const crop = document.createElement('canvas');
-    crop.width = sw;
-    crop.height = sh;
-    const cctx = crop.getContext('2d');
-    if (!cctx) return { passed: false, cropUrl: null, detail: 'Canvas context unavailable.' };
-    cctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
-
-    const { data } = cctx.getImageData(0, 0, sw, sh);
-    let dark = 0;
-    let light = 0;
-    const total = sw * sh;
-    for (let i = 0; i < data.length; i += 4) {
-      const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-      if (luminance < 80) dark++;
-      else if (luminance > 200) light++;
-    }
-    const darkRatio = dark / total;
-    const lightRatio = light / total;
-    // A real QR is roughly 30–55% dark modules with the rest light.
-    const passed = darkRatio > 0.12 && darkRatio < 0.7 && lightRatio > 0.2;
-    const detail = `QR region ${sw}×${sh}px · dark ${(darkRatio * 100).toFixed(1)}% · light ${(lightRatio * 100).toFixed(1)}%`;
-    return { passed, cropUrl: crop.toDataURL('image/png'), detail };
-  };
-
   const savePdfFromCanvas = (canvas: HTMLCanvasElement) => {
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -345,55 +296,12 @@ export function CertificateGenerator({
     pdf.save(`${studentName.replace(/\s+/g, '_')}_${quizTitle.replace(/\s+/g, '_')}_Certificate.pdf`);
   };
 
-  const handleTestExport = async () => {
-    if (!certificateRef.current || percentage < 70) return;
-    setIsTesting(true);
-    try {
-      const { canvas } = await renderCertificateCanvas();
-      const { passed, cropUrl, detail } = verifyQrInCanvas(canvas);
-      pendingCanvasRef.current = canvas;
-      setTestResult({
-        previewUrl: canvas.toDataURL('image/png'),
-        qrPassed: passed,
-        qrCropUrl: cropUrl,
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height,
-        detail,
-      });
-      if (passed) toast.success('QR detected in certificate preview');
-      else toast.error('QR check failed — review preview before downloading');
-    } catch (error) {
-      console.error('Test export failed:', error);
-      toast.error('Test export failed. See console for details.');
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  const handleConfirmDownloadFromTest = () => {
-    if (!pendingCanvasRef.current) return;
-    savePdfFromCanvas(pendingCanvasRef.current);
-    pendingCanvasRef.current = null;
-    setTestResult(null);
-  };
-
-  const closeTestPreview = () => {
-    pendingCanvasRef.current = null;
-    setTestResult(null);
-  };
-
   const handleDownload = async () => {
     if (!certificateRef.current || percentage < 70) return;
     setIsGenerating(true);
     try {
       const { canvas } = await renderCertificateCanvas();
-      const { passed, detail } = verifyQrInCanvas(canvas);
-      if (!passed) {
-        console.warn('QR verification failed before download:', detail);
-        toast.error('QR code missing from certificate. Please use "Test Certificate Export" to inspect.');
-        return;
-      }
-      toast.success('QR verified — downloading certificate');
+      toast.success('Certificate ready — downloading PDF');
       savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
