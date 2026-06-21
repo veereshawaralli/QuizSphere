@@ -343,93 +343,11 @@ export function CertificateGenerator({
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-        <Button onClick={handleDownload} disabled={isGenerating || isTesting} className="gap-2 w-full sm:w-auto">
+        <Button onClick={handleDownload} disabled={isGenerating} className="gap-2 w-full sm:w-auto">
           {isGenerating ? <Award className="h-4 w-4 animate-pulse" /> : <Download className="h-4 w-4" />}
           {isGenerating ? 'Generating...' : 'Download Certificate'}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleTestExport}
-          disabled={isGenerating || isTesting}
-          className="gap-2 w-full sm:w-auto"
-        >
-          {isTesting ? <Award className="h-4 w-4 animate-pulse" /> : <ShieldCheck className="h-4 w-4" />}
-          {isTesting ? 'Testing...' : 'Test Certificate Export'}
-        </Button>
       </div>
-
-      {testResult && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Certificate export preview"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-          onClick={closeTestPreview}
-        >
-          <div
-            className="bg-background text-foreground rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-4 p-5 border-b">
-              <div className="flex items-start gap-3">
-                {testResult.qrPassed ? (
-                  <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5 shrink-0" />
-                ) : (
-                  <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5 shrink-0" />
-                )}
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    {testResult.qrPassed ? 'QR verified — preview looks good' : 'QR check failed'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">{testResult.detail}</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="icon" onClick={closeTestPreview} aria-label="Close preview">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-auto p-5 grid gap-5 md:grid-cols-[1fr_220px]">
-              <div className="border rounded-lg overflow-hidden bg-muted/30">
-                <img
-                  src={testResult.previewUrl}
-                  alt="Certificate preview"
-                  className="w-full h-auto block"
-                />
-              </div>
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-                  QR region snapshot
-                </p>
-                {testResult.qrCropUrl ? (
-                  <div className="border rounded-lg p-2 bg-white inline-block">
-                    <img
-                      src={testResult.qrCropUrl}
-                      alt="Cropped QR from rendered certificate"
-                      className="w-[180px] h-[180px] object-contain"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No QR region captured.</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Pixels above were sampled directly from the PDF source canvas. If the QR
-                  looks correct here, it will be correct in the downloaded file.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2 justify-end p-5 border-t">
-              <Button variant="outline" onClick={closeTestPreview}>Close</Button>
-              <Button onClick={handleConfirmDownloadFromTest} className="gap-2" disabled={!testResult.qrPassed}>
-                <Download className="h-4 w-4" />
-                {testResult.qrPassed ? 'Looks good — Download PDF' : 'QR missing — cannot download'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Off-screen Certificate DOM — kept rendered so export assets are ready */}
       <div
