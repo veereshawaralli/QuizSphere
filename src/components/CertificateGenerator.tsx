@@ -3,7 +3,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 import { Button } from './ui/button';
-import { Download, Award, ShieldCheck, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Download, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -39,16 +39,6 @@ export function CertificateGenerator({
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const [qrImageUrl, setQrImageUrl] = useState<string>('');
-  const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<null | {
-    previewUrl: string;
-    qrPassed: boolean;
-    qrCropUrl: string | null;
-    canvasWidth: number;
-    canvasHeight: number;
-    detail: string;
-  }>(null);
-  const pendingCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const eligible = percentage >= 70;
@@ -277,7 +267,6 @@ export function CertificateGenerator({
   /**
    * Render the off-screen certificate to a canvas, ensuring the verification QR
    * is committed to the DOM and fully decoded before the snapshot is taken.
-   * Shared by both the real download and the "Test Certificate Export" flow.
    */
   const renderCertificateCanvas = async (): Promise<{ canvas: HTMLCanvasElement; certId: string }> => {
     if (!certificateRef.current) throw new Error('Certificate not mounted');
