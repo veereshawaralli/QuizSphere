@@ -11,3 +11,24 @@ verify_jwt = false
 
 [functions.send-result-email]
 verify_jwt = false
+
+[functions.chat]
+verify_jwt = false
+
+[functions.submit-quiz]
+verify_jwt = false
+
+[functions.quiz-review]
+verify_jwt = false
+
+[functions.admin-list-users]
+verify_jwt = false
+
+[functions.admin-quiz-questions]
+verify_jwt = false
+
+[functions.resolve-usn-email]
+verify_jwt = false
+
+[functions.verify-cert]
+verify_jwt = false
