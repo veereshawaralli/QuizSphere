@@ -39,7 +39,6 @@ export function CertificateGenerator({
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const [qrImageUrl, setQrImageUrl] = useState<string>('');
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const eligible = percentage >= 70;
 
@@ -68,64 +67,9 @@ export function CertificateGenerator({
     ensureLogoDataUrl().catch(console.error);
   }, [ensureLogoDataUrl]);
 
-  useEffect(() => {
-    if (!submissionId) return;
-    supabase
-      .from('certificates')
-      .select('id')
-      .eq('submission_id', submissionId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setCertificateId(data.id);
-      });
-  }, [submissionId]);
-
   const buildVerificationUrl = useCallback(
     (id: string) => `${window.location.origin}/verify/${id}`,
     []
-  );
-
-  const drawQrOnCanvas = useCallback(
-    async (canvas: HTMLCanvasElement, id: string, size = 156) => {
-      canvas.width = size;
-      canvas.height = size;
-      canvas.style.width = '78px';
-      canvas.style.height = '78px';
-      const qr = (QRCode as unknown as {
-        create: (text: string, options?: Record<string, unknown>) => {
-          modules: { size: number; data: boolean[] };
-        };
-      }).create(buildVerificationUrl(id), { errorCorrectionLevel: 'H' });
-      const quietZone = 1;
-      const moduleCount = qr.modules.size + quietZone * 2;
-      const moduleSize = size / moduleCount;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas context unavailable.');
-      ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#FAF7F2';
-      ctx.fillRect(0, 0, size, size);
-      ctx.fillStyle = '#0F1116';
-
-      for (let row = 0; row < qr.modules.size; row += 1) {
-        for (let col = 0; col < qr.modules.size; col += 1) {
-          if (!qr.modules.data[row * qr.modules.size + col]) continue;
-          const x = Math.round((col + quietZone) * moduleSize);
-          const y = Math.round((row + quietZone) * moduleSize);
-          const nextX = Math.round((col + quietZone + 1) * moduleSize);
-          const nextY = Math.round((row + quietZone + 1) * moduleSize);
-          ctx.fillRect(x, y, Math.max(1, nextX - x), Math.max(1, nextY - y));
-        }
-      }
-    },
-    [buildVerificationUrl]
-  );
-
-  const paintQrCanvasElement = useCallback(
-    async (id: string, size = 156) => {
-      if (!qrCanvasRef.current) return;
-      await drawQrOnCanvas(qrCanvasRef.current, id, size);
-    },
-    [drawQrOnCanvas]
   );
 
   // Generate a QR PNG data URL so html2canvas always captures it reliably
@@ -135,7 +79,7 @@ export function CertificateGenerator({
       const url = await QRCode.toDataURL(buildVerificationUrl(id), {
         errorCorrectionLevel: 'H',
         margin: 1,
-        width: 312,
+        width: 360,
         color: { dark: '#0F1116', light: '#FAF7F2' },
       });
       setQrImageUrl(url);
@@ -144,17 +88,7 @@ export function CertificateGenerator({
     [buildVerificationUrl],
   );
 
-  // Pre-generate the verification QR so it's embedded on first render/download.
-  useEffect(() => {
-    const idForQr = certificateId || submissionId;
-    if (!idForQr) return;
-    paintQrCanvasElement(idForQr).catch(console.error);
-    generateQrDataUrl(idForQr).catch(console.error);
-  }, [certificateId, submissionId, paintQrCanvasElement, generateQrDataUrl]);
-
-  if (!eligible) return null;
-
-  const getOrCreateCertificate = async (): Promise<string> => {
+  const getOrCreateCertificate = useCallback(async (): Promise<string> => {
     if (certificateId) return certificateId;
     const { data: existing } = await supabase
       .from('certificates')
@@ -182,7 +116,26 @@ export function CertificateGenerator({
     if (error || !newCert) throw error || new Error('Failed to create certificate');
     setCertificateId(newCert.id);
     return newCert.id;
-  };
+  }, [certificateId, submissionId, quizId, studentId, studentName, quizTitle, score, totalMarks, percentage]);
+
+  // Pre-create the certificate row + generate QR on mount so the QR
+  // image is ALWAYS embedded before the user clicks Download.
+  useEffect(() => {
+    if (!eligible || !submissionId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const id = await getOrCreateCertificate();
+        if (cancelled) return;
+        await generateQrDataUrl(id);
+      } catch (err) {
+        console.error('QR pre-generation failed:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [eligible, submissionId, getOrCreateCertificate, generateQrDataUrl]);
+
+  if (!eligible) return null;
 
   const waitForCertificateImages = async (root: HTMLElement) => {
     const images = Array.from(root.querySelectorAll('img'));
@@ -204,66 +157,6 @@ export function CertificateGenerator({
     }));
   };
 
-  const getQrRegionInCanvas = useCallback((canvas: HTMLCanvasElement) => {
-    const root = certificateRef.current;
-    const qrContainer = root?.querySelector<HTMLElement>('[data-qr-anchor]');
-      const qrTarget = qrContainer?.querySelector<HTMLElement>('[data-qr-target]') ?? qrContainer;
-
-    if (!root || !qrContainer || !qrTarget) {
-      throw new Error('QR element not found in DOM.');
-    }
-
-    const rootRect = root.getBoundingClientRect();
-    const qrRect = qrTarget.getBoundingClientRect();
-    const scaleX = canvas.width / rootRect.width;
-    const scaleY = canvas.height / rootRect.height;
-
-    return {
-      sx: Math.max(0, Math.floor((qrRect.left - rootRect.left) * scaleX)),
-      sy: Math.max(0, Math.floor((qrRect.top - rootRect.top) * scaleY)),
-      sw: Math.max(1, Math.floor(Math.min(qrRect.width, qrRect.height) * scaleX)),
-      sh: Math.max(1, Math.floor(Math.min(qrRect.width, qrRect.height) * scaleY)),
-    };
-  }, []);
-
-  const paintQrPattern = useCallback((ctx: CanvasRenderingContext2D, certId: string, sx: number, sy: number, sw: number, sh: number) => {
-    const qr = (QRCode as unknown as {
-      create: (text: string, options?: Record<string, unknown>) => {
-        modules: { size: number; data: ArrayLike<number | boolean> };
-      };
-    }).create(buildVerificationUrl(certId), { errorCorrectionLevel: 'H' });
-    const quietZone = 1;
-    const moduleCount = qr.modules.size + quietZone * 2;
-    const moduleSize = Math.min(sw, sh) / moduleCount;
-
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#FAF7F2';
-    ctx.fillRect(sx, sy, sw, sh);
-    ctx.fillStyle = '#0F1116';
-    for (let row = 0; row < qr.modules.size; row += 1) {
-      for (let col = 0; col < qr.modules.size; col += 1) {
-        if (!qr.modules.data[row * qr.modules.size + col]) continue;
-        const x = sx + Math.round((col + quietZone) * moduleSize);
-        const y = sy + Math.round((row + quietZone) * moduleSize);
-        const nextX = sx + Math.round((col + quietZone + 1) * moduleSize);
-        const nextY = sy + Math.round((row + quietZone + 1) * moduleSize);
-        ctx.fillRect(x, y, Math.max(1, nextX - x), Math.max(1, nextY - y));
-      }
-    }
-    ctx.restore();
-  }, [buildVerificationUrl]);
-
-  const paintQrOntoCanvas = useCallback(
-    async (canvas: HTMLCanvasElement, certId: string) => {
-      const { sx, sy, sw, sh } = getQrRegionInCanvas(canvas);
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas context unavailable.');
-      paintQrPattern(ctx, certId, sx, sy, sw, sh);
-    },
-    [getQrRegionInCanvas, paintQrPattern]
-  );
-
   /**
    * Render the off-screen certificate to a canvas, ensuring the verification QR
    * is committed to the DOM and fully decoded before the snapshot is taken.
@@ -272,8 +165,10 @@ export function CertificateGenerator({
     if (!certificateRef.current) throw new Error('Certificate not mounted');
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
-    await paintQrCanvasElement(certId);
     await generateQrDataUrl(certId);
+    // Let React flush qrImageUrl into the DOM, then wait two animation frames
+    // so the <img> has time to mount before html2canvas snapshots.
+    await new Promise((r) => setTimeout(r, 60));
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await waitForCertificateImages(certificateRef.current);
     const canvas = await html2canvas(certificateRef.current, {
@@ -281,8 +176,8 @@ export function CertificateGenerator({
       useCORS: true,
       allowTaint: true,
       logging: false,
+      backgroundColor: '#FAF7F2',
     });
-    await paintQrOntoCanvas(canvas, certId);
     return { canvas, certId };
   };
 
@@ -657,28 +552,19 @@ export function CertificateGenerator({
 
           {/* Bottom: QR + verify */}
           <div style={{ width: '100%', textAlign: 'center' }}>
-            <div data-qr-anchor style={{
+            <div style={{
               display: 'inline-block',
-              padding: '6px',
+              padding: '8px',
               border: `1px solid ${ink}`,
               backgroundColor: paper,
+              borderRadius: '6px',
             }}>
-              {qrImageUrl ? (
-                <img
-                  src={qrImageUrl}
-                  data-qr-target
-                  alt="Verification QR"
-                  crossOrigin="anonymous"
-                  style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
-                />
-              ) : (
-                <canvas
-                  ref={qrCanvasRef}
-                  data-qr-target
-                  aria-label="Verify QR"
-                  style={{ width: '78px', height: '78px', display: 'block', backgroundColor: paper }}
-                />
-              )}
+              <img
+                src={qrImageUrl || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect width=%2290%22 height=%2290%22 fill=%22%23FAF7F2%22/></svg>'}
+                alt="Verification QR"
+                crossOrigin="anonymous"
+                style={{ width: '90px', height: '90px', display: 'block', backgroundColor: paper }}
+              />
             </div>
             <p style={{
               margin: '10px 0 0',
