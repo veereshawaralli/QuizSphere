@@ -280,60 +280,22 @@ export default function AttemptQuiz() {
     setSubmitting(true);
 
     try {
-      // Create submission
-      const { data: sub, error: subErr } = await supabase
-        .from('quiz_submissions')
-        .insert({
-          quiz_id: quiz.id,
-          student_id: user.id,
-          is_submitted: true,
-          submitted_at: new Date().toISOString(),
-        })
-        .select('id')
-        .single();
-
-      if (subErr || !sub) throw subErr;
-      submissionIdRef.current = sub.id;
-
-      // Fetch correct answers
-      const { data: correctAnswers } = await supabase
-        .from('questions')
-        .select('id, correct_option, marks')
-        .eq('quiz_id', quiz.id);
-
-      let calcScore = 0;
-      let calcTotal = 0;
-      const studentAnswers = (correctAnswers || []).map((q) => {
-        const selected = answers[q.id] || null;
-        const isCorrect = selected === q.correct_option;
-        if (isCorrect) calcScore += q.marks;
-        calcTotal += q.marks;
-        return {
-          submission_id: sub.id,
-          question_id: q.id,
-          selected_option: selected,
-          is_correct: isCorrect,
-        };
+      // Scoring runs on the server now — the client only sends its picks.
+      // This prevents tampering with the final score from the browser.
+      const { data: result, error: submitErr } = await supabase.functions.invoke('submit-quiz', {
+        body: { quizId: quiz.id, answers },
       });
+      if (submitErr) throw submitErr;
+      const { submissionId, score: calcScore, totalMarks: calcTotal } =
+        (result as { submissionId: string; score: number; totalMarks: number }) ?? ({} as any);
+      if (!submissionId) throw new Error('Submission failed');
+      submissionIdRef.current = submissionId;
 
-      // Save answers
-      if (studentAnswers.length > 0) {
-        await supabase.from('student_answers').insert(studentAnswers);
-      }
-
-      // Update submission with score
-      await supabase
-        .from('quiz_submissions')
-        .update({ score: calcScore, total_marks: calcTotal })
-        .eq('id', sub.id);
-
-      // Send result email to student
+      // Fire-and-forget result email (recipient is locked to the verified caller server-side)
       const percentage = calcTotal > 0 ? (calcScore / calcTotal) * 100 : 0;
       try {
         await supabase.functions.invoke('send-result-email', {
           body: {
-            submissionId: sub.id,
-            studentEmail: user.email,
             studentName: user.user_metadata?.full_name || user.email?.split('@')[0],
             quizTitle: quiz.title,
             score: calcScore,
@@ -343,7 +305,6 @@ export default function AttemptQuiz() {
         });
       } catch (emailErr) {
         console.error('Failed to send result email:', emailErr);
-        // Don't block submission on email failure
       }
 
       setScore(calcScore);
@@ -536,26 +497,13 @@ export default function AttemptQuiz() {
 
     const handleReview = async () => {
       if (!submissionIdRef.current) return;
-      const { data: qaData } = await supabase
-        .from('student_answers')
-        .select('question_id, selected_option, is_correct')
-        .eq('submission_id', submissionIdRef.current);
-
-      const { data: qData } = await supabase
-        .from('questions')
-        .select('id, question_text, option_a, option_b, option_c, option_d, marks, sort_order, correct_option')
-        .eq('quiz_id', quiz!.id);
-
-      if (!qData || !qaData) return;
-      const merged: QuestionWithAnswer[] = qData.map(q => {
-        const ans = qaData.find(a => a.question_id === q.id);
-        return {
-          ...q,
-          correct_option: q.correct_option,
-          selected_option: ans?.selected_option || null,
-          is_correct: ans?.is_correct || false,
-        };
+      // Answer key is no longer readable directly; fetch via the
+      // ownership-checked quiz-review edge function.
+      const { data, error } = await supabase.functions.invoke('quiz-review', {
+        body: { submissionId: submissionIdRef.current },
       });
+      if (error) return;
+      const merged = ((data as { questions?: QuestionWithAnswer[] } | null)?.questions ?? []) as QuestionWithAnswer[];
       setReviewData(merged);
       setReviewIdx(0);
       setReviewMode(true);

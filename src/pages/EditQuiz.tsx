@@ -84,14 +84,15 @@ export default function EditQuiz() {
         setEndTime(`${String(e.getHours()).padStart(2,'0')}:${String(e.getMinutes()).padStart(2,'0')}`);
       }
 
-      // Fetch questions
-      const { data: qs } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('quiz_id', quizId)
-        .order('sort_order', { ascending: true });
+      // Fetch questions including the correct_option answer key via the
+      // owner-restricted edge function (clients can no longer read the
+      // correct_option column directly).
+      const { data: qResp } = await supabase.functions.invoke('admin-quiz-questions', {
+        body: { quizId },
+      });
+      const qs = (qResp as { questions?: any[] } | null)?.questions ?? [];
 
-      if (qs && qs.length > 0) {
+      if (qs.length > 0) {
         setQuestions(qs.map((q) => ({
           id: q.id,
           question_text: q.question_text,
