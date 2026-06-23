@@ -63,8 +63,13 @@ export default function Login() {
         const isEmail = email.includes('@');
 
         if (!isEmail) {
-          const { data: resolvedEmail, error: usnErr } = await supabase
-            .rpc('get_email_by_usn', { _usn: email });
+          // Resolve USN → email via the edge function (the underlying helper is
+          // no longer exposed on the public API for unauthenticated callers).
+          const { data: resolved, error: usnErr } = await supabase.functions.invoke(
+            'resolve-usn-email',
+            { body: { usn: email } },
+          );
+          const resolvedEmail = (resolved as { email?: string } | null)?.email;
           if (usnErr || !resolvedEmail) {
             throw new Error('No account found with this USN. Please check your USN or use your email to sign in.');
           }

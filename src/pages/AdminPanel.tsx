@@ -53,7 +53,9 @@ export default function AdminPanel() {
 
   async function fetchUsers() {
     setLoading(true);
-    const { data, error } = await supabase.rpc('get_users_with_emails');
+    // The underlying SECURITY DEFINER helper has been moved to a private schema;
+    // we now go through an admin-only edge function instead.
+    const { data, error } = await supabase.functions.invoke('admin-list-users');
 
     if (error) {
       toast({ title: 'Error', description: error.message || 'Could not load users.', variant: 'destructive' });
@@ -61,7 +63,8 @@ export default function AdminPanel() {
       return;
     }
 
-    const usersData: UserWithRole[] = (data || []).map((u: any) => ({
+    const rows = (data as { users?: any[] } | null)?.users ?? [];
+    const usersData: UserWithRole[] = rows.map((u: any) => ({
       user_id: u.user_id,
       email: u.email || 'No email',
       full_name: u.full_name || 'Unknown',

@@ -29,14 +29,14 @@ export default function VerifyCertificate() {
       setLoading(false);
       return;
     }
-    supabase
-      .from('certificates')
-      .select('id, student_name, quiz_title, score, total_marks, percentage, issued_at')
-      .eq('id', certificateId)
-      .maybeSingle()
+    // Certificates are no longer readable by anonymous users at the row level;
+    // the verify-cert edge function returns only the fields needed here.
+    supabase.functions
+      .invoke('verify-cert', { body: { certificateId } })
       .then(({ data, error }) => {
-        if (error || !data) setNotFound(true);
-        else setCertificate(data);
+        const cert = (data as { certificate?: Certificate } | null)?.certificate;
+        if (error || !cert) setNotFound(true);
+        else setCertificate(cert);
         setLoading(false);
       });
   }, [certificateId]);
