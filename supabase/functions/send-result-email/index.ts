@@ -1,22 +1,30 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { corsHeaders, requireUser } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const { submissionId, studentEmail, studentName, quizTitle, score, totalMarks, percentage } = await req.json();
+  // Only signed-in users can trigger result emails — and the recipient is
+  // always the caller's own verified email so it cannot be used as an open mailer.
+  const auth = await requireUser(req);
+  if ("error" in auth) return auth.error;
+  const callerEmail = auth.user.email;
+  if (!callerEmail) {
+    return new Response(JSON.stringify({ error: "Caller has no verified email" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 
-    if (!studentEmail || !quizTitle) {
-      throw new Error("Missing required fields: studentEmail, quizTitle");
+  try {
+    const { studentName, quizTitle, score, totalMarks, percentage } = await req.json();
+
+    if (!quizTitle) {
+      throw new Error("Missing required field: quizTitle");
     }
+    const studentEmail = callerEmail; // recipient is locked to verified caller
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) {

@@ -326,25 +326,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_email_by_usn: { Args: { _usn: string }; Returns: string }
-      get_users_with_emails: {
-        Args: never
-        Returns: {
-          email: string
-          full_name: string
-          role: Database["public"]["Enums"]["app_role"]
-          role_id: string
-          user_id: string
-          usn: string
-        }[]
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin" | "faculty" | "student"
