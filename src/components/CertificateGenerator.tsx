@@ -35,6 +35,7 @@ export function CertificateGenerator({
   studentId,
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
+  const qrImageRef = useRef<HTMLImageElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
@@ -78,10 +79,11 @@ export function CertificateGenerator({
     async (id: string) => {
       const url = await QRCode.toDataURL(buildVerificationUrl(id), {
         errorCorrectionLevel: 'H',
-        margin: 1,
-        width: 360,
-        color: { dark: '#0F1116', light: '#FAF7F2' },
+        margin: 2,
+        width: 512,
+        color: { dark: '#07111F', light: '#FFFFFF' },
       });
+      if (qrImageRef.current) qrImageRef.current.src = url;
       setQrImageUrl(url);
       return url;
     },
@@ -161,11 +163,39 @@ export function CertificateGenerator({
    * Render the off-screen certificate to a canvas, ensuring the verification QR
    * is committed to the DOM and fully decoded before the snapshot is taken.
    */
+  const drawQrOntoCanvas = async (canvas: HTMLCanvasElement, qrDataUrl: string) => {
+    if (!certificateRef.current || !qrDataUrl) return;
+    const anchor = certificateRef.current.querySelector('[data-qr-anchor]') as HTMLElement | null;
+    const ctx = canvas.getContext('2d');
+    if (!anchor || !ctx) return;
+
+    const rootRect = certificateRef.current.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    const scaleX = canvas.width / rootRect.width;
+    const scaleY = canvas.height / rootRect.height;
+    const x = (anchorRect.left - rootRect.left) * scaleX;
+    const y = (anchorRect.top - rootRect.top) * scaleY;
+    const width = anchorRect.width * scaleX;
+    const height = anchorRect.height * scaleY;
+
+    const qr = new Image();
+    qr.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve, reject) => {
+      qr.onload = () => resolve();
+      qr.onerror = () => reject(new Error('QR image failed to load'));
+      qr.src = qrDataUrl;
+    });
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(x, y, width, height);
+    ctx.drawImage(qr, x, y, width, height);
+  };
+
   const renderCertificateCanvas = async (): Promise<{ canvas: HTMLCanvasElement; certId: string }> => {
     if (!certificateRef.current) throw new Error('Certificate not mounted');
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
-    await generateQrDataUrl(certId);
+    const qrDataUrl = await generateQrDataUrl(certId);
     // Let React flush qrImageUrl into the DOM, then wait two animation frames
     // so the <img> has time to mount before html2canvas snapshots.
     await new Promise((r) => setTimeout(r, 60));
@@ -176,8 +206,9 @@ export function CertificateGenerator({
       useCORS: true,
       allowTaint: true,
       logging: false,
-      backgroundColor: '#FAF7F2',
+      backgroundColor: '#08111F',
     });
+    await drawQrOntoCanvas(canvas, qrDataUrl);
     return { canvas, certId };
   };
 
@@ -206,16 +237,18 @@ export function CertificateGenerator({
     }
   };
 
-  // Editorial palette — museum-grade, print-safe, calm with two confident accents.
-  const paper      = '#FAF7F2';   // warm ivory
-  const paperDeep  = '#F1ECE2';   // tonal band
-  const ink        = '#0F1116';   // near-black
-  const inkSoft    = '#3A3D47';
-  const muted      = '#8A8A95';
-  const hairline   = '#D8D2C5';   // warm rule
-  const gold       = '#A07A2C';   // antique gold
-  const goldSoft   = '#C8A85B';
-  const accent     = '#B91C3C';   // editorial crimson (single bold accent)
+  // Modern Obsidian Credential palette — premium digital-first certificate.
+  const canvasBg = '#08111F';
+  const panel = '#0D1728';
+  const panelSoft = '#111D31';
+  const ink = '#F8FBFF';
+  const inkSoft = '#C9D5E8';
+  const muted = '#7E8EA8';
+  const line = 'rgba(190, 211, 255, 0.22)';
+  const cyan = '#22D3EE';
+  const violet = '#8B5CF6';
+  const emerald = '#34D399';
+  const amber = '#F4C76A';
 
   const issueNo = (submissionId || '').replace(/-/g, '').slice(0, 8).toUpperCase() || '————————';
   const yearMark = format(date, 'yyyy');
@@ -254,10 +287,10 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          backgroundColor: paper,
+          backgroundColor: canvasBg,
           boxSizing: 'border-box',
           flexDirection: 'column',
-          fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+          fontFamily: "'Manrope', 'Inter', 'Helvetica Neue', Arial, sans-serif",
           color: ink,
           zIndex: -1,
           overflow: 'hidden',
@@ -265,110 +298,113 @@ export function CertificateGenerator({
           padding: '0',
         }}
       >
-        {/* Outer ivory canvas with double-rule frame */}
-        <div style={{
-          position: 'absolute', inset: '24px',
-          border: `1.5px solid ${ink}`,
-          backgroundColor: paper,
-        }} />
-        <div style={{
-          position: 'absolute', inset: '32px',
-          border: `1px solid ${hairline}`,
-          pointerEvents: 'none',
-        }} />
+        {/* Ambient certificate surface */}
+        <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 18% 12%, rgba(34, 211, 238, 0.24), transparent 30%), radial-gradient(circle at 82% 18%, rgba(139, 92, 246, 0.28), transparent 34%), linear-gradient(135deg, ${canvasBg}, #0B1020 48%, #071322)` }} />
+        <div style={{ position: 'absolute', inset: '34px', border: `1px solid ${line}`, borderRadius: '28px', background: 'rgba(13, 23, 40, 0.72)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)' }} />
+        <div style={{ position: 'absolute', left: '58px', right: '58px', top: '88px', height: '1px', background: `linear-gradient(90deg, transparent, ${cyan}, ${violet}, transparent)` }} />
+        <div style={{ position: 'absolute', left: '58px', right: '58px', bottom: '88px', height: '1px', background: `linear-gradient(90deg, transparent, ${violet}, ${cyan}, transparent)` }} />
 
-        {/* Tonal vertical band on the right (asymmetric editorial layout) */}
+        {/* === MAIN CONTENT === */}
         <div style={{
-          position: 'absolute', top: '32px', right: '32px', bottom: '32px',
-          width: '232px',
-          backgroundColor: paperDeep,
-          borderLeft: `1px solid ${hairline}`,
-        }} />
-
-        {/* Corner ornaments — small gold L-marks */}
-        {[
-          { top: '40px', left: '40px',   borders: { borderTop: `2px solid ${gold}`, borderLeft: `2px solid ${gold}` } },
-          { top: '40px', right: '40px',  borders: { borderTop: `2px solid ${gold}`, borderRight: `2px solid ${gold}` } },
-          { bottom: '40px', left: '40px', borders: { borderBottom: `2px solid ${gold}`, borderLeft: `2px solid ${gold}` } },
-          { bottom: '40px', right: '40px', borders: { borderBottom: `2px solid ${gold}`, borderRight: `2px solid ${gold}` } },
-        ].map((c, i) => (
-          <div key={i} style={{ position: 'absolute', width: '18px', height: '18px', ...c.borders, ...c, zIndex: 4 } as React.CSSProperties} />
-        ))}
-
-        {/* === MAIN CONTENT (left column) === */}
-        <div style={{
-          position: 'absolute', top: '32px', left: '32px',
-          right: '264px', bottom: '32px',
-          padding: '46px 56px 40px',
+          position: 'absolute', top: '58px', left: '58px',
+          right: '330px', bottom: '58px',
+          padding: '36px 42px 36px',
           display: 'flex', flexDirection: 'column',
           zIndex: 2,
         }}>
-          {/* Crest + masthead */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
-              height: '54px', width: '54px',
-              border: `1.5px solid ${ink}`,
+              height: '62px', width: '62px',
+              borderRadius: '18px',
+              border: `1px solid ${line}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: paper,
+              background: 'linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
             }}>
               <img
                 src={logoDataUrl || universityLogo}
                 alt="Sharnbasva University"
-                style={{ height: '38px', width: '38px', objectFit: 'contain' }}
+                style={{ height: '42px', width: '42px', objectFit: 'contain' }}
               />
             </div>
             <div style={{ lineHeight: 1.15 }}>
               <p style={{
                 margin: 0,
-                fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
-                fontWeight: 700, fontSize: '20px',
-                color: ink, letterSpacing: '-0.005em',
+                  fontFamily: "'Sora', 'Manrope', sans-serif",
+                  fontWeight: 800, fontSize: '20px',
+                color: ink, letterSpacing: '0',
               }}>
                 Sharnbasva University
               </p>
               <p style={{
                 margin: '4px 0 0',
                 fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '8.5px', letterSpacing: '0.32em',
+                  fontSize: '8px', letterSpacing: '0.22em',
                 textTransform: 'uppercase', color: muted, fontWeight: 600,
               }}>
                 Department of Computer Science &amp; Design · Kalaburagi
               </p>
             </div>
+            </div>
+            <div style={{
+              border: `1px solid rgba(52, 211, 153, 0.35)`,
+              color: emerald,
+              borderRadius: '999px',
+              padding: '8px 12px',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '8px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 800,
+              background: 'rgba(52, 211, 153, 0.09)',
+            }}>
+              Verified Credential
+            </div>
           </div>
 
-          {/* Eyebrow rule */}
-          <div style={{ marginTop: '36px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span style={{ height: '1px', width: '44px', background: gold }} />
+          <div style={{ marginTop: '54px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ height: '1px', width: '58px', background: `linear-gradient(90deg, ${cyan}, ${violet})` }} />
             <span style={{
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '10px', letterSpacing: '0.42em',
-              textTransform: 'uppercase', color: gold, fontWeight: 700,
+              fontSize: '10px', letterSpacing: '0.36em',
+              textTransform: 'uppercase', color: cyan, fontWeight: 800,
             }}>
               Certificate of Achievement
             </span>
           </div>
 
-          {/* Editorial display headline */}
           <h1 style={{
-            margin: '14px 0 0',
-            fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
-            fontWeight: 400, fontStyle: 'italic',
-            fontSize: '46px', lineHeight: 1.05,
-            color: ink, letterSpacing: '-0.015em',
+            margin: '16px 0 0',
+            fontFamily: "'Sora', 'Manrope', sans-serif",
+            fontWeight: 800,
+            fontSize: '56px', lineHeight: 1.03,
+            color: ink, letterSpacing: '0',
           }}>
-            This is to certify that
+            Modern Academic Excellence
           </h1>
+          <p style={{
+            margin: '14px 0 0',
+            maxWidth: '620px',
+            color: inkSoft,
+            fontSize: '15px',
+            lineHeight: 1.7,
+          }}>
+            This digital credential certifies that the recipient has successfully completed the assessment with verified performance and institutional recognition.
+          </p>
 
-          {/* Recipient — large serif, single hairline rule beneath */}
-          <div style={{ marginTop: '20px' }}>
+          <div style={{ marginTop: '36px' }}>
+            <p style={{
+              margin: '0 0 10px',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '9px', letterSpacing: '0.28em',
+              textTransform: 'uppercase', color: muted, fontWeight: 800,
+            }}>
+              Awarded to
+            </p>
             <h2 style={{
               margin: 0,
-              fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif",
-              fontWeight: 700, fontSize: '54px', lineHeight: 1.05,
-              color: ink, letterSpacing: '-0.02em',
-              paddingBottom: '14px',
-              borderBottom: `1px solid ${ink}`,
+              fontFamily: "'Sora', 'Manrope', sans-serif",
+              fontWeight: 800, fontSize: '52px', lineHeight: 1.08,
+              color: ink, letterSpacing: '0',
+              paddingBottom: '18px',
+              borderBottom: `1px solid ${line}`,
             }}>
               {studentName}
             </h2>
@@ -376,70 +412,64 @@ export function CertificateGenerator({
               <p style={{
                 margin: '12px 0 0',
                 fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '10px', letterSpacing: '0.28em',
-                color: muted, textTransform: 'uppercase', fontWeight: 600,
+                fontSize: '10px', letterSpacing: '0.24em',
+                color: muted, textTransform: 'uppercase', fontWeight: 700,
               }}>
-                University Seat № <span style={{ color: ink, fontWeight: 700 }}>{studentUsn}</span>
+                University Seat No. <span style={{ color: cyan, fontWeight: 800 }}>{studentUsn}</span>
               </p>
             )}
           </div>
 
-          {/* Citation */}
           <p style={{
-            margin: '22px 0 0',
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '13.5px', lineHeight: 1.7,
-            color: inkSoft, maxWidth: '560px',
+            margin: '24px 0 0',
+            fontSize: '14px', lineHeight: 1.75,
+            color: inkSoft, maxWidth: '610px',
           }}>
-            has, with diligence and distinction, completed the academic assessment titled
+            Completed the academic assessment titled
             <span style={{
               display: 'inline',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontStyle: 'italic', fontWeight: 700,
-              color: ink, fontSize: '15px',
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              color: amber, fontSize: '14px',
             }}> “{quizTitle}” </span>
-            and is hereby recognised by the Department of Computer Science &amp; Design.
+            and is recognised by the Department of Computer Science &amp; Design.
           </p>
 
-          {/* Score ledger — three columns, hairlines only */}
           <div style={{
             marginTop: 'auto',
-            paddingTop: '24px',
-            borderTop: `1px solid ${hairline}`,
             display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-            columnGap: '0',
+            gap: '14px',
           }}>
             {[
-              { label: 'Score',      value: `${score}`, suffix: ` / ${totalMarks}`, color: ink },
-              { label: 'Percentage', value: `${percentage}`, suffix: '%',             color: accent },
-              { label: 'Standing',   value: standing, suffix: '',                     color: ink, serif: true },
+              { label: 'Score', value: `${score}`, suffix: ` / ${totalMarks}`, color: ink },
+              { label: 'Percentage', value: `${percentage}`, suffix: '%', color: cyan },
+              { label: 'Standing', value: standing, suffix: '', color: emerald },
             ].map((cell, i) => (
               <div key={cell.label} style={{
-                paddingLeft: i === 0 ? 0 : '24px',
-                paddingRight: i === 2 ? 0 : '24px',
-                borderRight: i < 2 ? `1px solid ${hairline}` : 'none',
+                border: `1px solid ${line}`,
+                borderRadius: '18px',
+                padding: '18px',
+                background: i === 1 ? 'rgba(34, 211, 238, 0.08)' : 'rgba(255,255,255,0.045)',
               }}>
                 <p style={{
                   margin: 0,
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '9px', letterSpacing: '0.34em',
+                  fontSize: '8px', letterSpacing: '0.28em',
                   textTransform: 'uppercase', color: muted, fontWeight: 700,
                 }}>{cell.label}</p>
                 <p style={{
                   margin: '10px 0 0',
-                  fontFamily: cell.serif
-                    ? "'Playfair Display', Georgia, serif"
-                    : "'Playfair Display', Georgia, serif",
-                  fontWeight: 700,
-                  fontSize: cell.serif ? '24px' : '38px',
-                  lineHeight: 1, letterSpacing: '-0.02em',
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 800,
+                  fontSize: i === 2 ? '22px' : '34px',
+                  lineHeight: 1, letterSpacing: '0',
                   color: cell.color,
                 }}>
                   {cell.value}
                   {cell.suffix && (
                     <span style={{
-                      color: muted, fontSize: cell.serif ? '14px' : '20px',
-                      fontWeight: 500, fontStyle: 'italic',
+                      color: muted, fontSize: '16px',
+                      fontWeight: 700,
                     }}>{cell.suffix}</span>
                   )}
                 </p>
@@ -448,53 +478,55 @@ export function CertificateGenerator({
           </div>
         </div>
 
-        {/* === RIGHT COLUMN (tonal band) === */}
+        {/* === RIGHT VERIFICATION PANEL === */}
         <div style={{
-          position: 'absolute', top: '32px', right: '32px', bottom: '32px',
-          width: '232px',
-          padding: '46px 28px 40px',
+          position: 'absolute', top: '58px', right: '58px', bottom: '58px',
+          width: '270px',
+          padding: '34px 28px',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'space-between',
+          borderRadius: '24px',
+          border: `1px solid ${line}`,
+          background: `linear-gradient(180deg, ${panelSoft}, ${panel})`,
           zIndex: 3,
         }}>
-          {/* Top: monogram seal */}
           <div style={{ textAlign: 'center', width: '100%' }}>
             <p style={{
               margin: 0,
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8.5px', letterSpacing: '0.4em',
-              textTransform: 'uppercase', color: muted, fontWeight: 700,
+              fontSize: '8px', letterSpacing: '0.32em',
+              textTransform: 'uppercase', color: muted, fontWeight: 800,
             }}>
-              Anno · {romanYear}
+              Credential Seal · {romanYear}
             </p>
             <div style={{
               margin: '18px auto 0',
-              width: '128px', height: '128px',
+              width: '132px', height: '132px',
               borderRadius: '50%',
-              border: `1.5px solid ${gold}`,
+              border: `1px solid rgba(34, 211, 238, 0.55)`,
               position: 'relative',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: paper,
+              background: 'radial-gradient(circle, rgba(34, 211, 238, 0.18), rgba(139, 92, 246, 0.10) 52%, rgba(255,255,255,0.04))',
             }}>
               <div style={{
-                position: 'absolute', inset: '8px',
+                position: 'absolute', inset: '10px',
                 borderRadius: '50%',
-                border: `1px solid ${goldSoft}`,
+                border: `1px dashed rgba(255,255,255,0.28)`,
               }} />
               <div style={{ textAlign: 'center', lineHeight: 1 }}>
                 <p style={{
                   margin: 0,
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontStyle: 'italic', fontWeight: 700,
-                  fontSize: '40px', color: gold, letterSpacing: '-0.04em',
+                  fontFamily: "'Sora', sans-serif",
+                  fontWeight: 900,
+                  fontSize: '34px', color: ink, letterSpacing: '0',
                 }}>
                   CSD
                 </p>
                 <p style={{
                   margin: '6px 0 0',
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '7px', letterSpacing: '0.36em',
-                  textTransform: 'uppercase', color: gold, fontWeight: 700,
+                  fontSize: '7px', letterSpacing: '0.3em',
+                  textTransform: 'uppercase', color: cyan, fontWeight: 800,
                 }}>
                   Seal · {yearMark}
                 </p>
@@ -503,39 +535,38 @@ export function CertificateGenerator({
             <p style={{
               margin: '18px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.34em',
-              textTransform: 'uppercase', color: muted, fontWeight: 700,
+              fontSize: '8px', letterSpacing: '0.28em',
+              textTransform: 'uppercase', color: muted, fontWeight: 800,
             }}>
               № {issueNo}
             </p>
           </div>
 
-          {/* Middle: signature */}
           <div style={{ width: '100%', textAlign: 'center' }}>
             <p style={{
               margin: 0,
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontStyle: 'italic', fontWeight: 700,
-              fontSize: '26px', color: ink, lineHeight: 1,
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              fontSize: '22px', color: ink, lineHeight: 1,
             }}>
               CSD Portal
             </p>
             <div style={{
               margin: '8px auto 0',
-              height: '1px', width: '140px', background: ink,
+              height: '1px', width: '152px', background: `linear-gradient(90deg, transparent, ${cyan}, transparent)`,
             }} />
             <p style={{
               margin: '8px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.3em',
+              fontSize: '8px', letterSpacing: '0.26em',
               textTransform: 'uppercase', color: muted, fontWeight: 700,
             }}>
               Authorised Signatory
             </p>
             <p style={{
               margin: '14px 0 0',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontStyle: 'italic', fontWeight: 600,
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 700,
               fontSize: '13px', color: ink,
             }}>
               {format(date, 'd MMMM yyyy')}
@@ -543,42 +574,46 @@ export function CertificateGenerator({
             <p style={{
               margin: '4px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '7.5px', letterSpacing: '0.34em',
+              fontSize: '7.5px', letterSpacing: '0.28em',
               textTransform: 'uppercase', color: muted, fontWeight: 700,
             }}>
               Date of Issue
             </p>
           </div>
 
-          {/* Bottom: QR + verify */}
           <div style={{ width: '100%', textAlign: 'center' }}>
             <div style={{
-              display: 'inline-block',
-              padding: '8px',
-              border: `1px solid ${ink}`,
-              backgroundColor: paper,
-              borderRadius: '6px',
+              display: 'inline-flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '12px',
+              border: `1px solid rgba(255,255,255,0.28)`,
+              backgroundColor: '#FFFFFF',
+              borderRadius: '18px',
+              boxShadow: '0 18px 44px rgba(0,0,0,0.32)',
             }}>
               <img
+                ref={qrImageRef}
+                data-qr-anchor
                 src={qrImageUrl || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect width=%2290%22 height=%2290%22 fill=%22%23FAF7F2%22/></svg>'}
                 alt="Verification QR"
                 crossOrigin="anonymous"
-                style={{ width: '90px', height: '90px', display: 'block', backgroundColor: paper }}
+                style={{ width: '126px', height: '126px', display: 'block', backgroundColor: '#FFFFFF', borderRadius: '8px' }}
               />
             </div>
             <p style={{
-              margin: '10px 0 0',
+              margin: '12px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '7.5px', letterSpacing: '0.32em',
-              textTransform: 'uppercase', color: muted, fontWeight: 700,
+              fontSize: '7.5px', letterSpacing: '0.3em',
+              textTransform: 'uppercase', color: cyan, fontWeight: 800,
             }}>
               Scan to Verify
             </p>
             <p style={{
               margin: '4px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '9px', letterSpacing: '0.14em',
-              color: ink, fontWeight: 700,
+              fontSize: '9px', letterSpacing: '0.12em',
+              color: inkSoft, fontWeight: 800,
             }}>
               ID · {verifyShortId}
             </p>
