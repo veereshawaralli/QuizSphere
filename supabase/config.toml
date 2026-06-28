@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.verify-cert]
 verify_jwt = false
+
+[functions.ensure-certificate]
+verify_jwt = false
