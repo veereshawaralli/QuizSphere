@@ -28,18 +28,6 @@ serve(async (req) => {
 
     const admin = adminClient();
 
-    const { data: existing, error: existingError } = await admin
-      .from("certificates")
-      .select("id")
-      .eq("submission_id", body.submissionId)
-      .maybeSingle();
-    if (existingError) throw existingError;
-    if (existing?.id) {
-      return new Response(JSON.stringify({ certificateId: existing.id }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const { data: submission, error: submissionError } = await admin
       .from("quiz_submissions")
       .select("id, quiz_id, student_id, score, total_marks, is_submitted")
@@ -58,6 +46,18 @@ serve(async (req) => {
     if (!isOwner && !isStaff) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: existing, error: existingError } = await admin
+      .from("certificates")
+      .select("id")
+      .eq("submission_id", body.submissionId)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (existing?.id) {
+      return new Response(JSON.stringify({ certificateId: existing.id }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
