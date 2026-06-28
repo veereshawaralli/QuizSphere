@@ -92,33 +92,23 @@ export function CertificateGenerator({
 
   const getOrCreateCertificate = useCallback(async (): Promise<string> => {
     if (certificateId) return certificateId;
-    const { data: existing, error: existingError } = await supabase
-      .from('certificates')
-      .select('id')
-      .eq('submission_id', submissionId)
-      .maybeSingle();
-    if (existingError) throw existingError;
-    if (existing) {
-      setCertificateId(existing.id);
-      return existing.id;
+    if (!submissionId || !quizId || !studentId) {
+      throw new Error('Certificate details are incomplete');
     }
-    const { data: newCert, error } = await supabase
-      .from('certificates')
-      .insert({
-        student_id: studentId,
-        submission_id: submissionId,
-        quiz_id: quizId,
-        student_name: studentName,
-        quiz_title: quizTitle,
-        score,
-        total_marks: totalMarks,
-        percentage,
-      })
-      .select('id')
-      .single();
-    if (error || !newCert) throw error || new Error('Failed to create certificate');
-    setCertificateId(newCert.id);
-    return newCert.id;
+
+    const { data, error } = await supabase.functions.invoke('ensure-certificate', {
+      body: {
+        submissionId,
+        quizId,
+        studentName,
+        quizTitle,
+      },
+    });
+
+    const id = (data as { certificateId?: string } | null)?.certificateId;
+    if (error || !id) throw error || new Error('Failed to create certificate');
+    setCertificateId(id);
+    return id;
   }, [certificateId, submissionId, quizId, studentId, studentName, quizTitle, score, totalMarks, percentage]);
 
   // Pre-create the certificate row + generate QR on mount so the QR
