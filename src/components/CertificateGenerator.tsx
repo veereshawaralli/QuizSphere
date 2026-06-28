@@ -92,11 +92,12 @@ export function CertificateGenerator({
 
   const getOrCreateCertificate = useCallback(async (): Promise<string> => {
     if (certificateId) return certificateId;
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('certificates')
       .select('id')
       .eq('submission_id', submissionId)
       .maybeSingle();
+    if (existingError) throw existingError;
     if (existing) {
       setCertificateId(existing.id);
       return existing.id;
@@ -132,6 +133,7 @@ export function CertificateGenerator({
         await generateQrDataUrl(id);
       } catch (err) {
         console.error('QR pre-generation failed:', err);
+        toast.error('Could not prepare verification QR. Please try downloading again.');
       }
     })();
     return () => { cancelled = true; };
@@ -231,7 +233,7 @@ export function CertificateGenerator({
       savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
-      toast.error('Could not generate certificate. See console for details.');
+      toast.error('Could not generate certificate QR. Please refresh and try again.');
     } finally {
       setIsGenerating(false);
     }
