@@ -196,10 +196,10 @@ export function CertificateGenerator({
    * is committed to the DOM and fully decoded before the snapshot is taken.
    */
   const paintQrImageOntoExport = async (canvas: HTMLCanvasElement, qrDataUrl: string, certId: string) => {
-    if (!certificateRef.current || !qrDataUrl) return;
+    if (!certificateRef.current || !qrDataUrl) throw new Error('QR export unavailable');
     const anchor = certificateRef.current.querySelector('[data-qr-anchor]') as HTMLElement | null;
     const ctx = canvas.getContext('2d');
-    if (!anchor || !ctx) return;
+    if (!anchor || !ctx) throw new Error('QR anchor missing in certificate');
 
     const rootRect = certificateRef.current.getBoundingClientRect();
     const anchorRect = anchor.getBoundingClientRect();
@@ -221,7 +221,12 @@ export function CertificateGenerator({
       if ((sample[i] + sample[i + 1] + sample[i + 2]) / 3 < 90) darkPixels += 1;
     }
 
-    if (darkPixels < 1000) throw new Error('QR export verification failed');
+    // Final export-time validation: ensure QR area actually contains a scannable pattern.
+    const totalPixels = sample.length / 4;
+    const darkRatio = darkPixels / Math.max(totalPixels, 1);
+    if (darkPixels < 1000 || darkRatio < 0.08) {
+      throw new Error(`QR_BLANK: dark=${darkPixels} ratio=${darkRatio.toFixed(3)}`);
+    }
   };
 
   const renderCertificateCanvas = async (): Promise<{ canvas: HTMLCanvasElement; certId: string }> => {
@@ -263,7 +268,12 @@ export function CertificateGenerator({
       savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
-      toast.error('Could not generate certificate QR. Please refresh and try again.');
+      const msg = error instanceof Error ? error.message : '';
+      if (msg.startsWith('QR_BLANK')) {
+        toast.error('Download blocked: verification QR did not render on the certificate. Please refresh the page and try again.');
+      } else {
+        toast.error('Could not generate certificate. Please refresh and try again.');
+      }
     } finally {
       setIsGenerating(false);
     }
