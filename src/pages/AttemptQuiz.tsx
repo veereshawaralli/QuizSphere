@@ -556,7 +556,6 @@ export default function AttemptQuiz() {
                   )}
                   <CertificateGenerator
                     studentName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student'}
-                    studentUsn={studentUsn}
                     quizTitle={quiz.title}
                     score={score || 0}
                     totalMarks={totalMarks || 0}
