@@ -298,6 +298,11 @@ export function CertificateGenerator({
                 <div style={{ width: '96px', height: '96px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '2px' }} />
               )}
               <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Scan to verify</p>
+              {certificateId && (
+                <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#f5d67a', letterSpacing: '2px', fontFamily: "'Courier New', monospace", wordBreak: 'break-all', maxWidth: '160px' }}>
+                  ID: {certificateId}
+                </p>
+              )}
             </div>
           </div>
 
