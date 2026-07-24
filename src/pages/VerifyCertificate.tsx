@@ -15,6 +15,8 @@ interface Certificate {
   total_marks: number;
   percentage: number;
   issued_at: string;
+  rank: number | null;
+  total_participants: number | null;
 }
 
 export default function VerifyCertificate() {
@@ -94,6 +96,14 @@ export default function VerifyCertificate() {
                 <Row label="Quiz" value={certificate.quiz_title} />
                 <Row label="Score" value={`${certificate.score} / ${certificate.total_marks}`} />
                 <Row label="Percentage" value={`${certificate.percentage}%`} />
+                <Row
+                  label="Rank"
+                  value={
+                    certificate.rank && certificate.total_participants
+                      ? `#${certificate.rank} of ${certificate.total_participants}`
+                      : '—'
+                  }
+                />
                 <Row label="Issued On" value={format(new Date(certificate.issued_at), 'MMMM do, yyyy')} />
               </div>
               <p className="mt-4 text-center font-mono text-[11px] text-muted-foreground">
