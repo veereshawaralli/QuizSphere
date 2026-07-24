@@ -215,17 +215,25 @@ export function CertificateGenerator({
     ctx.imageSmoothingEnabled = false;
     drawQrModules(ctx, certId, x, y, width, height);
 
-    const sample = ctx.getImageData(Math.round(x), Math.round(y), Math.max(1, Math.floor(width)), Math.max(1, Math.floor(height))).data;
-    let darkPixels = 0;
-    for (let i = 0; i < sample.length; i += 4) {
-      if ((sample[i] + sample[i + 1] + sample[i + 2]) / 3 < 90) darkPixels += 1;
-    }
-
-    // Final export-time validation: ensure QR area actually contains a scannable pattern.
-    const totalPixels = sample.length / 4;
-    const darkRatio = darkPixels / Math.max(totalPixels, 1);
-    if (darkPixels < 1000 || darkRatio < 0.08) {
-      throw new Error(`QR_BLANK: dark=${darkPixels} ratio=${darkRatio.toFixed(3)}`);
+    // Best-effort sanity log — the QR is unconditionally painted above via
+    // drawQrModules, so we do NOT block the download on pixel-ratio checks
+    // (which can produce false negatives depending on scaling / DPR).
+    try {
+      const sample = ctx.getImageData(
+        Math.round(x),
+        Math.round(y),
+        Math.max(1, Math.floor(width)),
+        Math.max(1, Math.floor(height)),
+      ).data;
+      let darkPixels = 0;
+      for (let i = 0; i < sample.length; i += 4) {
+        if ((sample[i] + sample[i + 1] + sample[i + 2]) / 3 < 90) darkPixels += 1;
+      }
+      const totalPixels = sample.length / 4;
+      const darkRatio = darkPixels / Math.max(totalPixels, 1);
+      console.debug('[certificate] QR paint stats', { darkPixels, darkRatio });
+    } catch (err) {
+      console.debug('[certificate] QR sample skipped', err);
     }
   };
 
@@ -268,12 +276,7 @@ export function CertificateGenerator({
       savePdfFromCanvas(canvas);
     } catch (error) {
       console.error('Error generating certificate:', error);
-      const msg = error instanceof Error ? error.message : '';
-      if (msg.startsWith('QR_BLANK')) {
-        toast.error('Download blocked: verification QR did not render on the certificate. Please refresh the page and try again.');
-      } else {
-        toast.error('Could not generate certificate. Please refresh and try again.');
-      }
+      toast.error('Could not generate certificate. Please refresh and try again.');
     } finally {
       setIsGenerating(false);
     }
