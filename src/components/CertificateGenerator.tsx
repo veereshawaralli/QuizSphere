@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -35,8 +35,6 @@ export function CertificateGenerator({
   studentId,
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
-  const lastPaintedQrRef = useRef<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
@@ -74,10 +72,31 @@ export function CertificateGenerator({
     []
   );
 
-  const paintQrOnCanvasElement = useCallback((canvas: HTMLCanvasElement, id: string) => {
+  const qrMatrix = useMemo(() => {
+    if (!certificateId) return null;
+    const qr = QRCode.create(buildVerificationUrl(certificateId), { errorCorrectionLevel: 'H' });
+    const moduleCount = qr.modules.size;
+    const darkModules: Array<{ row: number; col: number }> = [];
+    for (let row = 0; row < moduleCount; row += 1) {
+      for (let col = 0; col < moduleCount; col += 1) {
+        if (qr.modules.data[row * moduleCount + col]) darkModules.push({ row, col });
+      }
+    }
+    return { moduleCount, darkModules, quietZone: 4 };
+  }, [certificateId, buildVerificationUrl]);
+
+  const createQrDataUrl = useCallback(async (id: string) => {
+    return QRCode.toDataURL(buildVerificationUrl(id), {
+      errorCorrectionLevel: 'H',
+      margin: 2,
+      width: 512,
+      color: { dark: '#07111F', light: '#FFFFFF' },
+    });
+  }, [buildVerificationUrl]);
+
+  const paintQrOnStandaloneCanvas = useCallback((canvas: HTMLCanvasElement, id: string) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('QR canvas unavailable');
-
     const qr = QRCode.create(buildVerificationUrl(id), { errorCorrectionLevel: 'H' });
     const modules = qr.modules;
     const moduleCount = modules.size;
@@ -139,20 +158,11 @@ export function CertificateGenerator({
   // a fallback source for final PDF painting.
   const generateQrDataUrl = useCallback(
     async (id: string) => {
-      if (qrCanvasRef.current && lastPaintedQrRef.current !== id) {
-        paintQrOnCanvasElement(qrCanvasRef.current, id);
-        lastPaintedQrRef.current = id;
-      }
-      const url = await QRCode.toDataURL(buildVerificationUrl(id), {
-        errorCorrectionLevel: 'H',
-        margin: 2,
-        width: 512,
-        color: { dark: '#07111F', light: '#FFFFFF' },
-      });
+      const url = await createQrDataUrl(id);
       setQrImageUrl(url);
       return url;
     },
-    [buildVerificationUrl, paintQrOnCanvasElement],
+    [createQrDataUrl],
   );
 
   const getOrCreateCertificate = useCallback(async (): Promise<string> => {
