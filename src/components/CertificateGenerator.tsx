@@ -161,24 +161,25 @@ export function CertificateGenerator({
           left: '-9999px',
           width: '1056px',
           height: '816px',
-          padding: '28px',
+          padding: '24px',
           boxSizing: 'border-box',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'flex-start',
           fontFamily: "'Sora', 'Manrope', sans-serif",
           background:
-            'radial-gradient(1200px 700px at 15% 10%, rgba(139,92,246,0.22), transparent 60%), radial-gradient(1000px 600px at 85% 90%, rgba(34,211,238,0.18), transparent 60%), linear-gradient(135deg, #05060a 0%, #0b0f1c 50%, #05060a 100%)',
-          color: '#e6edf7',
+            'radial-gradient(1400px 800px at 50% 0%, #142033 0%, transparent 55%), radial-gradient(900px 600px at 10% 100%, rgba(212,175,55,0.10), transparent 60%), linear-gradient(160deg, #060912 0%, #0a1428 55%, #060912 100%)',
+          color: '#f1e9d2',
           zIndex: -1,
         }}
       >
         <div
           style={{
-            border: '1px solid rgba(139,92,246,0.35)',
-            boxShadow: 'inset 0 0 0 1px rgba(34,211,238,0.15), 0 0 60px rgba(139,92,246,0.25)',
-            borderRadius: '18px',
-            padding: '36px 44px',
+            border: '1px solid rgba(212,175,55,0.55)',
+            boxShadow:
+              'inset 0 0 0 1px rgba(212,175,55,0.15), inset 0 0 0 10px rgba(255,255,255,0.02), 0 0 80px rgba(212,175,55,0.12)',
+            borderRadius: '2px',
+            padding: '40px 56px',
             width: '100%',
             height: '100%',
             display: 'flex',
@@ -186,12 +187,37 @@ export function CertificateGenerator({
             alignItems: 'center',
             justifyContent: 'space-between',
             background:
-              'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+              'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)',
             boxSizing: 'border-box',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
+          {/* Corner ornaments */}
+          {[
+            { top: 14, left: 14, br: '2px 0 0 0' },
+            { top: 14, right: 14, br: '0 2px 0 0' },
+            { bottom: 14, left: 14, br: '0 0 0 2px' },
+            { bottom: 14, right: 14, br: '0 0 2px 0' },
+          ].map((s, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                width: '48px',
+                height: '48px',
+                border: '1px solid rgba(212,175,55,0.7)',
+                borderRadius: s.br,
+                borderTop: (s as any).top !== undefined ? '1px solid rgba(212,175,55,0.7)' : 'none',
+                borderBottom: (s as any).bottom !== undefined ? '1px solid rgba(212,175,55,0.7)' : 'none',
+                borderLeft: (s as any).left !== undefined ? '1px solid rgba(212,175,55,0.7)' : 'none',
+                borderRight: (s as any).right !== undefined ? '1px solid rgba(212,175,55,0.7)' : 'none',
+                zIndex: 2,
+                ...s,
+              }}
+            />
+          ))}
+
           {/* Watermark logo */}
           <img
             src={logoDataUrl || universityLogo}
@@ -201,73 +227,77 @@ export function CertificateGenerator({
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '520px',
-              height: '520px',
+              width: '560px',
+              height: '560px',
               objectFit: 'contain',
-              opacity: 0.06,
-              filter: 'grayscale(1) brightness(2)',
+              opacity: 0.07,
+              filter: 'sepia(1) saturate(4) hue-rotate(0deg) brightness(1.1)',
               pointerEvents: 'none',
               zIndex: 0,
             }}
           />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
-            <img src={logoDataUrl || universityLogo} alt="University Logo" style={{ height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(139,92,246,0.5))' }} />
+            <img src={logoDataUrl || universityLogo} alt="University Logo" style={{ height: '84px', objectFit: 'contain', filter: 'drop-shadow(0 0 14px rgba(212,175,55,0.55))' }} />
             <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontFamily: "'Playfair Display', 'Sora', serif", fontSize: '34px', margin: 0, fontWeight: 700, letterSpacing: '1px', background: 'linear-gradient(90deg,#a78bfa,#22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Sharnbasva University</h1>
-              <h2 style={{ fontSize: '18px', color: '#c7d2fe', margin: '4px 0 0 0', fontWeight: 500 }}>Faculty of Engineering & Technology</h2>
-              <p style={{ fontSize: '14px', color: '#94a3b8', margin: '4px 0 0 0', letterSpacing: '2px', textTransform: 'uppercase' }}>Department of Computer Science & Design</p>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '36px', margin: 0, fontWeight: 700, letterSpacing: '2px', background: 'linear-gradient(90deg,#f5d67a,#d4af37,#b8860b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Sharnbasva University</h1>
+              <h2 style={{ fontSize: '17px', color: '#e8dcb0', margin: '4px 0 0 0', fontWeight: 400, fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>Faculty of Engineering & Technology</h2>
+              <p style={{ fontSize: '12px', color: '#a89968', margin: '6px 0 0 0', letterSpacing: '4px', textTransform: 'uppercase' }}>Department of Computer Science & Design</p>
             </div>
           </div>
 
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '46px', color: '#f8fafc', margin: '8px 0', letterSpacing: '10px', paddingBottom: '10px', position: 'relative', zIndex: 1, fontStyle: 'italic', fontWeight: 500 }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '52px', color: '#faf5e6', margin: '4px 0', letterSpacing: '12px', paddingBottom: '6px', position: 'relative', zIndex: 1, fontStyle: 'italic', fontWeight: 500, textShadow: '0 2px 20px rgba(212,175,55,0.25)' }}>
             Certificate of Completion
           </h1>
-          <div style={{ width: '160px', height: '1px', background: 'linear-gradient(90deg, transparent, #22d3ee, transparent)', margin: '-4px 0 4px', position: 'relative', zIndex: 1 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '-2px 0 4px', position: 'relative', zIndex: 1 }}>
+            <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, #d4af37)' }} />
+            <div style={{ width: '6px', height: '6px', background: '#d4af37', transform: 'rotate(45deg)' }} />
+            <div style={{ width: '120px', height: '1px', background: 'linear-gradient(90deg, #d4af37, transparent)' }} />
+          </div>
 
-          <p style={{ fontSize: '16px', color: '#94a3b8', margin: '8px 0', letterSpacing: '4px', textTransform: 'uppercase', position: 'relative', zIndex: 1 }}>
+          <p style={{ fontSize: '14px', color: '#a89968', margin: '6px 0', letterSpacing: '6px', textTransform: 'uppercase', position: 'relative', zIndex: 1 }}>
             This is to certify that
           </p>
 
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '44px', margin: '4px 0', fontStyle: 'italic', fontWeight: 700, background: 'linear-gradient(90deg,#e9d5ff,#67e8f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', position: 'relative', zIndex: 1 }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '48px', margin: '2px 0', fontStyle: 'italic', fontWeight: 700, color: '#faf5e6', position: 'relative', zIndex: 1, textShadow: '0 2px 24px rgba(212,175,55,0.35)' }}>
             {studentName}
           </h2>
 
-          <p style={{ fontSize: '17px', color: '#cbd5e1', margin: '6px 0', textAlign: 'center', maxWidth: '800px', position: 'relative', zIndex: 1 }}>
+          <p style={{ fontSize: '16px', color: '#d9cfa8', margin: '6px 0', textAlign: 'center', maxWidth: '800px', position: 'relative', zIndex: 1, fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>
             has successfully completed the assessment for
             <br />
-            <strong style={{ color: '#f8fafc', fontSize: '26px', display: 'inline-block', marginTop: '8px', fontFamily: "'Playfair Display', serif", fontWeight: 600 }}>{quizTitle}</strong>
+            <strong style={{ color: '#f5d67a', fontSize: '28px', display: 'inline-block', marginTop: '8px', fontFamily: "'Playfair Display', serif", fontWeight: 600, fontStyle: 'normal', letterSpacing: '1px' }}>{quizTitle}</strong>
           </p>
 
-          <div style={{ display: 'flex', gap: '40px', margin: '10px 0 0', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.25)', padding: '14px 40px', borderRadius: '12px', position: 'relative', zIndex: 1, backdropFilter: 'blur(6px)' }}>
+          <div style={{ display: 'flex', gap: '40px', margin: '10px 0 0', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.35)', padding: '14px 44px', borderRadius: '2px', position: 'relative', zIndex: 1 }}>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '3px' }}>Score</p>
-              <p style={{ margin: '6px 0 0 0', fontSize: '26px', fontWeight: 700, color: '#e9d5ff' }}>{score} / {totalMarks}</p>
+              <p style={{ margin: 0, fontSize: '11px', color: '#a89968', textTransform: 'uppercase', letterSpacing: '4px' }}>Score</p>
+              <p style={{ margin: '6px 0 0 0', fontSize: '28px', fontWeight: 700, color: '#f5d67a', fontFamily: "'Playfair Display', serif" }}>{score} / {totalMarks}</p>
             </div>
-            <div style={{ width: '1px', background: 'linear-gradient(180deg, transparent, rgba(34,211,238,0.5), transparent)' }} />
+            <div style={{ width: '1px', background: 'linear-gradient(180deg, transparent, rgba(212,175,55,0.6), transparent)' }} />
             <div style={{ textAlign: 'center' }}>
-              <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '3px' }}>Percentage</p>
-              <p style={{ margin: '6px 0 0 0', fontSize: '26px', fontWeight: 700, color: '#67e8f9' }}>{percentage}%</p>
+              <p style={{ margin: 0, fontSize: '11px', color: '#a89968', textTransform: 'uppercase', letterSpacing: '4px' }}>Percentage</p>
+              <p style={{ margin: '6px 0 0 0', fontSize: '28px', fontWeight: 700, color: '#f5d67a', fontFamily: "'Playfair Display', serif" }}>{percentage}%</p>
             </div>
           </div>
 
           {/* Date + QR row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid rgba(148,163,184,0.2)', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', width: '100%', marginTop: '16px', padding: '14px 20px 0', borderTop: '1px solid rgba(212,175,55,0.25)', position: 'relative', zIndex: 1 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ borderBottom: '1px solid rgba(148,163,184,0.4)', width: '220px', marginBottom: '8px', paddingBottom: '6px', fontSize: '16px', color: '#e2e8f0', fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>
+              <div style={{ borderBottom: '1px solid rgba(212,175,55,0.5)', width: '220px', marginBottom: '8px', paddingBottom: '6px', fontSize: '17px', color: '#f1e9d2', fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>
                 {format(date, 'MMMM do, yyyy')}
               </div>
-              <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', letterSpacing: '3px', textTransform: 'uppercase' }}>Date of Completion</p>
+              <p style={{ margin: 0, fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Date of Completion</p>
             </div>
 
             {/* QR Code for verification */}
             <div style={{ textAlign: 'center' }}>
               {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '96px', height: '96px', padding: '6px', background: '#fff', borderRadius: '8px', boxShadow: '0 0 20px rgba(34,211,238,0.35)' }} />
+                <img src={qrDataUrl} alt="Verify QR" style={{ width: '96px', height: '96px', padding: '6px', background: '#faf5e6', borderRadius: '2px', border: '1px solid rgba(212,175,55,0.5)', boxShadow: '0 0 24px rgba(212,175,55,0.3)' }} />
               ) : (
-                <div style={{ width: '96px', height: '96px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px' }} />
+                <div style={{ width: '96px', height: '96px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '2px' }} />
               )}
-              <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#94a3b8', letterSpacing: '3px', textTransform: 'uppercase' }}>Scan to verify</p>
+              <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Scan to verify</p>
             </div>
           </div>
 
