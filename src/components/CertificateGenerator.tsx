@@ -240,7 +240,7 @@ export function CertificateGenerator({
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
             <img src={logoDataUrl || universityLogo} alt="University Logo" style={{ height: '84px', objectFit: 'contain', filter: 'drop-shadow(0 0 14px rgba(212,175,55,0.55))' }} />
             <div style={{ textAlign: 'center' }}>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '36px', margin: 0, fontWeight: 700, letterSpacing: '2px', background: 'linear-gradient(90deg,#f5d67a,#d4af37,#b8860b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Sharnbasva University</h1>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '36px', margin: 0, fontWeight: 700, letterSpacing: '2px', color: '#faf5e6' }}>Sharnbasva University</h1>
               <h2 style={{ fontSize: '17px', color: '#e8dcb0', margin: '4px 0 0 0', fontWeight: 400, fontFamily: "'Playfair Display', serif", fontStyle: 'italic' }}>Faculty of Engineering & Technology</h2>
               <p style={{ fontSize: '12px', color: '#a89968', margin: '6px 0 0 0', letterSpacing: '4px', textTransform: 'uppercase' }}>Department of Computer Science & Design</p>
             </div>
