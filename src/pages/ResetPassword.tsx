@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { authErrorMessage, supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -73,7 +73,7 @@ export default function ResetPassword() {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to reset password.',
+        description: authErrorMessage(error, 'Failed to reset password.'),
         variant: 'destructive',
       });
     } finally {
