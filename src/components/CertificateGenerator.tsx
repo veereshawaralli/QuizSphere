@@ -38,7 +38,6 @@ export function CertificateGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
-  const [qrImageUrl, setQrImageUrl] = useState<string>('');
 
   const eligible = percentage >= 70;
 
@@ -123,14 +122,10 @@ export function CertificateGenerator({
     }
   }, [buildVerificationUrl]);
 
-  // Generate a QR PNG data URL and also paint the exact same QR into a canvas.
-  // The canvas makes the on-certificate QR visible; the data URL is retained as
-  // a fallback source for final PDF painting.
+  // Build the same QR payload used by the on-certificate DOM QR and final PDF painting.
   const generateQrDataUrl = useCallback(
     async (id: string) => {
-      const url = await createQrDataUrl(id);
-      setQrImageUrl(url);
-      return url;
+      return createQrDataUrl(id);
     },
     [createQrDataUrl],
   );
@@ -234,8 +229,7 @@ export function CertificateGenerator({
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
     const qrDataUrl = await generateQrDataUrl(certId);
-    // Let React flush qrImageUrl into the DOM, then wait two animation frames
-    // so the <img> has time to mount before html2canvas snapshots.
+    // Let React flush the DOM QR into the off-screen certificate before snapshotting.
     await new Promise((r) => setTimeout(r, 60));
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await waitForCertificateImages(certificateRef.current);
