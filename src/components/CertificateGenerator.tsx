@@ -87,36 +87,12 @@ export function CertificateGenerator({
   const getOrCreateCertificate = async (): Promise<string> => {
     if (certificateId) return certificateId;
 
-    // Check again in case of race condition
-    const { data: existing } = await supabase
-      .from('certificates')
-      .select('id')
-      .eq('submission_id', submissionId)
-      .maybeSingle();
-
-    if (existing) {
-      setCertificateId(existing.id);
-      return existing.id;
-    }
-
-    const { data: newCert, error } = await supabase
-      .from('certificates')
-      .insert({
-        student_id: studentId,
-        submission_id: submissionId,
-        quiz_id: quizId,
-        student_name: studentName,
-        quiz_title: quizTitle,
-        score,
-        total_marks: totalMarks,
-        percentage,
-      })
-      .select('id')
-      .single();
-
-    if (error || !newCert) throw error || new Error('Failed to create certificate');
-    setCertificateId(newCert.id);
-    return newCert.id;
+    const { data, error } = await supabase.functions.invoke('ensure-certificate', {
+      body: { submissionId, quizId, studentName, quizTitle },
+    });
+    if (error || !data?.certificateId) throw error || new Error('Failed to create certificate');
+    setCertificateId(data.certificateId);
+    return data.certificateId;
   };
 
   const handleDownload = async () => {
