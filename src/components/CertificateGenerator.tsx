@@ -290,16 +290,16 @@ export function CertificateGenerator({
               <p style={{ margin: 0, fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Date of Completion</p>
             </div>
 
-            {/* QR Code for verification */}
-            <div style={{ textAlign: 'center' }}>
+            {/* QR Code for verification - centered column */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: '6px', minWidth: '160px' }}>
               {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Verify QR" style={{ width: '96px', height: '96px', padding: '6px', background: '#faf5e6', borderRadius: '2px', border: '1px solid rgba(212,175,55,0.5)', boxShadow: '0 0 24px rgba(212,175,55,0.3)' }} />
+                <img src={qrDataUrl} alt="Verify QR" style={{ width: '96px', height: '96px', padding: '6px', background: '#faf5e6', borderRadius: '2px', border: '1px solid rgba(212,175,55,0.5)', boxShadow: '0 0 24px rgba(212,175,55,0.3)', display: 'block' }} />
               ) : (
                 <div style={{ width: '96px', height: '96px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '2px' }} />
               )}
-              <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Scan to verify</p>
+              <p style={{ margin: 0, fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Scan to verify</p>
               {certificateId && (
-                <p style={{ margin: '6px 0 0 0', fontSize: '9px', color: '#f5d67a', letterSpacing: '1px', fontFamily: "'Courier New', monospace", whiteSpace: 'nowrap' }}>
+                <p style={{ margin: 0, fontSize: '9px', color: '#f5d67a', letterSpacing: '1px', fontFamily: "'Courier New', monospace", whiteSpace: 'nowrap', textAlign: 'center' }}>
                   ID: {certificateId}
                 </p>
               )}
