@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { authErrorMessage, supabase } from '@/lib/supabase';
 import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -98,7 +98,7 @@ export default function Login() {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'Something went wrong.',
+        description: authErrorMessage(error),
         variant: 'destructive',
       });
     } finally {
