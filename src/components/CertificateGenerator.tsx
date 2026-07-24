@@ -299,7 +299,7 @@ export function CertificateGenerator({
               )}
               <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#a89968', letterSpacing: '4px', textTransform: 'uppercase' }}>Scan to verify</p>
               {certificateId && (
-                <p style={{ margin: '6px 0 0 0', fontSize: '10px', color: '#f5d67a', letterSpacing: '2px', fontFamily: "'Courier New', monospace", wordBreak: 'break-all', maxWidth: '160px' }}>
+                <p style={{ margin: '6px 0 0 0', fontSize: '9px', color: '#f5d67a', letterSpacing: '1px', fontFamily: "'Courier New', monospace", whiteSpace: 'nowrap' }}>
                   ID: {certificateId}
                 </p>
               )}
