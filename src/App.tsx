@@ -18,6 +18,7 @@ import Results from "./pages/Results";
 import Materials from "./pages/Materials";
 import AdminPanel from "./pages/AdminPanel";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import VerifyLookup from "./pages/VerifyLookup";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/results" element={<Results />} />
               <Route path="/materials" element={<Materials />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/verify" element={<VerifyLookup />} />
               <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/email-verified" element={<EmailVerified />} />
