@@ -229,36 +229,23 @@ export function CertificateGenerator({
     }
   };
 
-  // Modern Obsidian Credential palette — premium digital-first certificate.
-  const canvasBg = '#08111F';
-  const panel = '#0D1728';
-  const panelSoft = '#111D31';
-  const ink = '#F8FBFF';
-  const inkSoft = '#C9D5E8';
-  const muted = '#7E8EA8';
+  // Modern "Aurora Credential" palette — clean, premium, digital-first.
+  const canvasBg = '#0A1220';
+  const ink = '#F5F9FF';
+  const inkSoft = '#CBD5E8';
+  const muted = '#8493AE';
   const line = 'rgba(190, 211, 255, 0.22)';
   const cyan = '#22D3EE';
-  const violet = '#8B5CF6';
+  const violet = '#A78BFA';
   const emerald = '#34D399';
   const amber = '#F4C76A';
 
-  const issueNo = (submissionId || '').replace(/-/g, '').slice(0, 8).toUpperCase() || '————————';
-  const yearMark = format(date, 'yyyy');
+  const issueNo = (submissionId || '').replace(/-/g, '').slice(0, 10).toUpperCase() || '——————————';
   const standing =
     percentage >= 90 ? 'Distinction' :
     percentage >= 80 ? 'First Class' :
     'Pass with Merit';
   const verifyShortId = (certificateId || submissionId || '').slice(0, 8).toUpperCase();
-  const romanYear = (() => {
-    const n = date.getFullYear();
-    const map: [number, string][] = [
-      [1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],
-      [50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I'],
-    ];
-    let v = n, out = '';
-    for (const [num, sym] of map) { while (v >= num) { out += sym; v -= num; } }
-    return out;
-  })();
 
   return (
     <>
@@ -277,8 +264,8 @@ export function CertificateGenerator({
           position: 'fixed',
           top: '-9999px',
           left: '-9999px',
-          width: '1056px',
-          height: '816px',
+          width: '1123px',
+          height: '794px',
           backgroundColor: canvasBg,
           boxSizing: 'border-box',
           flexDirection: 'column',
@@ -290,325 +277,228 @@ export function CertificateGenerator({
           padding: '0',
         }}
       >
-        {/* Ambient certificate surface */}
-        <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 18% 12%, rgba(34, 211, 238, 0.24), transparent 30%), radial-gradient(circle at 82% 18%, rgba(139, 92, 246, 0.28), transparent 34%), linear-gradient(135deg, ${canvasBg}, #0B1020 48%, #071322)` }} />
-        <div style={{ position: 'absolute', inset: '34px', border: `1px solid ${line}`, borderRadius: '28px', background: 'rgba(13, 23, 40, 0.72)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)' }} />
-        <div style={{ position: 'absolute', left: '58px', right: '58px', top: '88px', height: '1px', background: `linear-gradient(90deg, transparent, ${cyan}, ${violet}, transparent)` }} />
-        <div style={{ position: 'absolute', left: '58px', right: '58px', bottom: '88px', height: '1px', background: `linear-gradient(90deg, transparent, ${violet}, ${cyan}, transparent)` }} />
+        {/* Ambient background */}
+        <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(1000px 500px at 12% -10%, rgba(34, 211, 238, 0.28), transparent 55%), radial-gradient(900px 500px at 105% 0%, rgba(167, 139, 250, 0.32), transparent 55%), radial-gradient(700px 400px at 50% 115%, rgba(52, 211, 153, 0.18), transparent 60%), linear-gradient(135deg, ${canvasBg}, #0B1424 55%, #06101E)` }} />
 
-        {/* === MAIN CONTENT === */}
+        {/* Inner frame */}
+        <div style={{ position: 'absolute', inset: '28px', border: `1px solid ${line}`, borderRadius: '24px', background: 'rgba(11, 20, 36, 0.72)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)' }} />
+
+        {/* Corner marks */}
+        {[
+          { top: 40, left: 40 },
+          { top: 40, right: 40 },
+          { bottom: 40, left: 40 },
+          { bottom: 40, right: 40 },
+        ].map((pos, i) => (
+          <div key={i} style={{ position: 'absolute', ...pos, width: '46px', height: '46px', borderTop: pos.top !== undefined ? `2px solid ${cyan}` : 'none', borderBottom: pos.bottom !== undefined ? `2px solid ${violet}` : 'none', borderLeft: pos.left !== undefined ? `2px solid ${cyan}` : 'none', borderRight: pos.right !== undefined ? `2px solid ${violet}` : 'none', borderTopLeftRadius: pos.top !== undefined && pos.left !== undefined ? 14 : 0, borderTopRightRadius: pos.top !== undefined && pos.right !== undefined ? 14 : 0, borderBottomLeftRadius: pos.bottom !== undefined && pos.left !== undefined ? 14 : 0, borderBottomRightRadius: pos.bottom !== undefined && pos.right !== undefined ? 14 : 0, opacity: 0.85 }} />
+        ))}
+
+        {/* === HEADER: Logo + University === */}
         <div style={{
-          position: 'absolute', top: '58px', left: '58px',
-          right: '330px', bottom: '58px',
-          padding: '36px 42px 36px',
-          display: 'flex', flexDirection: 'column',
-          zIndex: 2,
+          position: 'absolute', top: '70px', left: 0, right: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              height: '62px', width: '62px',
-              borderRadius: '18px',
-              border: `1px solid ${line}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
-            }}>
-              <img
-                src={logoDataUrl || universityLogo}
-                alt="Sharnbasva University"
-                style={{ height: '42px', width: '42px', objectFit: 'contain' }}
-              />
-            </div>
-            <div style={{ lineHeight: 1.15 }}>
-              <p style={{
-                margin: 0,
-                  fontFamily: "'Sora', 'Manrope', sans-serif",
-                  fontWeight: 800, fontSize: '20px',
-                color: ink, letterSpacing: '0',
-              }}>
-                Sharnbasva University
-              </p>
-              <p style={{
-                margin: '4px 0 0',
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '8px', letterSpacing: '0.22em',
-                textTransform: 'uppercase', color: muted, fontWeight: 600,
-              }}>
-                Department of Computer Science &amp; Design · Kalaburagi
-              </p>
-            </div>
-            </div>
-            <div style={{
-              border: `1px solid rgba(52, 211, 153, 0.35)`,
-              color: emerald,
-              borderRadius: '999px',
-              padding: '8px 12px',
-              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 800,
-              background: 'rgba(52, 211, 153, 0.09)',
-            }}>
-              Verified Credential
-            </div>
+          <div style={{
+            height: '96px', width: '96px', borderRadius: '50%',
+            border: `1.5px solid ${line}`,
+            background: 'radial-gradient(circle, rgba(34, 211, 238, 0.16), rgba(167, 139, 250, 0.10) 55%, rgba(255,255,255,0.04))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 12px 40px rgba(34, 211, 238, 0.15)',
+          }}>
+            <img
+              src={logoDataUrl || universityLogo}
+              alt="Sharnbasva University"
+              style={{ height: '72px', width: '72px', objectFit: 'contain' }}
+            />
           </div>
-
-          <div style={{ marginTop: '54px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span style={{ height: '1px', width: '58px', background: `linear-gradient(90deg, ${cyan}, ${violet})` }} />
+          <h1 style={{
+            margin: '18px 0 0',
+            fontFamily: "'Sora', 'Manrope', sans-serif",
+            fontWeight: 800, fontSize: '30px', lineHeight: 1,
+            color: ink, letterSpacing: '0.01em',
+            textAlign: 'center',
+          }}>
+            Sharnbasva University
+          </h1>
+          <p style={{
+            margin: '8px 0 0',
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: '10px', letterSpacing: '0.32em',
+            textTransform: 'uppercase', color: muted, fontWeight: 700,
+          }}>
+            Department of Computer Science &amp; Design · Kalaburagi
+          </p>
+          <div style={{ marginTop: '22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ height: '1px', width: '80px', background: `linear-gradient(90deg, transparent, ${cyan})` }} />
             <span style={{
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '10px', letterSpacing: '0.36em',
+              fontSize: '11px', letterSpacing: '0.4em',
               textTransform: 'uppercase', color: cyan, fontWeight: 800,
             }}>
               Certificate of Achievement
             </span>
-          </div>
-
-          <h1 style={{
-            margin: '16px 0 0',
-            fontFamily: "'Sora', 'Manrope', sans-serif",
-            fontWeight: 800,
-            fontSize: '56px', lineHeight: 1.03,
-            color: ink, letterSpacing: '0',
-          }}>
-            Modern Academic Excellence
-          </h1>
-          <p style={{
-            margin: '14px 0 0',
-            maxWidth: '620px',
-            color: inkSoft,
-            fontSize: '15px',
-            lineHeight: 1.7,
-          }}>
-            This digital credential certifies that the recipient has successfully completed the assessment with verified performance and institutional recognition.
-          </p>
-
-          <div style={{ marginTop: '36px' }}>
-            <p style={{
-              margin: '0 0 10px',
-              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '9px', letterSpacing: '0.28em',
-              textTransform: 'uppercase', color: muted, fontWeight: 800,
-            }}>
-              Awarded to
-            </p>
-            <h2 style={{
-              margin: 0,
-              fontFamily: "'Sora', 'Manrope', sans-serif",
-              fontWeight: 800, fontSize: '52px', lineHeight: 1.08,
-              color: ink, letterSpacing: '0',
-              paddingBottom: '18px',
-              borderBottom: `1px solid ${line}`,
-            }}>
-              {studentName}
-            </h2>
-            {studentUsn && (
-              <p style={{
-                margin: '12px 0 0',
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: '10px', letterSpacing: '0.24em',
-                color: muted, textTransform: 'uppercase', fontWeight: 700,
-              }}>
-                University Seat No. <span style={{ color: cyan, fontWeight: 800 }}>{studentUsn}</span>
-              </p>
-            )}
-          </div>
-
-          <p style={{
-            margin: '24px 0 0',
-            fontSize: '14px', lineHeight: 1.75,
-            color: inkSoft, maxWidth: '610px',
-          }}>
-            Completed the academic assessment titled
-            <span style={{
-              display: 'inline',
-              fontFamily: "'Sora', sans-serif",
-              fontWeight: 800,
-              color: amber, fontSize: '14px',
-            }}> “{quizTitle}” </span>
-            and is recognised by the Department of Computer Science &amp; Design.
-          </p>
-
-          <div style={{
-            marginTop: 'auto',
-            display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '14px',
-          }}>
-            {[
-              { label: 'Score', value: `${score}`, suffix: ` / ${totalMarks}`, color: ink },
-              { label: 'Percentage', value: `${percentage}`, suffix: '%', color: cyan },
-              { label: 'Standing', value: standing, suffix: '', color: emerald },
-            ].map((cell, i) => (
-              <div key={cell.label} style={{
-                border: `1px solid ${line}`,
-                borderRadius: '18px',
-                padding: '18px',
-                background: i === 1 ? 'rgba(34, 211, 238, 0.08)' : 'rgba(255,255,255,0.045)',
-              }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '8px', letterSpacing: '0.28em',
-                  textTransform: 'uppercase', color: muted, fontWeight: 700,
-                }}>{cell.label}</p>
-                <p style={{
-                  margin: '10px 0 0',
-                  fontFamily: "'Sora', sans-serif",
-                  fontWeight: 800,
-                  fontSize: i === 2 ? '22px' : '34px',
-                  lineHeight: 1, letterSpacing: '0',
-                  color: cell.color,
-                }}>
-                  {cell.value}
-                  {cell.suffix && (
-                    <span style={{
-                      color: muted, fontSize: '16px',
-                      fontWeight: 700,
-                    }}>{cell.suffix}</span>
-                  )}
-                </p>
-              </div>
-            ))}
+            <span style={{ height: '1px', width: '80px', background: `linear-gradient(90deg, ${violet}, transparent)` }} />
           </div>
         </div>
 
-        {/* === RIGHT VERIFICATION PANEL === */}
+        {/* === STUDENT NAME === */}
         <div style={{
-          position: 'absolute', top: '58px', right: '58px', bottom: '58px',
-          width: '270px',
-          padding: '34px 28px',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'space-between',
-          borderRadius: '24px',
-          border: `1px solid ${line}`,
-          background: `linear-gradient(180deg, ${panelSoft}, ${panel})`,
-          zIndex: 3,
+          position: 'absolute', top: '310px', left: '80px', right: '80px',
+          textAlign: 'center', zIndex: 2,
         }}>
-          <div style={{ textAlign: 'center', width: '100%' }}>
+          <p style={{
+            margin: 0,
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: '10px', letterSpacing: '0.36em',
+            textTransform: 'uppercase', color: muted, fontWeight: 700,
+          }}>
+            This certificate is proudly presented to
+          </p>
+          <h2 style={{
+            margin: '18px 0 0',
+            fontFamily: "'Sora', 'Manrope', sans-serif",
+            fontWeight: 800, fontSize: '54px', lineHeight: 1.05,
+            color: ink, letterSpacing: '0',
+          }}>
+            {studentName}
+          </h2>
+          <div style={{
+            margin: '18px auto 0',
+            height: '1px', width: '360px',
+            background: `linear-gradient(90deg, transparent, ${cyan}, ${violet}, transparent)`,
+          }} />
+          {studentUsn && (
             <p style={{
-              margin: 0,
+              margin: '14px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.32em',
-              textTransform: 'uppercase', color: muted, fontWeight: 800,
+              fontSize: '11px', letterSpacing: '0.28em',
+              color: muted, textTransform: 'uppercase', fontWeight: 700,
             }}>
-              Credential Seal · {romanYear}
+              University Seat No. <span style={{ color: cyan, fontWeight: 800 }}>{studentUsn}</span>
             </p>
-            <div style={{
-              margin: '18px auto 0',
-              width: '132px', height: '132px',
-              borderRadius: '50%',
-              border: `1px solid rgba(34, 211, 238, 0.55)`,
-              position: 'relative',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'radial-gradient(circle, rgba(34, 211, 238, 0.18), rgba(139, 92, 246, 0.10) 52%, rgba(255,255,255,0.04))',
-            }}>
-              <div style={{
-                position: 'absolute', inset: '10px',
-                borderRadius: '50%',
-                border: `1px dashed rgba(255,255,255,0.28)`,
-              }} />
-              <div style={{ textAlign: 'center', lineHeight: 1 }}>
-                <p style={{
-                  margin: 0,
-                  fontFamily: "'Sora', sans-serif",
-                  fontWeight: 900,
-                  fontSize: '34px', color: ink, letterSpacing: '0',
-                }}>
-                  CSD
-                </p>
-                <p style={{
-                  margin: '6px 0 0',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: '7px', letterSpacing: '0.3em',
-                  textTransform: 'uppercase', color: cyan, fontWeight: 800,
-                }}>
-                  Seal · {yearMark}
-                </p>
-              </div>
-            </div>
-            <p style={{
-              margin: '18px 0 0',
-              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.28em',
-              textTransform: 'uppercase', color: muted, fontWeight: 800,
-            }}>
-              № {issueNo}
-            </p>
-          </div>
-
-          <div style={{ width: '100%', textAlign: 'center' }}>
-            <p style={{
-              margin: 0,
+          )}
+          <p style={{
+            margin: '22px auto 0',
+            fontSize: '14px', lineHeight: 1.75,
+            color: inkSoft, maxWidth: '760px',
+          }}>
+            for successfully completing the academic assessment
+            <span style={{
               fontFamily: "'Sora', sans-serif",
-              fontWeight: 800,
-              fontSize: '22px', color: ink, lineHeight: 1,
+              fontWeight: 800, color: amber, fontSize: '15px',
+            }}> “{quizTitle}” </span>
+            with verified performance and institutional recognition.
+          </p>
+        </div>
+
+        {/* === MARKS PANELS === */}
+        <div style={{
+          position: 'absolute', left: '90px', right: '90px', bottom: '160px',
+          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '14px',
+          zIndex: 2,
+        }}>
+          {[
+            { label: 'Subject', value: quizTitle.length > 18 ? quizTitle.slice(0, 17) + '…' : quizTitle, size: '18px', color: ink, mono: false },
+            { label: 'Score', value: `${score}/${totalMarks}`, size: '30px', color: ink, mono: false },
+            { label: 'Percentage', value: `${percentage}%`, size: '30px', color: cyan, mono: false, glow: true },
+            { label: 'Standing', value: standing, size: '20px', color: emerald, mono: false },
+          ].map((c, i) => (
+            <div key={c.label} style={{
+              border: `1px solid ${line}`,
+              borderRadius: '16px',
+              padding: '16px 16px 18px',
+              background: c.glow ? 'linear-gradient(180deg, rgba(34,211,238,0.14), rgba(34,211,238,0.04))' : 'rgba(255,255,255,0.04)',
+              boxShadow: c.glow ? '0 8px 28px rgba(34,211,238,0.18)' : 'none',
+              textAlign: 'center',
             }}>
-              CSD Portal
-            </p>
-            <div style={{
-              margin: '8px auto 0',
-              height: '1px', width: '152px', background: `linear-gradient(90deg, transparent, ${cyan}, transparent)`,
-            }} />
+              <p style={{
+                margin: 0,
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: '8px', letterSpacing: '0.3em',
+                textTransform: 'uppercase', color: muted, fontWeight: 800,
+              }}>{c.label}</p>
+              <p style={{
+                margin: '12px 0 0',
+                fontFamily: "'Sora', sans-serif",
+                fontWeight: 800,
+                fontSize: c.size, lineHeight: 1, color: c.color,
+              }}>{c.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* === FOOTER: signatory / date / QR === */}
+        <div style={{
+          position: 'absolute', left: '90px', right: '90px', bottom: '54px',
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '20px',
+          zIndex: 2,
+        }}>
+          <div style={{ textAlign: 'left', minWidth: '200px' }}>
+            <p style={{
+              margin: 0, fontFamily: "'Sora', sans-serif", fontWeight: 700,
+              fontSize: '15px', color: ink,
+            }}>{format(date, 'd MMMM yyyy')}</p>
+            <div style={{ marginTop: '6px', height: '1px', width: '150px', background: line }} />
             <p style={{
               margin: '8px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '8px', letterSpacing: '0.26em',
+              fontSize: '8px', letterSpacing: '0.28em',
               textTransform: 'uppercase', color: muted, fontWeight: 700,
-            }}>
-              Authorised Signatory
-            </p>
+            }}>Date of Issue</p>
             <p style={{
-              margin: '14px 0 0',
-              fontFamily: "'Sora', sans-serif",
-              fontWeight: 700,
-              fontSize: '13px', color: ink,
-            }}>
-              {format(date, 'd MMMM yyyy')}
-            </p>
-            <p style={{
-              margin: '4px 0 0',
+              margin: '10px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '7.5px', letterSpacing: '0.28em',
-              textTransform: 'uppercase', color: muted, fontWeight: 700,
-            }}>
-              Date of Issue
-            </p>
+              fontSize: '9px', letterSpacing: '0.2em',
+              color: muted, fontWeight: 700,
+            }}>Credential №&nbsp;<span style={{ color: inkSoft }}>{issueNo}</span></p>
           </div>
 
-          <div style={{ width: '100%', textAlign: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{
+              margin: 0, fontFamily: "'Sora', sans-serif", fontWeight: 700,
+              fontSize: '15px', color: ink,
+            }}>CSD Portal</p>
+            <div style={{ margin: '6px auto 0', height: '1px', width: '160px', background: `linear-gradient(90deg, transparent, ${cyan}, transparent)` }} />
+            <p style={{
+              margin: '8px 0 0',
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+              fontSize: '8px', letterSpacing: '0.28em',
+              textTransform: 'uppercase', color: muted, fontWeight: 700,
+            }}>Authorised Signatory</p>
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
             <div style={{
               display: 'inline-flex',
               flexDirection: 'column',
               alignItems: 'center',
-              padding: '12px',
-              border: `1px solid rgba(255,255,255,0.28)`,
+              padding: '10px',
+              border: `1px solid rgba(255,255,255,0.30)`,
               backgroundColor: '#FFFFFF',
-              borderRadius: '18px',
-              boxShadow: '0 18px 44px rgba(0,0,0,0.32)',
+              borderRadius: '14px',
+              boxShadow: '0 14px 40px rgba(0,0,0,0.32)',
             }}>
               <img
                 ref={qrImageRef}
                 data-qr-anchor
-                src={qrImageUrl || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect width=%2290%22 height=%2290%22 fill=%22%23FAF7F2%22/></svg>'}
+                src={qrImageUrl || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect width=%2290%22 height=%2290%22 fill=%22%23FFFFFF%22/></svg>'}
                 alt="Verification QR"
                 crossOrigin="anonymous"
-                style={{ width: '126px', height: '126px', display: 'block', backgroundColor: '#FFFFFF', borderRadius: '8px' }}
+                style={{ width: '108px', height: '108px', display: 'block', backgroundColor: '#FFFFFF', borderRadius: '6px' }}
               />
             </div>
             <p style={{
-              margin: '12px 0 0',
+              margin: '8px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '7.5px', letterSpacing: '0.3em',
+              fontSize: '8px', letterSpacing: '0.32em',
               textTransform: 'uppercase', color: cyan, fontWeight: 800,
-            }}>
-              Scan to Verify
-            </p>
+            }}>Scan to Verify Details</p>
             <p style={{
               margin: '4px 0 0',
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: '9px', letterSpacing: '0.12em',
+              fontSize: '9px', letterSpacing: '0.14em',
               color: inkSoft, fontWeight: 800,
-            }}>
-              ID · {verifyShortId}
-            </p>
+            }}>ID · {verifyShortId}</p>
           </div>
         </div>
       </div>
