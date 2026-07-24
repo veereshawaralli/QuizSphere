@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -35,11 +35,9 @@ export function CertificateGenerator({
   studentId,
 }: CertificateProps) {
   const certificateRef = useRef<HTMLDivElement>(null);
-  const qrImageRef = useRef<HTMLImageElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string>('');
   const [certificateId, setCertificateId] = useState<string | null>(null);
-  const [qrImageUrl, setQrImageUrl] = useState<string>('');
 
   const eligible = percentage >= 70;
 
@@ -73,21 +71,63 @@ export function CertificateGenerator({
     []
   );
 
-  // Generate a QR PNG data URL so html2canvas always captures it reliably
-  // (canvas capture can silently fail; <img src=data:...> never does).
+  const qrMatrix = useMemo(() => {
+    if (!certificateId) return null;
+    const qr = QRCode.create(buildVerificationUrl(certificateId), { errorCorrectionLevel: 'H' });
+    const moduleCount = qr.modules.size;
+    const darkModules: Array<{ row: number; col: number }> = [];
+    for (let row = 0; row < moduleCount; row += 1) {
+      for (let col = 0; col < moduleCount; col += 1) {
+        if (qr.modules.data[row * moduleCount + col]) darkModules.push({ row, col });
+      }
+    }
+    return { moduleCount, darkModules, quietZone: 4 };
+  }, [certificateId, buildVerificationUrl]);
+
+  const createQrDataUrl = useCallback(async (id: string) => {
+    return QRCode.toDataURL(buildVerificationUrl(id), {
+      errorCorrectionLevel: 'H',
+      margin: 2,
+      width: 512,
+      color: { dark: '#07111F', light: '#FFFFFF' },
+    });
+  }, [buildVerificationUrl]);
+
+  const drawQrModules = useCallback((ctx: CanvasRenderingContext2D, id: string, x: number, y: number, width: number, height: number) => {
+    const qr = QRCode.create(buildVerificationUrl(id), { errorCorrectionLevel: 'H' });
+    const modules = qr.modules;
+    const moduleCount = modules.size;
+    const quietZone = 4;
+    const cellSize = Math.floor(Math.min(width, height) / (moduleCount + quietZone * 2));
+    if (cellSize < 1) throw new Error('QR export area is too small');
+
+    const qrSize = cellSize * (moduleCount + quietZone * 2);
+    const offsetX = Math.round(x + (width - qrSize) / 2);
+    const offsetY = Math.round(y + (height - qrSize) / 2);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(x, y, width, height);
+    ctx.fillStyle = '#07111F';
+    for (let row = 0; row < moduleCount; row += 1) {
+      for (let col = 0; col < moduleCount; col += 1) {
+        if (modules.data[row * moduleCount + col]) {
+          ctx.fillRect(
+            offsetX + (col + quietZone) * cellSize,
+            offsetY + (row + quietZone) * cellSize,
+            cellSize,
+            cellSize,
+          );
+        }
+      }
+    }
+  }, [buildVerificationUrl]);
+
+  // Build the same QR payload used by the on-certificate DOM QR and final PDF painting.
   const generateQrDataUrl = useCallback(
     async (id: string) => {
-      const url = await QRCode.toDataURL(buildVerificationUrl(id), {
-        errorCorrectionLevel: 'H',
-        margin: 2,
-        width: 512,
-        color: { dark: '#07111F', light: '#FFFFFF' },
-      });
-      if (qrImageRef.current) qrImageRef.current.src = url;
-      setQrImageUrl(url);
-      return url;
+      return createQrDataUrl(id);
     },
-    [buildVerificationUrl],
+    [createQrDataUrl],
   );
 
   const getOrCreateCertificate = useCallback(async (): Promise<string> => {
@@ -155,7 +195,7 @@ export function CertificateGenerator({
    * Render the off-screen certificate to a canvas, ensuring the verification QR
    * is committed to the DOM and fully decoded before the snapshot is taken.
    */
-  const drawQrOntoCanvas = async (canvas: HTMLCanvasElement, qrDataUrl: string) => {
+  const paintQrImageOntoExport = async (canvas: HTMLCanvasElement, qrDataUrl: string, certId: string) => {
     if (!certificateRef.current || !qrDataUrl) return;
     const anchor = certificateRef.current.querySelector('[data-qr-anchor]') as HTMLElement | null;
     const ctx = canvas.getContext('2d');
@@ -170,17 +210,18 @@ export function CertificateGenerator({
     const width = anchorRect.width * scaleX;
     const height = anchorRect.height * scaleY;
 
-    const qr = new Image();
-    qr.crossOrigin = 'anonymous';
-    await new Promise<void>((resolve, reject) => {
-      qr.onload = () => resolve();
-      qr.onerror = () => reject(new Error('QR image failed to load'));
-      qr.src = qrDataUrl;
-    });
-
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(x, y, width, height);
-    ctx.drawImage(qr, x, y, width, height);
+    ctx.imageSmoothingEnabled = false;
+    drawQrModules(ctx, certId, x, y, width, height);
+
+    const sample = ctx.getImageData(Math.round(x), Math.round(y), Math.max(1, Math.floor(width)), Math.max(1, Math.floor(height))).data;
+    let darkPixels = 0;
+    for (let i = 0; i < sample.length; i += 4) {
+      if ((sample[i] + sample[i + 1] + sample[i + 2]) / 3 < 90) darkPixels += 1;
+    }
+
+    if (darkPixels < 1000) throw new Error('QR export verification failed');
   };
 
   const renderCertificateCanvas = async (): Promise<{ canvas: HTMLCanvasElement; certId: string }> => {
@@ -188,8 +229,7 @@ export function CertificateGenerator({
     await ensureLogoDataUrl();
     const certId = await getOrCreateCertificate();
     const qrDataUrl = await generateQrDataUrl(certId);
-    // Let React flush qrImageUrl into the DOM, then wait two animation frames
-    // so the <img> has time to mount before html2canvas snapshots.
+    // Let React flush the DOM QR into the off-screen certificate before snapshotting.
     await new Promise((r) => setTimeout(r, 60));
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     await waitForCertificateImages(certificateRef.current);
@@ -200,7 +240,7 @@ export function CertificateGenerator({
       logging: false,
       backgroundColor: '#08111F',
     });
-    await drawQrOntoCanvas(canvas, qrDataUrl);
+    await paintQrImageOntoExport(canvas, qrDataUrl, certId);
     return { canvas, certId };
   };
 
@@ -391,17 +431,17 @@ export function CertificateGenerator({
           </p>
         </div>
 
-        {/* === MARKS PANELS === */}
+        {/* === RESULT + VERIFICATION BLOCKS === */}
         <div style={{
-          position: 'absolute', left: '90px', right: '90px', bottom: '160px',
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '14px',
+          position: 'absolute', left: '90px', right: '90px', bottom: '170px',
+          display: 'grid', gridTemplateColumns: '1.08fr 1fr 1fr 1.08fr', gap: '14px',
           zIndex: 2,
         }}>
           {[
             { label: 'Subject', value: quizTitle.length > 18 ? quizTitle.slice(0, 17) + '…' : quizTitle, size: '18px', color: ink, mono: false },
             { label: 'Score', value: `${score}/${totalMarks}`, size: '30px', color: ink, mono: false },
             { label: 'Percentage', value: `${percentage}%`, size: '30px', color: cyan, mono: false, glow: true },
-            { label: 'Standing', value: standing, size: '20px', color: emerald, mono: false },
+            { label: 'USN', value: studentUsn || 'Verified', size: '16px', color: emerald, mono: true },
           ].map((c, i) => (
             <div key={c.label} style={{
               border: `1px solid ${line}`,
@@ -427,10 +467,10 @@ export function CertificateGenerator({
           ))}
         </div>
 
-        {/* === FOOTER: signatory / date / QR === */}
+        {/* === FOOTER: issue details / signatory / QR === */}
         <div style={{
-          position: 'absolute', left: '90px', right: '90px', bottom: '54px',
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '20px',
+          position: 'absolute', left: '90px', right: '90px', bottom: '42px',
+          display: 'grid', gridTemplateColumns: '1fr 1fr 178px', alignItems: 'end', gap: '26px',
           zIndex: 2,
         }}>
           <div style={{ textAlign: 'left', minWidth: '200px' }}>
@@ -465,27 +505,49 @@ export function CertificateGenerator({
               fontSize: '8px', letterSpacing: '0.28em',
               textTransform: 'uppercase', color: muted, fontWeight: 700,
             }}>Authorised Signatory</p>
+            <p style={{
+              margin: '10px 0 0',
+              fontFamily: "'Sora', sans-serif",
+              fontSize: '16px', lineHeight: 1, color: emerald, fontWeight: 800,
+            }}>{standing}</p>
           </div>
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', justifySelf: 'end' }}>
             <div style={{
               display: 'inline-flex',
               flexDirection: 'column',
               alignItems: 'center',
-              padding: '10px',
+              padding: '12px',
               border: `1px solid rgba(255,255,255,0.30)`,
               backgroundColor: '#FFFFFF',
-              borderRadius: '14px',
+              borderRadius: '16px',
               boxShadow: '0 14px 40px rgba(0,0,0,0.32)',
             }}>
-              <img
-                ref={qrImageRef}
+              <div
                 data-qr-anchor
-                src={qrImageUrl || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect width=%2290%22 height=%2290%22 fill=%22%23FFFFFF%22/></svg>'}
-                alt="Verification QR"
-                crossOrigin="anonymous"
-                style={{ width: '108px', height: '108px', display: 'block', backgroundColor: '#FFFFFF', borderRadius: '6px' }}
-              />
+                aria-label="Verification QR"
+                style={{
+                  width: '126px',
+                  height: '126px',
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${(qrMatrix?.moduleCount ?? 45) + (qrMatrix?.quietZone ?? 4) * 2}, 1fr)`,
+                  gridTemplateRows: `repeat(${(qrMatrix?.moduleCount ?? 45) + (qrMatrix?.quietZone ?? 4) * 2}, 1fr)`,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                }}
+              >
+                {qrMatrix?.darkModules.map((module) => (
+                  <span
+                    key={`${module.row}-${module.col}`}
+                    style={{
+                      gridColumnStart: module.col + qrMatrix.quietZone + 1,
+                      gridRowStart: module.row + qrMatrix.quietZone + 1,
+                      backgroundColor: '#07111F',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
             <p style={{
               margin: '8px 0 0',
